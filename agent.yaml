@@ -1,0 +1,56 @@
+app:
+  name: "Health & Diet Optimization Platform"
+  version: "1.0.0"
+
+layout:
+  global_header:
+    type: "MetricBar"
+    position: "persistent-top"
+    metrics:
+      - id: "daily_healthy_consumption"
+        label: "Daily Healthy Food Consumption %"
+        calculation: "Ratio of targeted clean foods (proteins/fibers) to total foods including flagged ingredients (sugar/maida)"
+      - id: "weekly_healthy_consumption"
+        label: "Weekly Healthy Food Consumption %"
+        calculation: "Rolling 7-day average of daily healthy food consumption scores"
+
+  pages:
+    - id: "page_1"
+      title: "Optimized Diet Plan"
+      route: "/diet-plan"
+      type: "Dashboard"
+      description: "Renders custom nutritional plans calculated using a multi-variable health metric engine."
+      features:
+        - reactive_metric_form
+        - scoring_engine_visualizer
+        - dynamic_meal_planner
+      inputs:
+        - waist_to_height_ratio
+        - body_fat_percentage
+        - metabolic_blood_markers
+        - body_roundness_index
+        - cholesterol_hdl_ldl
+        - active_health_issues_family_history
+        - vitamin_d_levels
+
+    - id: "page_2"
+      title: "Daily Tracker"
+      route: "/tracker"
+      type: "IntakeLog"
+      description: "Intake log interface accepting text descriptions or image file uploads to process meal metrics."
+      features:
+        - text_nlp_logger
+        - image_vision_uploader
+        - agent_a_food_parser
+        - agent_b_macro_calculator
+        - confirmation_card_ui
+
+    - id: "page_3"
+      title: "User Profile"
+      route: "/profile"
+      type: "ProfileManagement"
+      description: "Profile management view housing basic user details and a historical trend graph."
+      features:
+        - user_details_editor
+        - historical_trend_graph
+        - weekly_healthy_vs_unhealthy_summary
