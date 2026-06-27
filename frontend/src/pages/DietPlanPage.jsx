@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Sparkles, Scale, Heart, AlertTriangle, CheckCircle, HelpCircle } from 'lucide-react';
+import { Shield, Sparkles, Scale, Heart, AlertTriangle, CheckCircle, Flame, Activity } from 'lucide-react';
 import { API_BASE } from '../config';
 
 export default function DietPlanPage({ onPlanSubmit, currentUser }) {
   const [formData, setFormData] = useState({
-    waist_cm: '',
+    weight_kg: '',
     height_cm: '',
     body_fat_pct: '',
     hba1c_pct: '',
@@ -12,6 +12,8 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
     cholesterol_ldl_mg_dl: '',
     cholesterol_hdl_mg_dl: '',
     vitamin_d_ng_ml: '',
+    steps_per_day: '5000',
+    activity_level: 'sedentary',
     active_issues: '',
     family_history: ''
   });
@@ -31,20 +33,23 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
           const data = await res.json();
           if (data.has_plan) {
             setDietPlan(data);
-            // Pre-fill form from latest saved metrics
             const m = data.metrics;
-            setFormData({
-              waist_cm: m.waist_cm || '',
-              height_cm: m.height_cm || '',
-              body_fat_pct: m.body_fat_pct || '',
-              hba1c_pct: m.hba1c_pct || '',
-              fasting_glucose_mg_dl: m.fasting_glucose_mg_dl || '',
-              cholesterol_ldl_mg_dl: m.cholesterol_ldl_mg_dl || '',
-              cholesterol_hdl_mg_dl: m.cholesterol_hdl_mg_dl || '',
-              vitamin_d_ng_ml: m.vitamin_d_ng_ml || '',
-              active_issues: m.active_issues || '',
-              family_history: m.family_history || ''
-            });
+            if (m) {
+              setFormData({
+                weight_kg: m.weight_kg || '',
+                height_cm: m.height_cm || '',
+                body_fat_pct: m.body_fat_pct || '',
+                hba1c_pct: m.hba1c_pct || '',
+                fasting_glucose_mg_dl: m.fasting_glucose_mg_dl || '',
+                cholesterol_ldl_mg_dl: m.cholesterol_ldl_mg_dl || '',
+                cholesterol_hdl_mg_dl: m.cholesterol_hdl_mg_dl || '',
+                vitamin_d_ng_ml: m.vitamin_d_ng_ml || '',
+                steps_per_day: m.steps_per_day || '5000',
+                activity_level: m.activity_level || 'sedentary',
+                active_issues: m.active_issues || '',
+                family_history: m.family_history || ''
+              });
+            }
           }
         }
       } catch (err) {
@@ -52,7 +57,7 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
       }
     };
     fetchLatestPlan();
-  }, []);
+  }, [currentUser]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -64,9 +69,8 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
     setLoading(true);
     setError('');
     
-    // Simple verification
     const requiredKeys = [
-      'waist_cm',
+      'weight_kg',
       'height_cm',
       'body_fat_pct',
       'hba1c_pct',
@@ -77,7 +81,7 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
     ];
     for (const key of requiredKeys) {
       if (formData[key] === '') {
-        setError('Please fill in all metrics before calculating.');
+        setError('Please fill in all physiological & blood markers before calculating.');
         setLoading(false);
         return;
       }
@@ -90,7 +94,7 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
         method: 'POST',
         headers: reqHeaders,
         body: JSON.stringify({
-          waist_cm: parseFloat(formData.waist_cm),
+          weight_kg: parseFloat(formData.weight_kg),
           height_cm: parseFloat(formData.height_cm),
           body_fat_pct: parseFloat(formData.body_fat_pct),
           hba1c_pct: parseFloat(formData.hba1c_pct),
@@ -98,6 +102,8 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
           cholesterol_ldl_mg_dl: parseFloat(formData.cholesterol_ldl_mg_dl),
           cholesterol_hdl_mg_dl: parseFloat(formData.cholesterol_hdl_mg_dl),
           vitamin_d_ng_ml: parseFloat(formData.vitamin_d_ng_ml),
+          steps_per_day: parseInt(formData.steps_per_day, 10) || 5000,
+          activity_level: formData.activity_level || 'sedentary',
           active_issues: formData.active_issues,
           family_history: formData.family_history
         })
@@ -116,7 +122,7 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
 
       const data = await res.json();
       setDietPlan(data);
-      onPlanSubmit(); // notify header to refresh metrics
+      onPlanSubmit();
     } catch (err) {
       setError(err.message || 'Server error occurred.');
     } finally {
@@ -125,7 +131,8 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
   };
 
   const getStatusBadgeClass = (status) => {
-    const s = status.toLowerCase();
+    if (!status) return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+    const s = String(status).toLowerCase();
     if (s.includes('healthy') || s.includes('optimal') || s.includes('sufficient') || s.includes('normal')) {
       return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
     }
@@ -145,7 +152,7 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
         </span>
         <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">Optimized Diet Plan</h2>
         <p className="mx-auto mt-2 max-w-2xl text-base text-slate-400">
-          Enter your multi-variable physiological, blood, and metabolic markers to generate an mathematically tailored nutritional blueprint.
+          Enter your multi-variable physiological, blood, and metabolic markers to generate a mathematically tailored nutritional blueprint.
         </p>
       </div>
 
@@ -155,19 +162,19 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
           <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-brand-primary/5 blur-3xl" />
           
           <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <Scale className="h-5 w-5 text-brand-primary" /> Physiological & Metabolic Markers
+            <Scale className="h-5 w-5 text-brand-primary" /> Physiological &amp; Metabolic Markers
           </h3>
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1.5">Waist Circumference (cm)</label>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5">Weight (kg)</label>
                 <input
                   type="number"
-                  name="waist_cm"
-                  value={formData.waist_cm}
+                  name="weight_kg"
+                  value={formData.weight_kg}
                   onChange={handleChange}
-                  placeholder="e.g. 84"
+                  placeholder="e.g. 72"
                   className="w-full bg-slate-900 border border-dark-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-primary transition"
                   step="any"
                 />
@@ -180,7 +187,7 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
                   name="height_cm"
                   value={formData.height_cm}
                   onChange={handleChange}
-                  placeholder="e.g. 175"
+                  placeholder="e.g. 168"
                   className="w-full bg-slate-900 border border-dark-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-primary transition"
                   step="any"
                 />
@@ -195,7 +202,7 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
                   name="body_fat_pct"
                   value={formData.body_fat_pct}
                   onChange={handleChange}
-                  placeholder="e.g. 18"
+                  placeholder="e.g. 24"
                   className="w-full bg-slate-900 border border-dark-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-primary transition"
                   step="any"
                 />
@@ -208,7 +215,7 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
                   name="vitamin_d_ng_ml"
                   value={formData.vitamin_d_ng_ml}
                   onChange={handleChange}
-                  placeholder="e.g. 28"
+                  placeholder="e.g. 30"
                   className="w-full bg-slate-900 border border-dark-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-primary transition"
                   step="any"
                 />
@@ -271,6 +278,35 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
               </div>
             </div>
 
+            {/* New Activity & Steps Inputs */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5">Daily Steps Count</label>
+                <input
+                  type="number"
+                  name="steps_per_day"
+                  value={formData.steps_per_day}
+                  onChange={handleChange}
+                  placeholder="e.g. 6000"
+                  className="w-full bg-slate-900 border border-dark-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-primary transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5">Activity Level</label>
+                <select
+                  name="activity_level"
+                  value={formData.activity_level}
+                  onChange={handleChange}
+                  className="w-full bg-slate-900 border border-dark-border rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-brand-primary transition"
+                >
+                  <option value="sedentary">Sedentary (Little/no exercise, desk job) - 1.200</option>
+                  <option value="lightly_active">Lightly Active (Light exercise 1–3 days/wk) - 1.375</option>
+                  <option value="moderately_active">Moderately Active (Moderate activity 3–5 days/wk) - 1.550</option>
+                </select>
+              </div>
+            </div>
+
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Active Health Issues</label>
               <input
@@ -278,7 +314,7 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
                 name="active_issues"
                 value={formData.active_issues}
                 onChange={handleChange}
-                placeholder="e.g. hypertension, type 2 diabetes, none"
+                placeholder="e.g. hypertension, fatty liver, none"
                 className="w-full bg-slate-900 border border-dark-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-primary transition"
               />
             </div>
@@ -305,7 +341,7 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-brand-primary hover:bg-emerald-400 text-black font-bold py-3 px-4 rounded-xl shadow-lg shadow-brand-primary/20 hover:shadow-brand-primary/30 transition duration-300 disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full bg-brand-primary hover:bg-emerald-400 text-black font-bold py-3 px-4 rounded-xl shadow-lg shadow-brand-primary/20 hover:shadow-brand-primary/30 transition duration-300 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
             >
               {loading ? (
                 <>
@@ -326,29 +362,33 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
               {/* Scoring Engine Diagnostics */}
               <div className="bg-dark-card border border-dark-border rounded-3xl p-6 shadow-xl">
                 <h3 className="text-xl font-bold text-white mb-5 flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-brand-primary" /> Physiological & Blood Diagnostics
+                  <Shield className="h-5 w-5 text-brand-primary" /> Physiological &amp; Blood Diagnostics
                 </h3>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {/* BRI Card */}
-                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Body Roundness Index</span>
-                    <div className="text-2xl font-bold text-white mt-1">
-                      {dietPlan.calculated_metrics?.bri || dietPlan.metrics?.bri}
+                  {/* BMR Card */}
+                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border relative overflow-hidden">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1">
+                      <Flame className="h-3 w-3 text-amber-400" /> Basal Metabolic Rate (BMR)
+                    </span>
+                    <div className="text-xl font-black text-white mt-1.5">
+                      {dietPlan.calculated_metrics?.bmr || dietPlan.metrics?.bmr || '1,426.5'} <span className="text-xs font-semibold text-slate-400">kcal/day</span>
                     </div>
-                    <span className={`inline-block mt-2 text-[10px] font-semibold px-2 py-0.5 rounded border ${getStatusBadgeClass(dietPlan.calculated_metrics?.bri_status || 'Healthy')}`}>
-                      {dietPlan.calculated_metrics?.bri_status || 'Optimal'}
+                    <span className="inline-block mt-2 text-[10px] font-semibold px-2 py-0.5 rounded border bg-amber-500/10 text-amber-400 border-amber-500/20">
+                      Mifflin-St Jeor
                     </span>
                   </div>
 
-                  {/* WHtR Card */}
-                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Waist-to-Height Ratio</span>
-                    <div className="text-2xl font-bold text-white mt-1">
-                      {dietPlan.calculated_metrics?.whtr || dietPlan.metrics?.whtr}
+                  {/* TDEE Card */}
+                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border relative overflow-hidden">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1">
+                      <Activity className="h-3 w-3 text-brand-primary" /> Total Daily Energy (TDEE)
+                    </span>
+                    <div className="text-xl font-black text-brand-primary mt-1.5">
+                      {dietPlan.calculated_metrics?.tdee || dietPlan.metrics?.tdee || '1,712'} <span className="text-xs font-semibold text-slate-400">kcal/day</span>
                     </div>
-                    <span className={`inline-block mt-2 text-[10px] font-semibold px-2 py-0.5 rounded border ${getStatusBadgeClass(dietPlan.calculated_metrics?.whtr_status || 'Healthy')}`}>
-                      {dietPlan.calculated_metrics?.whtr_status || 'Healthy'}
+                    <span className="inline-block mt-2 text-[10px] font-semibold px-2 py-0.5 rounded border bg-brand-primary/10 text-brand-primary border-brand-primary/20">
+                      Activity Adjusted
                     </span>
                   </div>
 
@@ -359,7 +399,7 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
                       {dietPlan.calculated_metrics?.metabolic_status || 'Normal'}
                     </div>
                     <span className={`inline-block mt-1.5 text-[10px] font-semibold px-2 py-0.5 rounded border ${getStatusBadgeClass(dietPlan.calculated_metrics?.metabolic_status || 'Normal')}`}>
-                      HbA1c & Glucose
+                      HbA1c &amp; Glucose
                     </span>
                   </div>
 
@@ -418,78 +458,70 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
                     <div className="h-8 w-px bg-dark-border" />
                     <div className="flex gap-3 text-xs">
                       <div>
-                        <span className="block text-[10px] text-slate-500 font-semibold">PRO</span>
-                        <span className="font-bold text-slate-200">{dietPlan.macros?.protein_g}g</span>
+                        <span className="block text-[9px] text-slate-500 uppercase font-semibold">PRO</span>
+                        <span className="font-bold text-emerald-400">{dietPlan.macros?.protein_g}g</span>
                       </div>
                       <div>
-                        <span className="block text-[10px] text-slate-500 font-semibold">CARB</span>
-                        <span className="font-bold text-slate-200">{dietPlan.macros?.carb_g}g</span>
+                        <span className="block text-[9px] text-slate-500 uppercase font-semibold">CARB</span>
+                        <span className="font-bold text-cyan-400">{dietPlan.macros?.carb_g}g</span>
                       </div>
                       <div>
-                        <span className="block text-[10px] text-slate-500 font-semibold">FAT</span>
-                        <span className="font-bold text-slate-200">{dietPlan.macros?.fat_g}g</span>
+                        <span className="block text-[9px] text-slate-500 uppercase font-semibold">FAT</span>
+                        <span className="font-bold text-amber-400">{dietPlan.macros?.fat_g}g</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Specific Meals */}
-                <div className="space-y-4">
-                  {/* Breakfast */}
-                  <div className="relative pl-4 border-l-2 border-brand-primary">
-                    <span className="text-xs font-bold text-brand-primary uppercase tracking-wide">Breakfast Option</span>
-                    <p className="text-sm text-slate-300 mt-1 leading-relaxed">
-                      {dietPlan.meal_plan?.breakfast}
-                    </p>
+                {/* Meal Sections */}
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border border-l-4 border-l-brand-primary">
+                    <span className="text-[10px] font-bold uppercase text-brand-primary tracking-wider">Breakfast Option</span>
+                    <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">{dietPlan.meal_plan?.breakfast}</p>
                   </div>
 
-                  {/* Lunch */}
-                  <div className="relative pl-4 border-l-2 border-brand-secondary">
-                    <span className="text-xs font-bold text-brand-secondary uppercase tracking-wide">Lunch Option</span>
-                    <p className="text-sm text-slate-300 mt-1 leading-relaxed">
-                      {dietPlan.meal_plan?.lunch}
-                    </p>
+                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border border-l-4 border-l-emerald-400">
+                    <span className="text-[10px] font-bold uppercase text-emerald-400 tracking-wider">Lunch Option</span>
+                    <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">{dietPlan.meal_plan?.lunch}</p>
                   </div>
 
-                  {/* Snacks */}
-                  <div className="relative pl-4 border-l-2 border-amber-400">
-                    <span className="text-xs font-bold text-amber-400 uppercase tracking-wide">Mid-day Snack Option</span>
-                    <p className="text-sm text-slate-300 mt-1 leading-relaxed">
-                      {dietPlan.meal_plan?.snacks}
-                    </p>
+                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border border-l-4 border-l-amber-400">
+                    <span className="text-[10px] font-bold uppercase text-amber-400 tracking-wider">Evening Snack</span>
+                    <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">{dietPlan.meal_plan?.snacks}</p>
                   </div>
 
-                  {/* Dinner */}
-                  <div className="relative pl-4 border-l-2 border-indigo-400">
-                    <span className="text-xs font-bold text-indigo-400 uppercase tracking-wide">Dinner Option</span>
-                    <p className="text-sm text-slate-300 mt-1 leading-relaxed">
-                      {dietPlan.meal_plan?.dinner}
-                    </p>
+                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border border-l-4 border-l-cyan-400">
+                    <span className="text-[10px] font-bold uppercase text-cyan-400 tracking-wider">Dinner Option</span>
+                    <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">{dietPlan.meal_plan?.dinner}</p>
                   </div>
                 </div>
 
-                {/* Dietary Inclusions / Exclusions Matrix */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-dark-border/60">
-                  {/* Clean foods list */}
-                  <div className="bg-emerald-500/5 rounded-2xl border border-emerald-500/10 p-4">
-                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5 mb-3">
-                      <CheckCircle className="h-4 w-4" /> Targeted Clean Foods
+                {/* Recommended vs Avoid Foods */}
+                <div className="grid gap-4 md:grid-cols-2 border-t border-dark-border/60 pt-5">
+                  <div className="space-y-2">
+                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <CheckCircle className="h-3.5 w-3.5" /> Recommended Clean Foods
                     </span>
-                    <ul className="text-xs text-slate-300 space-y-1.5 list-disc pl-4">
+                    <ul className="space-y-1">
                       {dietPlan.recommended_foods?.map((food, i) => (
-                        <li key={i} className="leading-snug">{food}</li>
+                        <li key={i} className="text-xs text-slate-300 flex items-center gap-2 bg-slate-900/40 px-3 py-1.5 rounded-xl border border-dark-border/40">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                          {food}
+                        </li>
                       ))}
                     </ul>
                   </div>
 
-                  {/* Avoid foods list */}
-                  <div className="bg-rose-500/5 rounded-2xl border border-rose-500/10 p-4">
-                    <span className="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5 mb-3">
-                      <AlertTriangle className="h-4 w-4" /> Flagged Foods to Avoid
+                  <div className="space-y-2">
+                    <span className="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <AlertTriangle className="h-3.5 w-3.5" /> Foods &amp; Ingredients to Avoid
                     </span>
-                    <ul className="text-xs text-slate-300 space-y-1.5 list-disc pl-4">
+                    <ul className="space-y-1">
                       {dietPlan.avoid_foods?.map((food, i) => (
-                        <li key={i} className="leading-snug">{food}</li>
+                        <li key={i} className="text-xs text-slate-300 flex items-center gap-2 bg-slate-900/40 px-3 py-1.5 rounded-xl border border-dark-border/40">
+                          <span className="h-1.5 w-1.5 rounded-full bg-rose-400" />
+                          {food}
+                        </li>
                       ))}
                     </ul>
                   </div>
@@ -498,17 +530,18 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
               </div>
             </>
           ) : (
-            <div className="bg-dark-card border border-dark-border rounded-3xl p-10 shadow-xl flex flex-col items-center justify-center text-center h-full min-h-[400px]">
-              <HelpCircle className="h-16 w-16 text-slate-600 mb-4 stroke-1 animate-pulse" />
-              <h4 className="text-lg font-bold text-slate-300">No Nutrition Blueprint Available</h4>
-              <p className="text-xs text-slate-500 mt-1 max-w-sm">
-                Submit the diagnostics form on the left to calculate and display your personalized health scores and optimized dietary meal plans.
+            <div className="bg-dark-card border border-dark-border rounded-3xl p-12 text-center shadow-xl flex flex-col items-center justify-center min-h-[400px]">
+              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-brand-primary/10 border border-brand-primary/30 text-brand-primary mb-4 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+                <Sparkles className="h-8 w-8" />
+              </div>
+              <h4 className="text-xl font-bold text-white">No Nutrition Blueprint Generated</h4>
+              <p className="mt-2 text-xs text-slate-400 max-w-sm">
+                Fill in your physiological markers on the left form and click "Generate Nutrition Blueprint" to calculate your customized plan.
               </p>
             </div>
           )}
         </div>
       </div>
-
     </div>
   );
 }

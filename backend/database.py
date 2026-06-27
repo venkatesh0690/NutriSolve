@@ -46,7 +46,7 @@ class HealthMetrics(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
-    waist_cm = Column(Float, nullable=False)
+    weight_kg = Column(Float, nullable=False, default=70.0)
     height_cm = Column(Float, nullable=False)
     body_fat_pct = Column(Float, nullable=False)
     hba1c_pct = Column(Float, nullable=False)
@@ -54,12 +54,17 @@ class HealthMetrics(Base):
     cholesterol_ldl_mg_dl = Column(Float, nullable=False)
     cholesterol_hdl_mg_dl = Column(Float, nullable=False)
     vitamin_d_ng_ml = Column(Float, nullable=False)
+    steps_per_day = Column(Integer, default=5000)
+    activity_level = Column(String, default="sedentary")
     active_issues = Column(String, default="")  # comma separated
     family_history = Column(String, default="")  # comma separated
     
     # Calculated values
-    bri = Column(Float, nullable=False)
-    whtr = Column(Float, nullable=False)
+    bmr = Column(Float, nullable=False, default=1500.0)
+    tdee = Column(Float, nullable=False, default=2000.0)
+    waist_cm = Column(Float, nullable=True, default=0.0)
+    bri = Column(Float, nullable=True, default=0.0)
+    whtr = Column(Float, nullable=True, default=0.0)
     
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
@@ -137,9 +142,19 @@ def init_db():
 
             # Check columns for health_metrics
             hm_columns = [col['name'] for col in inspector.get_columns('health_metrics')]
-            if 'user_id' not in hm_columns:
-                with engine.begin() as conn:
+            with engine.begin() as conn:
+                if 'user_id' not in hm_columns:
                     conn.execute(sa.text("ALTER TABLE health_metrics ADD COLUMN user_id INTEGER"))
+                if 'weight_kg' not in hm_columns:
+                    conn.execute(sa.text("ALTER TABLE health_metrics ADD COLUMN weight_kg FLOAT DEFAULT 70.0"))
+                if 'steps_per_day' not in hm_columns:
+                    conn.execute(sa.text("ALTER TABLE health_metrics ADD COLUMN steps_per_day INTEGER DEFAULT 5000"))
+                if 'activity_level' not in hm_columns:
+                    conn.execute(sa.text("ALTER TABLE health_metrics ADD COLUMN activity_level VARCHAR DEFAULT 'sedentary'"))
+                if 'bmr' not in hm_columns:
+                    conn.execute(sa.text("ALTER TABLE health_metrics ADD COLUMN bmr FLOAT DEFAULT 1500.0"))
+                if 'tdee' not in hm_columns:
+                    conn.execute(sa.text("ALTER TABLE health_metrics ADD COLUMN tdee FLOAT DEFAULT 2000.0"))
 
             # Check columns for diet_plans
             dp_columns = [col['name'] for col in inspector.get_columns('diet_plans')]

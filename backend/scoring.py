@@ -1,59 +1,61 @@
 import math
 from typing import Dict, Any, List
 
-def calculate_bri(waist_cm: float, height_cm: float) -> float:
+def calculate_bmr(weight_kg: float, height_cm: float, age: int, sex: str) -> float:
     """
-    Calculate Body Roundness Index (BRI) using height and waist in meters.
-    BRI = 364.2 - 365.5 * sqrt(1 - ((waist / (2*pi)) / (0.5 * height))^2)
+    Calculate Basal Metabolic Rate (BMR) using the Mifflin-St Jeor equation.
+    Female: 10*w + 6.25*h - 5*a - 161
+    Male: 10*w + 6.25*h - 5*a + 5
     """
-    waist_m = waist_cm / 100.0
-    height_m = height_cm / 100.0
-    
-    val = (waist_m / (2 * math.pi)) / (0.5 * height_m)
-    val_sq = val ** 2
-    
-    if val_sq >= 1.0:
-        return 364.2  # upper bound cap to prevent negative root
-        
-    return 364.2 - 365.5 * math.sqrt(1 - val_sq)
+    if not sex or not isinstance(sex, str):
+        sex = "Male"
+    if not age or age <= 0:
+        age = 30
+    if not weight_kg or weight_kg <= 0:
+        weight_kg = 70.0
+    if not height_cm or height_cm <= 0:
+        height_cm = 170.0
 
-def compute_health_scores(metrics: Dict[str, Any], sex: str) -> Dict[str, Any]:
+    if sex.lower() == "female":
+        return (10.0 * weight_kg) + (6.25 * height_cm) - (5.0 * age) - 161.0
+    else:
+        return (10.0 * weight_kg) + (6.25 * height_cm) - (5.0 * age) + 5.0
+
+def get_activity_multiplier(activity_level: str) -> float:
+    """
+    Returns TDEE activity multiplier based on activity level.
+    """
+    if not activity_level:
+        return 1.200
+    al = str(activity_level).lower()
+    if "light" in al or "1.375" in al:
+        return 1.375
+    elif "moderate" in al or "1.55" in al:
+        return 1.550
+    return 1.200  # Sedentary default
+
+def compute_health_scores(metrics: Dict[str, Any], sex: str, age: int = 30) -> Dict[str, Any]:
     """
     Ingests raw health metrics and evaluates categories, returns status classifications.
     """
     if not sex or not isinstance(sex, str):
         sex = "Male"
-    waist = metrics["waist_cm"]
-    height = metrics["height_cm"]
-    body_fat = metrics["body_fat_pct"]
-    hba1c = metrics["hba1c_pct"]
-    glucose = metrics["fasting_glucose_mg_dl"]
-    ldl = metrics["cholesterol_ldl_mg_dl"]
-    hdl = metrics["cholesterol_hdl_mg_dl"]
-    vit_d = metrics["vitamin_d_ng_ml"]
-    
-    whtr = waist / height
-    bri = calculate_bri(waist, height)
-    
-    # 1. Waist-to-Height Ratio (WHtR)
-    whtr_status = "Healthy"
-    if whtr < 0.4:
-        whtr_status = "Extremely Slim"
-    elif 0.5 <= whtr < 0.6:
-        whtr_status = "Overweight"
-    elif whtr >= 0.6:
-        whtr_status = "Obese / High Risk"
-        
-    # 2. Body Roundness Index (BRI)
-    bri_status = "Healthy"
-    if bri < 3.0:
-        bri_status = "Low Roundness / Lean"
-    elif 5.0 < bri <= 6.9:
-        bri_status = "Moderate Roundness"
-    elif bri > 6.9:
-        bri_status = "High Roundness"
-        
-    # 3. Body Fat %
+    weight_kg = metrics.get("weight_kg", 70.0)
+    height = metrics.get("height_cm", 170.0)
+    body_fat = metrics.get("body_fat_pct", 25.0)
+    hba1c = metrics.get("hba1c_pct", 5.5)
+    glucose = metrics.get("fasting_glucose_mg_dl", 90.0)
+    ldl = metrics.get("cholesterol_ldl_mg_dl", 100.0)
+    hdl = metrics.get("cholesterol_hdl_mg_dl", 50.0)
+    vit_d = metrics.get("vitamin_d_ng_ml", 30.0)
+    steps = metrics.get("steps_per_day", 5000)
+    activity_level = metrics.get("activity_level", "sedentary")
+
+    bmr = calculate_bmr(weight_kg, height, age, sex)
+    multiplier = get_activity_multiplier(activity_level)
+    tdee = bmr * multiplier
+
+    # Body Fat %
     bf_status = "Healthy"
     if sex.lower() == "male":
         if body_fat < 8:
@@ -70,14 +72,14 @@ def compute_health_scores(metrics: Dict[str, Any], sex: str) -> Dict[str, Any]:
         elif body_fat > 39:
             bf_status = "Obese"
             
-    # 4. Metabolic Status (HbA1c & Fasting Glucose)
+    # Metabolic Status (HbA1c & Fasting Glucose)
     metabolic_status = "Normal"
     if hba1c >= 6.5 or glucose >= 126:
         metabolic_status = "Diabetic Range"
     elif 5.7 <= hba1c < 6.5 or 100 <= glucose < 126:
         metabolic_status = "Prediabetic Range"
         
-    # 5. Cholesterol Levels
+    # Cholesterol Levels
     ldl_status = "Optimal"
     if 100 <= ldl < 130:
         ldl_status = "Near Optimal"
@@ -92,7 +94,7 @@ def compute_health_scores(metrics: Dict[str, Any], sex: str) -> Dict[str, Any]:
     elif sex.lower() != "male" and hdl < 50:
         hdl_status = "Low"
         
-    # 6. Vitamin D
+    # Vitamin D
     vit_d_status = "Sufficient"
     if vit_d < 20:
         vit_d_status = "Deficient"
@@ -100,10 +102,9 @@ def compute_health_scores(metrics: Dict[str, Any], sex: str) -> Dict[str, Any]:
         vit_d_status = "Insufficient"
         
     return {
-        "whtr": whtr,
-        "whtr_status": whtr_status,
-        "bri": bri,
-        "bri_status": bri_status,
+        "bmr": bmr,
+        "tdee": tdee,
+        "activity_multiplier": multiplier,
         "body_fat_status": bf_status,
         "metabolic_status": metabolic_status,
         "ldl_status": ldl_status,
@@ -111,7 +112,7 @@ def compute_health_scores(metrics: Dict[str, Any], sex: str) -> Dict[str, Any]:
         "vit_d_status": vit_d_status
     }
 
-def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issues: str, family_history: str, weight_kg: float = 70.0) -> Dict[str, Any]:
+def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issues: str, family_history: str, weight_kg: float = 70.0, age: int = 30) -> Dict[str, Any]:
     """
     Maps health scores and active issues into the Dietary Optimization Logic Matrix.
     Outputs: calories, macro splits, recommendations, foods to avoid, and a meal plan.
@@ -119,12 +120,14 @@ def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issue
     if not sex or not isinstance(sex, str):
         sex = "Male"
     if not weight_kg or weight_kg <= 0:
-        weight_kg = 70.0
+        weight_kg = metrics.get("weight_kg", 70.0)
         
-    scores = compute_health_scores(metrics, sex)
+    scores = compute_health_scores(metrics, sex, age)
     
-    # Baseline calculations
-    base_calories = 2000.0
+    # Use TDEE as calorie anchor
+    tdee_target = scores["tdee"]
+    base_calories = tdee_target
+    
     protein_pct = 0.25
     carb_pct = 0.50
     fat_pct = 0.25
@@ -135,59 +138,53 @@ def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issue
     issues_lower = active_issues.lower() if active_issues else ""
     history_lower = family_history.lower() if family_history else ""
     
-    # 1. Adjust for Body Roundness & Overweight (BRI, WHtR, BF%)
+    # Adjust for Body Fat / Weight Management
     needs_weight_loss = (
-        scores["whtr_status"] in ["Overweight", "Obese / High Risk"] or
-        scores["bri_status"] in ["Moderate Roundness", "High Roundness"] or
-        scores["body_fat_status"] in ["Overweight", "Obese"]
+        scores["body_fat_status"] in ["Overweight", "Obese"] or
+        "weight loss" in issues_lower or
+        "obesity" in history_lower
     )
     
     if needs_weight_loss:
-        base_calories -= 350.0  # Calorie deficit
+        base_calories -= 400.0  # Safe deficit from TDEE
         protein_pct = 0.35      # High protein to preserve muscle
         carb_pct = 0.35         # Controlled carbs
         fat_pct = 0.30
         recommended_foods.extend(["Greek Yogurt", "Egg Whites", "Chia Seeds", "Cruciferous Vegetables"])
         avoid_foods.extend(["White Rice", "Maida (Refined Flour)", "Processed Snacks"])
         
-    # 2. Adjust for Metabolic Status (HbA1c & Fasting Glucose)
-    is_diabetic_risk = scores["metabolic_status"] in ["Diabetic Range", "Prediabetic Range"] or "diabetes" in issues_lower
+    # Adjust for Metabolic Status (HbA1c & Fasting Glucose)
+    is_diabetic_risk = scores["metabolic_status"] in ["Diabetic Range", "Prediabetic Range"] or "diabetic" in issues_lower or "diabetes" in issues_lower
     if is_diabetic_risk:
-        # Strict low glycemic index
         carb_pct = min(carb_pct, 0.30)
         protein_pct = max(protein_pct, 0.35)
         fat_pct = 1.0 - (carb_pct + protein_pct)
         recommended_foods.extend(["Avocado", "Quinoa", "Spinach", "Walnuts", "Cinnamon"])
         avoid_foods.extend(["Fruit Juices", "Refined Flour", "White Bread", "White Potatoes", "Honey / Maple Syrup"])
         
-    # 3. Adjust for Cholesterol (LDL / HDL)
+    # Adjust for Cholesterol
     has_cholesterol_risk = scores["ldl_status"] in ["Borderline High", "High"] or "cholesterol" in issues_lower or "heart" in history_lower
     if has_cholesterol_risk:
         fat_pct = min(fat_pct, 0.25)
-        # Re-balance other macros
         protein_pct = max(protein_pct, 0.30)
         carb_pct = 1.0 - (fat_pct + protein_pct)
-        
         recommended_foods.extend(["Oats / Oatmeal", "Olive Oil", "Salmon / Mackerel", "Flaxseeds", "Garlic"])
         avoid_foods.extend(["Butter", "Cheese", "Deep Fried Foods", "Palm Oil", "Red Meat"])
         
-    # 4. Adjust for Vitamin D
+    # Adjust for Vitamin D
     if scores["vit_d_status"] in ["Deficient", "Insufficient"]:
         recommended_foods.extend(["Vitamin D Fortified Milk", "Egg Yolks", "Mushrooms (UV exposed)", "Salmon / Sardines"])
         
-    # 5. Specific Health Issue Additions
     if "hypertension" in issues_lower or "blood pressure" in issues_lower:
         recommended_foods.extend(["Bananas (Potassium)", "Beetroot", "Celery", "Hibiscus Tea"])
         avoid_foods.extend(["High-Sodium Processed Foods", "Pickles", "Canned Soups", "Table Salt (Excess)"])
         
-    # Final cleanup of food lists (unique elements)
     recommended_foods = list(dict.fromkeys(recommended_foods))
     avoid_foods = list(dict.fromkeys(avoid_foods))
     
-    # Calculate macro targets based on body weight (g/kg) and health risk factors
-    # 1. Protein factor: baseline 1.0 g/kg. Adjust based on metabolic risk/body fat/fatty liver
+    # Calculate macro targets based on body weight (g/kg)
     protein_factor = 1.0
-    if scores["body_fat_status"] in ["Overweight", "Obese"] or scores["whtr_status"] in ["Overweight", "Obese / High Risk"]:
+    if scores["body_fat_status"] in ["Overweight", "Obese"]:
         protein_factor += 0.2
     if is_diabetic_risk:
         protein_factor += 0.3
@@ -196,10 +193,8 @@ def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issue
     if "hypertension" in issues_lower or "blood pressure" in issues_lower:
         protein_factor += 0.1
         
-    # Cap protein factor between 0.8 and 1.8 g/kg
     protein_factor = max(0.8, min(1.8, protein_factor))
     
-    # 2. Carbohydrates factor: baseline 3.0 g/kg
     carb_factor = 3.0
     if needs_weight_loss:
         carb_factor -= 0.5
@@ -208,35 +203,28 @@ def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issue
     if "fatty liver" in issues_lower:
         carb_factor -= 0.5
         
-    # Cap carb factor between 1.5 and 4.0 g/kg
     carb_factor = max(1.5, min(4.0, carb_factor))
     
-    # 3. Fats factor: baseline 0.8 g/kg
     fat_factor = 0.8
     if has_cholesterol_risk:
         fat_factor -= 0.2
     if "fatty liver" in issues_lower:
         fat_factor -= 0.1
         
-    # Cap fat factor between 0.5 and 1.2 g/kg
     fat_factor = max(0.5, min(1.2, fat_factor))
     
     p_g = int(weight_kg * protein_factor)
     c_g = int(weight_kg * carb_factor)
     f_g = int(weight_kg * fat_factor)
     
-    # Calculate optimized daily calorie target
     total_cal = int(p_g * 4 + c_g * 4 + f_g * 9)
     
-    # Generate structured meal plan based on profiles
     meal_plan = generate_meal_options(total_cal, recommended_foods, avoid_foods, is_diabetic_risk, has_cholesterol_risk)
     
     return {
         "calculated_metrics": {
-            "whtr": round(scores["whtr"], 3),
-            "whtr_status": scores["whtr_status"],
-            "bri": round(scores["bri"], 2),
-            "bri_status": scores["bri_status"],
+            "bmr": round(scores["bmr"], 1),
+            "tdee": round(scores["tdee"], 0),
             "body_fat_status": scores["body_fat_status"],
             "metabolic_status": scores["metabolic_status"],
             "ldl_status": scores["ldl_status"],
@@ -255,10 +243,6 @@ def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issue
     }
 
 def generate_meal_options(calories: int, recommended: List[str], avoid: List[str], low_carb: bool, low_fat: bool) -> Dict[str, str]:
-    """
-    Renders custom healthy meal plan recommendations split by meal sections.
-    """
-    # Customize meal text based on low_carb or low_fat constraints
     if low_carb:
         breakfast = "Scrambled Egg Whites (3) or Tofu scramble with spinach, sautéed mushrooms, and half an avocado. Season with pepper, turmeric, and a dash of nutritional yeast."
         lunch = "Grilled Salmon or Lemon Herb Tempeh served over a bed of Quinoa with steamed broccoli, asparagus, and a side of mixed leafy greens dressed in olive oil and lemon juice."

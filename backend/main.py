@@ -115,7 +115,7 @@ class ProfileUpdate(BaseModel):
     star_target: int
 
 class MetricsInput(BaseModel):
-    waist_cm: float
+    weight_kg: float
     height_cm: float
     body_fat_pct: float
     hba1c_pct: float
@@ -123,8 +123,11 @@ class MetricsInput(BaseModel):
     cholesterol_ldl_mg_dl: float
     cholesterol_hdl_mg_dl: float
     vitamin_d_ng_ml: float
-    active_issues: str
-    family_history: str
+    waist_cm: Optional[float] = 0.0
+    steps_per_day: Optional[int] = 5000
+    activity_level: Optional[str] = "sedentary"
+    active_issues: Optional[str] = ""
+    family_history: Optional[str] = ""
 
 # ─── Auth Endpoints ───
 @app.post("/api/auth/signup")
@@ -213,15 +216,19 @@ def submit_metrics(
     try:
         metrics_dict = metrics.dict()
         sex = current_user.sex if (current_user and current_user.sex) else "Male"
-        active_issues = metrics.active_issues
-        family_history = metrics.family_history
+        age = current_user.age if (current_user and current_user.age) else 30
+        active_issues = metrics.active_issues or ""
+        family_history = metrics.family_history or ""
         
-        weight_kg = current_user.weight_kg if (current_user and current_user.weight_kg and current_user.weight_kg > 0) else 70.0
-        result = generate_optimized_diet_plan(metrics_dict, sex, active_issues, family_history, weight_kg)
+        weight_kg = metrics.weight_kg if metrics.weight_kg > 0 else (current_user.weight_kg if current_user and current_user.weight_kg > 0 else 70.0)
+        current_user.weight_kg = weight_kg
+        current_user.height_cm = metrics.height_cm
+        
+        result = generate_optimized_diet_plan(metrics_dict, sex, active_issues, family_history, weight_kg, age)
         
         db_metrics = HealthMetrics(
             user_id=current_user.id,
-            waist_cm=metrics.waist_cm,
+            weight_kg=weight_kg,
             height_cm=metrics.height_cm,
             body_fat_pct=metrics.body_fat_pct,
             hba1c_pct=metrics.hba1c_pct,
@@ -229,10 +236,15 @@ def submit_metrics(
             cholesterol_ldl_mg_dl=metrics.cholesterol_ldl_mg_dl,
             cholesterol_hdl_mg_dl=metrics.cholesterol_hdl_mg_dl,
             vitamin_d_ng_ml=metrics.vitamin_d_ng_ml,
+            steps_per_day=metrics.steps_per_day or 5000,
+            activity_level=metrics.activity_level or "sedentary",
             active_issues=active_issues,
             family_history=family_history,
-            bri=result["calculated_metrics"]["bri"],
-            whtr=result["calculated_metrics"]["whtr"]
+            bmr=result["calculated_metrics"]["bmr"],
+            tdee=result["calculated_metrics"]["tdee"],
+            waist_cm=metrics.waist_cm or 0.0,
+            bri=0.0,
+            whtr=0.0
         )
         db.add(db_metrics)
         
