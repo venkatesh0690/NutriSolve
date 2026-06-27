@@ -9,8 +9,74 @@ logger = logging.getLogger("uvicorn.error")
 
 # Try to get API Key and Model from environment
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-# Default to gemini-2.5-flash, fallback to gemini-1.5-flash if needed
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+
+# FatSecret Platform API integration credentials
+FATSECRET_CLIENT_ID = os.getenv("FATSECRET_CLIENT_ID", "")
+FATSECRET_CLIENT_SECRET = os.getenv("FATSECRET_CLIENT_SECRET", "")
+_fatsecret_token_cache = {"token": "", "expires_at": 0}
+
+async def get_fatsecret_token() -> str:
+    import time
+    if not FATSECRET_CLIENT_ID or not FATSECRET_CLIENT_SECRET:
+        return ""
+    now = time.time()
+    if _fatsecret_token_cache["token"] and _fatsecret_token_cache["expires_at"] > now + 60:
+        return _fatsecret_token_cache["token"]
+        
+    url = "https://oauth.fatsecret.com/connect/token"
+    data = {"grant_type": "client_credentials", "scope": "basic"}
+    auth = (FATSECRET_CLIENT_ID, FATSECRET_CLIENT_SECRET)
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            res = await client.post(url, data=data, auth=auth)
+            if res.status_code == 200:
+                js = res.json()
+                _fatsecret_token_cache["token"] = js.get("access_token", "")
+                _fatsecret_token_cache["expires_at"] = now + js.get("expires_in", 86400)
+                return _fatsecret_token_cache["token"]
+    except Exception as e:
+        logger.error(f"Failed to authenticate with FatSecret OAuth: {str(e)}")
+    return ""
+
+async def search_fatsecret_nutrition(query: str) -> Optional[Dict[str, float]]:
+    token = await get_fatsecret_token()
+    if not token:
+        return None
+    url = "https://platform.fatsecret.com/rest/server.api"
+    params = {
+        "method": "foods.search",
+        "search_expression": query,
+        "format": "json"
+    }
+    headers = {"Authorization": f"Bearer {token}"}
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            res = await client.get(url, params=params, headers=headers)
+            if res.status_code == 200:
+                js = res.json()
+                foods = js.get("foods", {}).get("food", [])
+                if isinstance(foods, list) and len(foods) > 0:
+                    first_food = foods[0]
+                elif isinstance(foods, dict):
+                    first_food = foods
+                else:
+                    return None
+                    
+                desc = first_food.get("food_description", "")
+                import re
+                cal_m = re.search(r'Calories:\s*([\d\.]+)kcal', desc, re.IGNORECASE)
+                pro_m = re.search(r'Protein:\s*([\d\.]+)g', desc, re.IGNORECASE)
+                carb_m = re.search(r'Carbs:\s*([\d\.]+)g', desc, re.IGNORECASE)
+                fat_m = re.search(r'Fat:\s*([\d\.]+)g', desc, re.IGNORECASE)
+                
+                cal = float(cal_m.group(1)) if cal_m else 100.0
+                pro = float(pro_m.group(1)) if pro_m else 2.0
+                carb = float(carb_m.group(1)) if carb_m else 20.0
+                return {"cal": cal, "pro": pro, "carb": carb, "fib": 1.0, "flg": 0.0}
+    except Exception as e:
+        logger.error(f"FatSecret search error: {str(e)}")
+    return None
 
 async def call_gemini_api(prompt: str, user_text: str = "", image_bytes: bytes = None, mime_type: str = "image/jpeg") -> str:
     """
@@ -302,7 +368,7 @@ def parse_multiplier(name: str) -> Tuple[float, str]:
     return 1.0, name
 
 
-def generate_mock_agent_b(items: List[Dict[str, Any]]) -> Dict[str, float]:
+async def generate_mock_agent_b(items: List[Dict[str, Any]]) -> Dict[str, float]:
     """
     Estimates macros for parsed items using live search extraction, keyword heuristics,
     and a comprehensive fallback dictionary.
@@ -403,6 +469,16 @@ def generate_mock_agent_b(items: List[Dict[str, Any]]) -> Dict[str, float]:
         if matched:
             continue
             
+        # 1.5 Try FatSecret API search
+        fatsecret_res = await search_fatsecret_nutrition(name)
+        if fatsecret_res is not None:
+            total_cal += fatsecret_res["cal"] * mult
+            total_p += fatsecret_res["pro"] * mult
+            total_c += fatsecret_res["carb"] * mult
+            total_f += fatsecret_res["fib"] * mult
+            total_flg += fatsecret_res["flg"] * mult
+            continue
+
         # 2. Try DuckDuckGo search extraction
         cals_from_search = scrape_calories_from_search(name)
         if cals_from_search is not None:
@@ -593,7 +669,7 @@ async def run_agent_b(parsed_items: List[Dict[str, Any]]) -> Dict[str, float]:
             logger.error(f"Error parsing Gemini Agent B JSON: {str(e)}. Response was: {gemini_resp}")
             
     # Fallback to mock
-    return generate_mock_agent_b(parsed_items)
+    return await generate_mock_agent_b(parsed_items)
 
 async def process_food_log(text_input: str, image_bytes: bytes = None) -> Tuple[List[Dict[str, Any]], Dict[str, float]]:
     """
