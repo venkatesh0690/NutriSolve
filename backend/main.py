@@ -438,7 +438,7 @@ async def log_intake(
     total_fiber = sum(l.fiber_g for l in all_logs)
     total_flagged = sum(l.flagged_g for l in all_logs)
     
-    daily = db.query(DailyIntake).filter(DailyIntake.user_id == current_user.id, DailyIntake.date == today_str).first()
+    daily = db.query(DailyIntake).filter(DailyIntake.date == today_str).first()
     if all_logs:
         if not daily:
             daily = DailyIntake(
@@ -452,6 +452,7 @@ async def log_intake(
             )
             db.add(daily)
         else:
+            daily.user_id = current_user.id
             daily.calories = total_calories
             daily.protein_g = total_protein
             daily.carb_g = total_carb
