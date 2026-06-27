@@ -23,10 +23,11 @@ app = FastAPI(title="Health & Diet API")
 # Setup CORS so React frontend can call it
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify front-end origin
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Ensure uploads directory exists
