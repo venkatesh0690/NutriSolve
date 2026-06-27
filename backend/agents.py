@@ -323,6 +323,7 @@ def generate_mock_agent_b(items: List[Dict[str, Any]]) -> Dict[str, float]:
         }
 
     # Food dictionary for exact/common matches (for a single/base serving/unit)
+    food_db = {
         "sugarcane juice": {"cal": 74.0, "pro": 0.0, "carb": 20.17, "fib": 0.0, "flg": 15.0},
         "sugarcane": {"cal": 74.0, "pro": 0.0, "carb": 20.17, "fib": 0.0, "flg": 15.0},
         "broken wheat upma": {"cal": 180.0, "pro": 5.0, "carb": 32.0, "fib": 4.5, "flg": 0.0},
