@@ -66,7 +66,18 @@ class MetricsInput(BaseModel):
 def get_profile(db: Session = Depends(get_db)):
     user = db.query(User).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User profile not found")
+        user = User(
+            name="Aravind",
+            age=28,
+            height_cm=175.0,
+            weight_kg=72.0,
+            sex="Male",
+            target_calories=2100,
+            star_target=100
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
     return user
 
 @app.put("/api/profile")
@@ -92,7 +103,18 @@ def update_profile(profile: ProfileUpdate, db: Session = Depends(get_db)):
 def submit_metrics(metrics: MetricsInput, db: Session = Depends(get_db)):
     user = db.query(User).first()
     if not user:
-        raise HTTPException(status_code=404, detail="Create a user profile first")
+        user = User(
+            name="Aravind",
+            age=28,
+            height_cm=175.0,
+            weight_kg=72.0,
+            sex="Male",
+            target_calories=2100,
+            star_target=100
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
         
     try:
         # 1. Run scoring engine
