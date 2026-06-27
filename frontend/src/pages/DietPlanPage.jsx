@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Sparkles, Scale, Heart, AlertTriangle, CheckCircle, Flame, Activity } from 'lucide-react';
+import { Shield, Sparkles, Scale, Heart, AlertTriangle, CheckCircle, Flame, Activity, Info } from 'lucide-react';
 import { API_BASE } from '../config';
 
 export default function DietPlanPage({ onPlanSubmit, currentUser }) {
@@ -21,6 +21,7 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
   const [loading, setLoading] = useState(false);
   const [dietPlan, setDietPlan] = useState(null);
   const [error, setError] = useState('');
+  const [activeTooltip, setActiveTooltip] = useState(null); // 'bmr', 'tdee', etc for mobile tap
 
   // Fetch the latest plan on mount to show saved baseline data
   useEffect(() => {
@@ -136,10 +137,14 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
     if (s.includes('healthy') || s.includes('optimal') || s.includes('sufficient') || s.includes('normal')) {
       return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
     }
-    if (s.includes('overweight') || s.includes('borderline') || s.includes('insufficient') || s.includes('near') || s.includes('pre')) {
+    if (s.includes('overweight') || s.includes('borderline') || s.includes('insufficient') || s.includes('near') || s.includes('pre') || s.includes('high')) {
       return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
     }
     return 'bg-rose-500/10 text-rose-400 border-rose-500/20';
+  };
+
+  const toggleTooltip = (name) => {
+    setActiveTooltip(prev => prev === name ? null : name);
   };
 
   return (
@@ -278,7 +283,6 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
               </div>
             </div>
 
-            {/* New Activity & Steps Inputs */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-medium text-slate-400 mb-1.5">Daily Steps Count</label>
@@ -367,29 +371,61 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {/* BMR Card */}
-                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border relative overflow-hidden">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1">
-                      <Flame className="h-3 w-3 text-amber-400" /> Basal Metabolic Rate (BMR)
-                    </span>
+                  <div 
+                    onClick={() => toggleTooltip('bmr')}
+                    className="group relative bg-slate-900/60 p-4 rounded-2xl border border-dark-border hover:border-amber-500/50 transition cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1">
+                        <Flame className="h-3 w-3 text-amber-400" /> Basal Metabolic Rate (BMR)
+                      </span>
+                      <Info className="h-3.5 w-3.5 text-slate-500 group-hover:text-amber-400 transition" />
+                    </div>
+
                     <div className="text-xl font-black text-white mt-1.5">
                       {dietPlan.calculated_metrics?.bmr || dietPlan.metrics?.bmr || '1,426.5'} <span className="text-xs font-semibold text-slate-400">kcal/day</span>
                     </div>
-                    <span className="inline-block mt-2 text-[10px] font-semibold px-2 py-0.5 rounded border bg-amber-500/10 text-amber-400 border-amber-500/20">
-                      Mifflin-St Jeor
+
+                    <span className={`inline-block mt-2 text-[10px] font-semibold px-2 py-0.5 rounded border ${getStatusBadgeClass(dietPlan.calculated_metrics?.bmr_status || 'Optimal Rate')}`}>
+                      {dietPlan.calculated_metrics?.bmr_status || 'Optimal Rate'}
                     </span>
+
+                    {/* Tooltip on Hover / Tap */}
+                    <div className={`absolute left-0 right-0 top-full mt-2 z-30 p-3 bg-slate-950 border border-amber-500/30 rounded-xl shadow-2xl text-[11px] text-slate-300 leading-relaxed pointer-events-none transition-all duration-200 ${activeTooltip === 'bmr' ? 'block' : 'hidden group-hover:block'}`}>
+                      <p className="font-semibold text-amber-400 mb-1 flex items-center gap-1">
+                        <Flame className="h-3 w-3" /> What is BMR?
+                      </p>
+                      The baseline calories the body burns at complete rest to maintain vital functions, calculated using age, gender, height, and current weight.
+                    </div>
                   </div>
 
                   {/* TDEE Card */}
-                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border relative overflow-hidden">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1">
-                      <Activity className="h-3 w-3 text-brand-primary" /> Total Daily Energy (TDEE)
-                    </span>
+                  <div 
+                    onClick={() => toggleTooltip('tdee')}
+                    className="group relative bg-slate-900/60 p-4 rounded-2xl border border-dark-border hover:border-brand-primary/50 transition cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1">
+                        <Activity className="h-3 w-3 text-brand-primary" /> Total Daily Energy (TDEE)
+                      </span>
+                      <Info className="h-3.5 w-3.5 text-slate-500 group-hover:text-brand-primary transition" />
+                    </div>
+
                     <div className="text-xl font-black text-brand-primary mt-1.5">
                       {dietPlan.calculated_metrics?.tdee || dietPlan.metrics?.tdee || '1,712'} <span className="text-xs font-semibold text-slate-400">kcal/day</span>
                     </div>
+
                     <span className="inline-block mt-2 text-[10px] font-semibold px-2 py-0.5 rounded border bg-brand-primary/10 text-brand-primary border-brand-primary/20">
                       Activity Adjusted
                     </span>
+
+                    {/* Tooltip on Hover / Tap */}
+                    <div className={`absolute left-0 right-0 top-full mt-2 z-30 p-3 bg-slate-950 border border-brand-primary/30 rounded-xl shadow-2xl text-[11px] text-slate-300 leading-relaxed pointer-events-none transition-all duration-200 ${activeTooltip === 'tdee' ? 'block' : 'hidden group-hover:block'}`}>
+                      <p className="font-semibold text-brand-primary mb-1 flex items-center gap-1">
+                        <Activity className="h-3 w-3" /> What is TDEE?
+                      </p>
+                      The actual number of calories burned per day, calculated by multiplying the BMR by an individual's specific physical activity multiplier.
+                    </div>
                   </div>
 
                   {/* Metabolic Status Card */}

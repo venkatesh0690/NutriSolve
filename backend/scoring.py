@@ -101,8 +101,16 @@ def compute_health_scores(metrics: Dict[str, Any], sex: str, age: int = 30) -> D
     elif 20 <= vit_d < 30:
         vit_d_status = "Insufficient"
         
+    # BMR Status
+    bmr_status = "Optimal Rate"
+    if bmr < 1200:
+        bmr_status = "Low Rate"
+    elif bmr > 1800:
+        bmr_status = "High Rate"
+
     return {
         "bmr": bmr,
+        "bmr_status": bmr_status,
         "tdee": tdee,
         "activity_multiplier": multiplier,
         "body_fat_status": bf_status,
@@ -224,6 +232,7 @@ def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issue
     return {
         "calculated_metrics": {
             "bmr": round(scores["bmr"], 1),
+            "bmr_status": scores["bmr_status"],
             "tdee": round(scores["tdee"], 0),
             "body_fat_status": scores["body_fat_status"],
             "metabolic_status": scores["metabolic_status"],
