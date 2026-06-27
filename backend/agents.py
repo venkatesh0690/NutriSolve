@@ -257,7 +257,7 @@ def parse_multiplier(name: str) -> Tuple[float, str]:
         "ten": 10.0
     }
     
-    units_regex = r'(bowls|bowl|cups|cup|plates|plate|servings|serving|pieces|piece|pcs|idlis|idli|idlys|idly|dosas|dosa|whole|boiled|glasses|glass|chapatis|chapati|rotis|roti|biscuits|biscuit|kg|g|grams)'
+    units_regex = r'(bowls|bowl|cups|cup|plates|plate|servings|serving|pieces|piece|pcs|idlis|idli|idlys|idly|dosas|dosa|whole|boiled|glasses|glass|chapatis|chapati|rotis|roti|biscuits|biscuit|kg|grams|gram|g|ml)'
     
     # We check word mappings first
     for word, val in word_mappings.items():
@@ -266,8 +266,12 @@ def parse_multiplier(name: str) -> Tuple[float, str]:
         if m:
             unit = m.group(1)
             rest = m.group(2)
-            if unit and unit.lower() == 'kg':
-                val = val * 10.0
+            if unit:
+                u = unit.lower()
+                if u == 'kg':
+                    val = val * 10.0
+                elif u in ['g', 'gram', 'grams', 'ml']:
+                    val = val / 100.0
             if rest and rest.strip():
                 prefix_len = len(name) - len(rest.strip())
                 cleaned_name = name[prefix_len:].strip()
@@ -284,8 +288,12 @@ def parse_multiplier(name: str) -> Tuple[float, str]:
         val = float(m.group(1))
         unit = m.group(2)
         rest = m.group(3)
-        if unit and unit.lower() == 'kg':
-            val = val * 10.0
+        if unit:
+            u = unit.lower()
+            if u == 'kg':
+                val = val * 10.0
+            elif u in ['g', 'gram', 'grams', 'ml']:
+                val = val / 100.0
         if rest and rest.strip():
             return val, rest.strip()
         elif unit and unit.strip():
@@ -321,7 +329,8 @@ def generate_mock_agent_b(items: List[Dict[str, Any]]) -> Dict[str, float]:
         "coconut chutney": {"cal": 120.0, "pro": 1.5, "carb": 4.0, "fib": 1.5, "flg": 0.0},
         "chutney": {"cal": 100.0, "pro": 1.0, "carb": 5.0, "fib": 1.0, "flg": 0.0},
         "peanut butter": {"cal": 95.0, "pro": 3.5, "carb": 3.0, "fib": 1.0, "flg": 0.0},
-        "papaya": {"cal": 43.0, "pro": 0.5, "carb": 11.0, "fib": 1.7, "flg": 0.0},
+        "papaya": {"cal": 39.2, "pro": 0.608, "carb": 9.808, "fib": 1.7, "flg": 0.0},
+        "papayas": {"cal": 39.2, "pro": 0.608, "carb": 9.808, "fib": 1.7, "flg": 0.0},
         "white rice": {"cal": 195.0, "pro": 3.5, "carb": 43.0, "fib": 0.6, "flg": 5.0},
         "potato": {"cal": 140.0, "pro": 2.5, "carb": 24.0, "fib": 2.5, "flg": 5.0},
         "potato curry": {"cal": 140.0, "pro": 2.5, "carb": 24.0, "fib": 2.5, "flg": 5.0},
