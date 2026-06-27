@@ -158,7 +158,16 @@ export default function DailyTrackerPage({ onLogSubmit }) {
 
     try {
       const res = await fetch(`${API_BASE}/api/intake`, { method: 'POST', body: formData });
-      if (!res.ok) throw new Error('Meal parsing failed.');
+      if (!res.ok) {
+        let errMsg = 'Meal parsing failed.';
+        try {
+          const errData = await res.json();
+          if (errData && errData.detail) {
+            errMsg = `Error: ${errData.detail}`;
+          }
+        } catch (e) {}
+        throw new Error(errMsg);
+      }
       const data = await res.json();
 
       setShowSuccess(true);

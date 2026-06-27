@@ -100,7 +100,14 @@ export default function DietPlanPage({ onPlanSubmit }) {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to compute scoring plan. Check server logs.');
+        let errMsg = 'Failed to compute scoring plan. Check server logs.';
+        try {
+          const errData = await res.json();
+          if (errData && errData.detail) {
+            errMsg = `Error: ${errData.detail}`;
+          }
+        } catch (e) {}
+        throw new Error(errMsg);
       }
 
       const data = await res.json();
