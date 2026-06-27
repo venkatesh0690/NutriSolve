@@ -323,7 +323,7 @@ def parse_multiplier(name: str) -> Tuple[float, str]:
         "ten": 10.0
     }
     
-    units_regex = r'(bowls|bowl|cups|cup|plates|plate|servings|serving|pieces|piece|pcs|idlis|idli|idlys|idly|dosas|dosa|whole|boiled|glasses|glass|chapatis|chapati|rotis|roti|biscuits|biscuit|kg|grams|gram|g|ml)'
+    units_regex = r'(bowls|bowl|cups|cup|plates|plate|servings|serving|pieces|piece|pcs|whole|boiled|glasses|glass|tbsp|tsp|kg|grams|gram|g|ml)'
     
     # We check word mappings first
     for word, val in word_mappings.items():
@@ -398,8 +398,12 @@ async def generate_mock_agent_b(items: List[Dict[str, Any]]) -> Dict[str, float]
         "masala rice": {"cal": 220.0, "pro": 4.5, "carb": 42.0, "fib": 3.0, "flg": 5.0},
         "carrot": {"cal": 30.0, "pro": 0.7, "carb": 7.0, "fib": 2.0, "flg": 0.0},
         "cucumber": {"cal": 15.0, "pro": 0.6, "carb": 3.5, "fib": 0.8, "flg": 0.0},
-        "idli": {"cal": 55.0, "pro": 2.0, "carb": 12.0, "fib": 0.8, "flg": 0.0},
-        "idly": {"cal": 55.0, "pro": 2.0, "carb": 12.0, "fib": 0.8, "flg": 0.0},
+        "idli": {"cal": 58.0, "pro": 1.8, "carb": 12.0, "fib": 0.8, "flg": 0.0},
+        "idlis": {"cal": 58.0, "pro": 1.8, "carb": 12.0, "fib": 0.8, "flg": 0.0},
+        "idly": {"cal": 58.0, "pro": 1.8, "carb": 12.0, "fib": 0.8, "flg": 0.0},
+        "idlys": {"cal": 58.0, "pro": 1.8, "carb": 12.0, "fib": 0.8, "flg": 0.0},
+        "idlily": {"cal": 58.0, "pro": 1.8, "carb": 12.0, "fib": 0.8, "flg": 0.0},
+        "idlies": {"cal": 58.0, "pro": 1.8, "carb": 12.0, "fib": 0.8, "flg": 0.0},
         "coconut chutney": {"cal": 120.0, "pro": 1.5, "carb": 4.0, "fib": 1.5, "flg": 0.0},
         "chutney": {"cal": 100.0, "pro": 1.0, "carb": 5.0, "fib": 1.0, "flg": 0.0},
         "peanut butter": {"cal": 95.0, "pro": 3.5, "carb": 3.0, "fib": 1.0, "flg": 0.0},
@@ -544,11 +548,11 @@ async def generate_mock_agent_b(items: List[Dict[str, Any]]) -> Dict[str, float]
         total_flg += flg * mult
                 
     return {
-        "calories": total_cal,
-        "protein_g": total_p,
-        "carb_g": total_c,
-        "fiber_g": total_f,
-        "flagged_g": total_flg
+        "calories": round(total_cal, 2),
+        "protein_g": round(total_p, 2),
+        "carb_g": round(total_c, 2),
+        "fiber_g": round(total_f, 2),
+        "flagged_g": round(total_flg, 2)
     }
 
 async def run_agent_a(text_input: str, image_bytes: bytes = None) -> List[Dict[str, Any]]:
