@@ -298,11 +298,6 @@ async def log_intake(
         existing_log = existing_logs_map.get(meal_type)
         
         if meal_text_clean:
-            # Check if this meal is already logged and is unchanged
-            if existing_log and existing_log.text_input == meal_text_clean:
-                # Preserved, no need to query AI
-                continue
-                
             # Deconstruct and parse each logged meal (new or updated)
             current_image_bytes = None
             current_image_path = ""
