@@ -21,6 +21,8 @@ def compute_health_scores(metrics: Dict[str, Any], sex: str) -> Dict[str, Any]:
     """
     Ingests raw health metrics and evaluates categories, returns status classifications.
     """
+    if not sex or not isinstance(sex, str):
+        sex = "Male"
     waist = metrics["waist_cm"]
     height = metrics["height_cm"]
     body_fat = metrics["body_fat_pct"]
@@ -114,6 +116,11 @@ def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issue
     Maps health scores and active issues into the Dietary Optimization Logic Matrix.
     Outputs: calories, macro splits, recommendations, foods to avoid, and a meal plan.
     """
+    if not sex or not isinstance(sex, str):
+        sex = "Male"
+    if not weight_kg or weight_kg <= 0:
+        weight_kg = 70.0
+        
     scores = compute_health_scores(metrics, sex)
     
     # Baseline calculations

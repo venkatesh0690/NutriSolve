@@ -16,7 +16,7 @@ else:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     db_path = os.path.abspath(os.path.join(BASE_DIR, "health_app.db"))
     DATABASE_URL = f"sqlite:///{db_path}"
-    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False, "timeout": 30.0})
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()

@@ -63,7 +63,17 @@ export default function DietPlanPage({ onPlanSubmit }) {
     setError('');
     
     // Simple verification
-    for (const key of Object.keys(formData)) {
+    const requiredKeys = [
+      'waist_cm',
+      'height_cm',
+      'body_fat_pct',
+      'hba1c_pct',
+      'fasting_glucose_mg_dl',
+      'cholesterol_ldl_mg_dl',
+      'cholesterol_hdl_mg_dl',
+      'vitamin_d_ng_ml'
+    ];
+    for (const key of requiredKeys) {
       if (formData[key] === '') {
         setError('Please fill in all metrics before calculating.');
         setLoading(false);

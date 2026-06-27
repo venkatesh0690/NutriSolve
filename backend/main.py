@@ -94,52 +94,61 @@ def submit_metrics(metrics: MetricsInput, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail="Create a user profile first")
         
-    # 1. Run scoring engine
-    metrics_dict = metrics.dict()
-    sex = user.sex
-    active_issues = metrics.active_issues
-    family_history = metrics.family_history
-    
-    weight_kg = user.weight_kg if user else 70.0
-    result = generate_optimized_diet_plan(metrics_dict, sex, active_issues, family_history, weight_kg)
-    
-    # 2. Persist HealthMetrics record
-    db_metrics = HealthMetrics(
-        waist_cm=metrics.waist_cm,
-        height_cm=metrics.height_cm,
-        body_fat_pct=metrics.body_fat_pct,
-        hba1c_pct=metrics.hba1c_pct,
-        fasting_glucose_mg_dl=metrics.fasting_glucose_mg_dl,
-        cholesterol_ldl_mg_dl=metrics.cholesterol_ldl_mg_dl,
-        cholesterol_hdl_mg_dl=metrics.cholesterol_hdl_mg_dl,
-        vitamin_d_ng_ml=metrics.vitamin_d_ng_ml,
-        active_issues=active_issues,
-        family_history=family_history,
-        bri=result["calculated_metrics"]["bri"],
-        whtr=result["calculated_metrics"]["whtr"]
-    )
-    db.add(db_metrics)
-    
-    # 3. Persist DietPlan record
-    db_diet = DietPlan(
-        calories=result["macros"]["calories"],
-        protein_g=result["macros"]["protein_g"],
-        carb_g=result["macros"]["carb_g"],
-        fat_g=result["macros"]["fat_g"],
-        meal_breakfast=result["meal_plan"]["breakfast"],
-        meal_lunch=result["meal_plan"]["lunch"],
-        meal_snacks=result["meal_plan"]["snacks"],
-        meal_dinner=result["meal_plan"]["dinner"],
-        recommended_foods=str(result["recommended_foods"]),
-        avoid_foods=str(result["avoid_foods"])
-    )
-    db.add(db_diet)
-    
-    # 4. Update user's target calories based on recommendation
-    user.target_calories = result["macros"]["calories"]
-    
-    db.commit()
-    return result
+    try:
+        # 1. Run scoring engine
+        metrics_dict = metrics.dict()
+        sex = user.sex if (user and user.sex) else "Male"
+        active_issues = metrics.active_issues
+        family_history = metrics.family_history
+        
+        weight_kg = user.weight_kg if (user and user.weight_kg and user.weight_kg > 0) else 70.0
+        result = generate_optimized_diet_plan(metrics_dict, sex, active_issues, family_history, weight_kg)
+        
+        # 2. Persist HealthMetrics record
+        db_metrics = HealthMetrics(
+            waist_cm=metrics.waist_cm,
+            height_cm=metrics.height_cm,
+            body_fat_pct=metrics.body_fat_pct,
+            hba1c_pct=metrics.hba1c_pct,
+            fasting_glucose_mg_dl=metrics.fasting_glucose_mg_dl,
+            cholesterol_ldl_mg_dl=metrics.cholesterol_ldl_mg_dl,
+            cholesterol_hdl_mg_dl=metrics.cholesterol_hdl_mg_dl,
+            vitamin_d_ng_ml=metrics.vitamin_d_ng_ml,
+            active_issues=active_issues,
+            family_history=family_history,
+            bri=result["calculated_metrics"]["bri"],
+            whtr=result["calculated_metrics"]["whtr"]
+        )
+        db.add(db_metrics)
+        
+        # 3. Persist DietPlan record
+        db_diet = DietPlan(
+            calories=result["macros"]["calories"],
+            protein_g=result["macros"]["protein_g"],
+            carb_g=result["macros"]["carb_g"],
+            fat_g=result["macros"]["fat_g"],
+            meal_breakfast=result["meal_plan"]["breakfast"],
+            meal_lunch=result["meal_plan"]["lunch"],
+            meal_snacks=result["meal_plan"]["snacks"],
+            meal_dinner=result["meal_plan"]["dinner"],
+            recommended_foods=str(result["recommended_foods"]),
+            avoid_foods=str(result["avoid_foods"])
+        )
+        db.add(db_diet)
+        
+        # 4. Update user's target calories based on recommendation
+        user.target_calories = result["macros"]["calories"]
+        
+        db.commit()
+        return result
+    except Exception as e:
+        import traceback
+        import logging
+        logger = logging.getLogger("uvicorn.error")
+        logger.error("Error generating optimized diet plan:")
+        logger.error(traceback.format_exc())
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 @app.get("/api/metrics/latest")
 def get_latest_diet_plan(db: Session = Depends(get_db)):

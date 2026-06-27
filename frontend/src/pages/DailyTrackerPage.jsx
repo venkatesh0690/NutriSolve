@@ -33,6 +33,16 @@ export default function DailyTrackerPage({ onLogSubmit }) {
   };
   const localDateStr = getLocalDateStr();
 
+  const getDefaultDateObject = () => ({
+    date: localDateStr,
+    day_number: new Date().getDate(),
+    month_name: new Date().toLocaleDateString('en-US', { month: 'long' }),
+    has_data: false,
+    score_pct: 0.0,
+    macros: { calories: 0.0, protein_g: 0.0, carb_g: 0.0, fiber_g: 0.0, flagged_g: 0.0 },
+    meals: {}
+  });
+
   const fetchData = async (resetToToday = false) => {
     setLoadingData(true);
     try {
@@ -56,15 +66,22 @@ export default function DailyTrackerPage({ onLogSubmit }) {
         if (resetToToday || !selectedDate) {
           // Always select today after a new meal log or on first load
           const todayMatch = data.find(d => d.date === localDateStr);
-          setSelectedDate(todayMatch || data[0]);
+          setSelectedDate(todayMatch || data[0] || getDefaultDateObject());
         } else {
           // Refresh whichever date was already selected
           const updated = data.find(d => d.date === selectedDate.date);
-          if (updated) setSelectedDate(updated);
+          setSelectedDate(updated || getDefaultDateObject());
+        }
+      } else {
+        if (!selectedDate) {
+          setSelectedDate(getDefaultDateObject());
         }
       }
     } catch (err) {
       console.error('Failed to fetch data:', err);
+      if (!selectedDate) {
+        setSelectedDate(getDefaultDateObject());
+      }
     } finally {
       setLoadingData(false);
     }
@@ -241,7 +258,7 @@ export default function DailyTrackerPage({ onLogSubmit }) {
             <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-brand-secondary/5 blur-3xl" />
             <h3 className="text-xl font-bold text-white mb-5 flex items-center justify-between relative z-10 w-full">
               <span className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-brand-secondary" /> {selectedDate?.date === localDateStr ? "Log Today's Meals" : `Edit Meals for ${new Date(selectedDate?.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}`}
+                <FileText className="h-5 w-5 text-brand-secondary" /> {(!selectedDate || selectedDate.date === localDateStr) ? "Log Today's Meals" : `Edit Meals for ${new Date((selectedDate?.date || localDateStr) + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}`}
               </span>
               {selectedDate?.has_data && (
                 <button
