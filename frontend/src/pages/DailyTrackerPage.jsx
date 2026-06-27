@@ -224,6 +224,8 @@ export default function DailyTrackerPage({ onLogSubmit }) {
     }
   };
 
+  const formatMacro = (val) => Math.round((Number(val) || 0) * 100) / 100;
+
   const getScoreBg = (score) => {
     if (score >= 80) return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
     if (score >= 50) return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
@@ -462,28 +464,28 @@ export default function DailyTrackerPage({ onLogSubmit }) {
                     <div className="bg-slate-900/60 p-3 rounded-2xl border border-dark-border col-span-2 sm:col-span-1">
                       <span className="block text-[9px] text-slate-500 font-semibold uppercase">Calories</span>
                       <span className="text-2xl font-black text-orange-400 block mt-1">
-                        {selectedDate.macros.calories}
+                        {formatMacro(selectedDate.macros.calories)}
                       </span>
                       <span className="text-[10px] text-slate-500 font-semibold">/ {targetCalories} kcal</span>
                     </div>
                     <div className="bg-slate-900/60 p-3 rounded-2xl border border-dark-border">
                       <span className="block text-[9px] text-slate-500 font-semibold uppercase">Protein</span>
-                      <span className="text-2xl font-black text-emerald-400 block mt-1">{selectedDate.macros.protein_g}g</span>
+                      <span className="text-2xl font-black text-emerald-400 block mt-1">{formatMacro(selectedDate.macros.protein_g)}g</span>
                       <span className="text-[10px] text-slate-500 font-semibold">/ {targetProtein}g</span>
                     </div>
                     <div className="bg-slate-900/60 p-3 rounded-2xl border border-dark-border">
                       <span className="block text-[9px] text-slate-500 font-semibold uppercase">Carbs</span>
-                      <span className="text-2xl font-black text-cyan-400 block mt-1">{selectedDate.macros.carb_g}g</span>
+                      <span className="text-2xl font-black text-cyan-400 block mt-1">{formatMacro(selectedDate.macros.carb_g)}g</span>
                       <span className="text-[10px] text-slate-500 font-semibold">/ {targetCarbs}g</span>
                     </div>
                     <div className="bg-slate-900/60 p-3 rounded-2xl border border-dark-border">
                       <span className="block text-[9px] text-slate-500 font-semibold uppercase">Fiber</span>
-                      <span className="text-2xl font-black text-blue-400 block mt-1">{selectedDate.macros.fiber_g}g</span>
+                      <span className="text-2xl font-black text-blue-400 block mt-1">{formatMacro(selectedDate.macros.fiber_g)}g</span>
                       <span className="text-[10px] text-slate-500 font-semibold">/ {targetFiber}g</span>
                     </div>
                     <div className="bg-slate-900/60 p-3 rounded-2xl border border-dark-border">
                       <span className="block text-[9px] text-slate-500 font-semibold uppercase">Flagged</span>
-                      <span className="text-2xl font-black text-rose-400 block mt-1">{selectedDate.macros.flagged_g}g</span>
+                      <span className="text-2xl font-black text-rose-400 block mt-1">{formatMacro(selectedDate.macros.flagged_g)}g</span>
                       <span className="text-[10px] text-slate-500 font-semibold">/ {targetFlagged}g</span>
                     </div>
                   </div>
@@ -501,14 +503,14 @@ export default function DailyTrackerPage({ onLogSubmit }) {
                           <span className="text-sm font-bold text-brand-secondary uppercase tracking-wider">
                             {mealTypesList.find(m => m.label === mType)?.emoji || '🍴'} {mType}
                           </span>
-                          <span className="text-xl font-black text-orange-400">{mealLog.calories} kcal</span>
+                          <span className="text-xl font-black text-orange-400">{formatMacro(mealLog.calories)} kcal</span>
                         </div>
                         <p className="text-sm text-slate-200 leading-relaxed">{mealLog.text}</p>
                         <div className="flex gap-4 text-xs text-slate-400 mt-3 border-t border-dark-border/40 pt-2 font-mono">
-                          <span>PRO: <strong className="text-emerald-400">{mealLog.protein_g}g</strong></span>
-                          <span>CARB: <strong className="text-cyan-400">{mealLog.carb_g}g</strong></span>
-                          <span>FIB: <strong className="text-blue-400">{mealLog.fiber_g}g</strong></span>
-                          <span>FLG: <strong className="text-rose-400">{mealLog.flagged_g}g</strong></span>
+                          <span>PRO: <strong className="text-emerald-400">{formatMacro(mealLog.protein_g)}g</strong></span>
+                          <span>CARB: <strong className="text-cyan-400">{formatMacro(mealLog.carb_g)}g</strong></span>
+                          <span>FIB: <strong className="text-blue-400">{formatMacro(mealLog.fiber_g)}g</strong></span>
+                          <span>FLG: <strong className="text-rose-400">{formatMacro(mealLog.flagged_g)}g</strong></span>
                         </div>
                       </div>
                     );

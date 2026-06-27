@@ -396,11 +396,11 @@ async def log_intake(
         processed_meals[l.meal_type] = {
             "deduced_items": items,
             "macros": {
-                "calories": l.calories,
-                "protein_g": l.protein_g,
-                "carb_g": l.carb_g,
-                "fiber_g": l.fiber_g,
-                "flagged_g": l.flagged_g
+                "calories": round(l.calories, 1),
+                "protein_g": round(l.protein_g, 2),
+                "carb_g": round(l.carb_g, 2),
+                "fiber_g": round(l.fiber_g, 2),
+                "flagged_g": round(l.flagged_g, 2)
             }
         }
         
@@ -409,11 +409,11 @@ async def log_intake(
         "date": today_str,
         "meals": processed_meals,
         "daily_total": {
-            "calories": total_calories,
-            "protein_g": total_protein,
-            "carb_g": total_carb,
-            "fiber_g": total_fiber,
-            "flagged_g": total_flagged
+            "calories": round(total_calories, 1),
+            "protein_g": round(total_protein, 2),
+            "carb_g": round(total_carb, 2),
+            "fiber_g": round(total_fiber, 2),
+            "flagged_g": round(total_flagged, 2)
         },
         "meal_score": round(meal_score, 1)
     }
@@ -624,21 +624,21 @@ def get_calendar_view(local_date: Optional[str] = None, db: Session = Depends(ge
                     "id": l.id,
                     "text": l.text_input or "Photo Logged",
                     "image_path": l.image_path,
-                    "calories": l.calories,
-                    "protein_g": l.protein_g,
-                    "carb_g": l.carb_g,
-                    "fiber_g": l.fiber_g,
-                    "flagged_g": l.flagged_g,
+                    "calories": round(l.calories, 1),
+                    "protein_g": round(l.protein_g, 2),
+                    "carb_g": round(l.carb_g, 2),
+                    "fiber_g": round(l.fiber_g, 2),
+                    "flagged_g": round(l.flagged_g, 2),
                     "items": items
                 }
             else:
                 existing = detailed_meals[l.meal_type]
                 existing["text"] += "; " + (l.text_input or "")
-                existing["calories"] += l.calories
-                existing["protein_g"] += l.protein_g
-                existing["carb_g"] += l.carb_g
-                existing["fiber_g"] += l.fiber_g
-                existing["flagged_g"] += l.flagged_g
+                existing["calories"] = round(existing["calories"] + l.calories, 1)
+                existing["protein_g"] = round(existing["protein_g"] + l.protein_g, 2)
+                existing["carb_g"] = round(existing["carb_g"] + l.carb_g, 2)
+                existing["fiber_g"] = round(existing["fiber_g"] + l.fiber_g, 2)
+                existing["flagged_g"] = round(existing["flagged_g"] + l.flagged_g, 2)
                 existing["items"].extend(items)
             
         if day_record:
