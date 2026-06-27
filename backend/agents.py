@@ -323,7 +323,14 @@ def generate_mock_agent_b(items: List[Dict[str, Any]]) -> Dict[str, float]:
         }
 
     # Food dictionary for exact/common matches (for a single/base serving/unit)
-    food_db = {
+        "sugarcane juice": {"cal": 74.0, "pro": 0.0, "carb": 20.17, "fib": 0.0, "flg": 15.0},
+        "sugarcane": {"cal": 74.0, "pro": 0.0, "carb": 20.17, "fib": 0.0, "flg": 15.0},
+        "broken wheat upma": {"cal": 180.0, "pro": 5.0, "carb": 32.0, "fib": 4.5, "flg": 0.0},
+        "upma": {"cal": 180.0, "pro": 4.5, "carb": 32.0, "fib": 3.5, "flg": 0.0},
+        "veg masala rice": {"cal": 220.0, "pro": 4.5, "carb": 42.0, "fib": 3.0, "flg": 5.0},
+        "masala rice": {"cal": 220.0, "pro": 4.5, "carb": 42.0, "fib": 3.0, "flg": 5.0},
+        "carrot": {"cal": 30.0, "pro": 0.7, "carb": 7.0, "fib": 2.0, "flg": 0.0},
+        "cucumber": {"cal": 15.0, "pro": 0.6, "carb": 3.5, "fib": 0.8, "flg": 0.0},
         "idli": {"cal": 55.0, "pro": 2.0, "carb": 12.0, "fib": 0.8, "flg": 0.0},
         "idly": {"cal": 55.0, "pro": 2.0, "carb": 12.0, "fib": 0.8, "flg": 0.0},
         "coconut chutney": {"cal": 120.0, "pro": 1.5, "carb": 4.0, "fib": 1.5, "flg": 0.0},
