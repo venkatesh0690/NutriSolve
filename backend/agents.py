@@ -257,13 +257,17 @@ def parse_multiplier(name: str) -> Tuple[float, str]:
         "ten": 10.0
     }
     
+    units_regex = r'(bowls|bowl|cups|cup|plates|plate|servings|serving|pieces|piece|pcs|idlis|idli|idlys|idly|dosas|dosa|whole|boiled|glasses|glass|chapatis|chapati|rotis|roti|biscuits|biscuit|kg|g|grams)'
+    
     # We check word mappings first
     for word, val in word_mappings.items():
-        pattern = r'^' + re.escape(word) + r'\b\s*(bowls|bowl|cups|cup|plates|plate|servings|serving|pieces|piece|pcs|whole|boiled|glasses|glass|chapatis|chapati|rotis|roti)?\s*(?:of)?\s*(.*)$'
+        pattern = r'^' + re.escape(word) + r'\b\s*' + units_regex + r'?\s*(?:of)?\s*(.*)$'
         m = re.match(pattern, name_lower, re.IGNORECASE)
         if m:
             unit = m.group(1)
             rest = m.group(2)
+            if unit and unit.lower() == 'kg':
+                val = val * 10.0
             if rest and rest.strip():
                 prefix_len = len(name) - len(rest.strip())
                 cleaned_name = name[prefix_len:].strip()
@@ -274,12 +278,14 @@ def parse_multiplier(name: str) -> Tuple[float, str]:
                 return val, cleaned_name
 
     # Next, handle numeric prefixes
-    pattern = r'^(\d+(?:\.\d+)?)\s*(bowls|bowl|cups|cup|plates|plate|servings|serving|pieces|piece|pcs|whole|boiled|glasses|glass|chapatis|chapati|rotis|roti)?\s*(?:of)?\s*(.*)$'
+    pattern = r'^(\d+(?:\.\d+)?)\s*' + units_regex + r'?\s*(?:of)?\s*(.*)$'
     m = re.match(pattern, name, re.IGNORECASE)
     if m:
         val = float(m.group(1))
         unit = m.group(2)
         rest = m.group(3)
+        if unit and unit.lower() == 'kg':
+            val = val * 10.0
         if rest and rest.strip():
             return val, rest.strip()
         elif unit and unit.strip():
@@ -310,6 +316,19 @@ def generate_mock_agent_b(items: List[Dict[str, Any]]) -> Dict[str, float]:
 
     # Food dictionary for exact/common matches (for a single/base serving/unit)
     food_db = {
+        "idli": {"cal": 55.0, "pro": 2.0, "carb": 12.0, "fib": 0.8, "flg": 0.0},
+        "idly": {"cal": 55.0, "pro": 2.0, "carb": 12.0, "fib": 0.8, "flg": 0.0},
+        "coconut chutney": {"cal": 120.0, "pro": 1.5, "carb": 4.0, "fib": 1.5, "flg": 0.0},
+        "chutney": {"cal": 100.0, "pro": 1.0, "carb": 5.0, "fib": 1.0, "flg": 0.0},
+        "peanut butter": {"cal": 95.0, "pro": 3.5, "carb": 3.0, "fib": 1.0, "flg": 0.0},
+        "papaya": {"cal": 43.0, "pro": 0.5, "carb": 11.0, "fib": 1.7, "flg": 0.0},
+        "white rice": {"cal": 195.0, "pro": 3.5, "carb": 43.0, "fib": 0.6, "flg": 5.0},
+        "potato": {"cal": 140.0, "pro": 2.5, "carb": 24.0, "fib": 2.5, "flg": 5.0},
+        "potato curry": {"cal": 140.0, "pro": 2.5, "carb": 24.0, "fib": 2.5, "flg": 5.0},
+        "channa": {"cal": 150.0, "pro": 8.0, "carb": 20.0, "fib": 5.0, "flg": 0.0},
+        "chana": {"cal": 150.0, "pro": 8.0, "carb": 20.0, "fib": 5.0, "flg": 0.0},
+        "biscuits": {"cal": 120.0, "pro": 2.0, "carb": 18.0, "fib": 0.5, "flg": 15.0},
+        "biscuit": {"cal": 120.0, "pro": 2.0, "carb": 18.0, "fib": 0.5, "flg": 15.0},
         "puri with potato curry": {"cal": 420.0, "pro": 8.0, "carb": 55.0, "fib": 4.0, "flg": 30.0},
         "roasted peanuts": {"cal": 170.0, "pro": 7.0, "carb": 6.0, "fib": 2.5, "flg": 0.0},
         "rice with raw banana curry": {"cal": 380.0, "pro": 7.0, "carb": 72.0, "fib": 4.5, "flg": 10.0},
