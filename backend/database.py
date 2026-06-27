@@ -11,7 +11,12 @@ if DATABASE_URL:
     # Render and Heroku return "postgres://" urls. SQLAlchemy 1.4+ requires "postgresql://"
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-    engine = create_engine(DATABASE_URL)
+    engine = create_engine(
+        DATABASE_URL, 
+        pool_pre_ping=True, 
+        pool_recycle=300, 
+        connect_args={"connect_timeout": 15}
+    )
 else:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     db_path = os.path.abspath(os.path.join(BASE_DIR, "health_app.db"))
@@ -103,54 +108,57 @@ class IntakeLog(Base):
     meal_type = Column(String, default="General")  # Breakfast, Lunch, etc.
 
 def init_db():
-    Base.metadata.create_all(bind=engine)
-    
-    # Run SQLite migration checks
-    import sqlalchemy as sa
-    inspector = sa.inspect(engine)
-    
     try:
-        # Check columns for users
-        user_columns = [col['name'] for col in inspector.get_columns('users')]
-        if 'star_target' not in user_columns:
-            with engine.begin() as conn:
-                conn.execute(sa.text("ALTER TABLE users ADD COLUMN star_target INTEGER DEFAULT 100"))
-                print("Migrated users: added star_target")
+        Base.metadata.create_all(bind=engine)
+        
+        # Run SQLite migration checks
+        import sqlalchemy as sa
+        inspector = sa.inspect(engine)
+        
+        try:
+            # Check columns for users
+            user_columns = [col['name'] for col in inspector.get_columns('users')]
+            if 'star_target' not in user_columns:
+                with engine.begin() as conn:
+                    conn.execute(sa.text("ALTER TABLE users ADD COLUMN star_target INTEGER DEFAULT 100"))
+                    print("Migrated users: added star_target")
 
-        # Check columns for daily_intake
-        daily_columns = [col['name'] for col in inspector.get_columns('daily_intake')]
-        if 'carb_g' not in daily_columns:
-            with engine.begin() as conn:
-                conn.execute(sa.text("ALTER TABLE daily_intake ADD COLUMN carb_g FLOAT DEFAULT 0.0"))
-                print("Migrated daily_intake: added carb_g")
-                
-        # Check columns for intake_logs
-        log_columns = [col['name'] for col in inspector.get_columns('intake_logs')]
-        if 'carb_g' not in log_columns:
-            with engine.begin() as conn:
-                conn.execute(sa.text("ALTER TABLE intake_logs ADD COLUMN carb_g FLOAT DEFAULT 0.0"))
-                print("Migrated intake_logs: added carb_g")
-        if 'meal_type' not in log_columns:
-            with engine.begin() as conn:
-                conn.execute(sa.text("ALTER TABLE intake_logs ADD COLUMN meal_type VARCHAR DEFAULT 'General'"))
-                print("Migrated intake_logs: added meal_type")
+            # Check columns for daily_intake
+            daily_columns = [col['name'] for col in inspector.get_columns('daily_intake')]
+            if 'carb_g' not in daily_columns:
+                with engine.begin() as conn:
+                    conn.execute(sa.text("ALTER TABLE daily_intake ADD COLUMN carb_g FLOAT DEFAULT 0.0"))
+                    print("Migrated daily_intake: added carb_g")
+                    
+            # Check columns for intake_logs
+            log_columns = [col['name'] for col in inspector.get_columns('intake_logs')]
+            if 'carb_g' not in log_columns:
+                with engine.begin() as conn:
+                    conn.execute(sa.text("ALTER TABLE intake_logs ADD COLUMN carb_g FLOAT DEFAULT 0.0"))
+                    print("Migrated intake_logs: added carb_g")
+            if 'meal_type' not in log_columns:
+                with engine.begin() as conn:
+                    conn.execute(sa.text("ALTER TABLE intake_logs ADD COLUMN meal_type VARCHAR DEFAULT 'General'"))
+                    print("Migrated intake_logs: added meal_type")
+        except Exception as e:
+            print(f"Migration error: {str(e)}")
+
+        # Check if a default user exists
+        db = SessionLocal()
+        try:
+            user = db.query(User).first()
+            if not user:
+                default_user = User(
+                    name="Aravind",
+                    age=28,
+                    height_cm=175.0,
+                    weight_kg=72.0,
+                    sex="Male",
+                    target_calories=2100
+                )
+                db.add(default_user)
+                db.commit()
+        finally:
+            db.close()
     except Exception as e:
-        print(f"Migration error: {str(e)}")
-
-    # Check if a default user exists
-    db = SessionLocal()
-    try:
-        user = db.query(User).first()
-        if not user:
-            default_user = User(
-                name="Aravind",
-                age=28,
-                height_cm=175.0,
-                weight_kg=72.0,
-                sex="Male",
-                target_calories=2100
-            )
-            db.add(default_user)
-            db.commit()
-    finally:
-        db.close()
+        print(f"Database initialization failed: {str(e)}")
