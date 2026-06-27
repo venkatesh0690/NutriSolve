@@ -153,9 +153,13 @@ def generate_mock_agent_a(text_input: str, has_image: bool) -> List[Dict[str, An
     # NLP Parsing rule logic
     raw_sub_items = []
     if text_input:
-        # Split by "with", "and", "plus", ",", ";"
-        parts = re.split(r'\s+with\s+|\s+and\s+|\s+plus\s+|,|;', text_input, flags=re.IGNORECASE)
-        raw_sub_items = [p.strip() for p in parts if p.strip()]
+        ti_lower = text_input.lower()
+        if "roti with ghee" in ti_lower or "rotis with ghee" in ti_lower or "chapati with ghee" in ti_lower or "chapatis with ghee" in ti_lower or "phulka with ghee" in ti_lower or "phulkas with ghee" in ti_lower:
+            raw_sub_items = [text_input.strip()]
+        else:
+            # Split by "with", "and", "plus", ",", ";"
+            parts = re.split(r'\s+with\s+|\s+and\s+|\s+plus\s+|,|;', text_input, flags=re.IGNORECASE)
+            raw_sub_items = [p.strip() for p in parts if p.strip()]
     
     for sub_item in raw_sub_items:
         sub_lower = sub_item.lower()
@@ -437,8 +441,37 @@ async def generate_mock_agent_b(items: List[Dict[str, Any]]) -> Dict[str, float]
         "oatmeal": {"cal": 150.0, "pro": 5.0, "carb": 27.0, "fib": 4.0, "flg": 0.0},
         "dosa with coconut chutney": {"cal": 280.0, "pro": 6.0, "carb": 40.0, "fib": 3.0, "flg": 20.0},
         "dosa": {"cal": 166.0, "pro": 4.8, "carb": 29.3, "fib": 1.0, "flg": 0.0},
-        "chapati": {"cal": 114.0, "pro": 3.4, "carb": 18.5, "fib": 2.8, "flg": 0.0},
-        "roti": {"cal": 114.0, "pro": 3.4, "carb": 18.5, "fib": 2.8, "flg": 0.0},
+        "chapati": {"cal": 112.0, "pro": 2.9, "carb": 17.9, "fib": 3.2, "flg": 0.0},
+        "chapatis": {"cal": 112.0, "pro": 2.9, "carb": 17.9, "fib": 3.2, "flg": 0.0},
+        "roti": {"cal": 112.0, "pro": 2.9, "carb": 17.9, "fib": 3.2, "flg": 0.0},
+        "rotis": {"cal": 112.0, "pro": 2.9, "carb": 17.9, "fib": 3.2, "flg": 0.0},
+        "small roti": {"cal": 84.0, "pro": 2.2, "carb": 13.4, "fib": 2.4, "flg": 0.0},
+        "medium roti": {"cal": 112.0, "pro": 2.9, "carb": 17.9, "fib": 3.2, "flg": 0.0},
+        "large roti": {"cal": 140.0, "pro": 3.7, "carb": 22.4, "fib": 4.0, "flg": 0.0},
+        "small phulka": {"cal": 70.0, "pro": 2.3, "carb": 14.3, "fib": 2.4, "flg": 0.0},
+        "medium phulka": {"cal": 93.0, "pro": 3.1, "carb": 19.1, "fib": 3.2, "flg": 0.0},
+        "large phulka": {"cal": 117.0, "pro": 3.9, "carb": 24.0, "fib": 4.0, "flg": 0.0},
+        "phulka": {"cal": 93.0, "pro": 3.1, "carb": 19.1, "fib": 3.2, "flg": 0.0},
+        "roti with ghee": {"cal": 126.0, "pro": 2.9, "carb": 17.9, "fib": 3.2, "flg": 0.0},
+        "rotis with ghee": {"cal": 126.0, "pro": 2.9, "carb": 17.9, "fib": 3.2, "flg": 0.0},
+        "chapati with ghee": {"cal": 126.0, "pro": 2.9, "carb": 17.9, "fib": 3.2, "flg": 0.0},
+        "chapatis with ghee": {"cal": 126.0, "pro": 2.9, "carb": 17.9, "fib": 3.2, "flg": 0.0},
+        "phulka with ghee": {"cal": 107.0, "pro": 3.1, "carb": 19.1, "fib": 3.2, "flg": 0.0},
+        "phulkas with ghee": {"cal": 107.0, "pro": 3.1, "carb": 19.1, "fib": 3.2, "flg": 0.0},
+        "garlic methi roti": {"cal": 76.0, "pro": 2.5, "carb": 13.0, "fib": 2.5, "flg": 0.0},
+        "bajra roti": {"cal": 91.0, "pro": 2.9, "carb": 18.5, "fib": 3.0, "flg": 0.0},
+        "ragi roti": {"cal": 95.0, "pro": 2.2, "carb": 18.0, "fib": 3.0, "flg": 0.0},
+        "missi roti": {"cal": 99.0, "pro": 4.5, "carb": 15.0, "fib": 3.5, "flg": 0.0},
+        "besan roti": {"cal": 99.0, "pro": 4.5, "carb": 15.0, "fib": 3.5, "flg": 0.0},
+        "jowar roti": {"cal": 111.0, "pro": 2.8, "carb": 22.0, "fib": 3.5, "flg": 0.0},
+        "multigrain roti": {"cal": 115.0, "pro": 3.5, "carb": 19.0, "fib": 4.0, "flg": 0.0},
+        "makki ki roti": {"cal": 105.0, "pro": 2.5, "carb": 20.0, "fib": 2.5, "flg": 0.0},
+        "kuttu ka atta roti": {"cal": 85.0, "pro": 2.5, "carb": 17.0, "fib": 2.5, "flg": 0.0},
+        "singhara atta roti": {"cal": 80.0, "pro": 2.0, "carb": 16.0, "fib": 2.0, "flg": 0.0},
+        "naan": {"cal": 300.0, "pro": 8.0, "carb": 48.0, "fib": 2.0, "flg": 40.0},
+        "paratha": {"cal": 300.0, "pro": 6.0, "carb": 40.0, "fib": 3.0, "flg": 50.0},
+        "puri": {"cal": 90.0, "pro": 1.5, "carb": 10.0, "fib": 0.8, "flg": 15.0},
+        "bhatura": {"cal": 450.0, "pro": 8.0, "carb": 55.0, "fib": 2.0, "flg": 100.0},
         "paneer curry": {"cal": 260.0, "pro": 15.0, "carb": 8.0, "fib": 1.0, "flg": 5.0},
         "paneer": {"cal": 260.0, "pro": 15.0, "carb": 8.0, "fib": 1.0, "flg": 5.0},
         "rice bowl": {"cal": 200.0, "pro": 4.0, "carb": 45.0, "fib": 1.0, "flg": 5.0},
