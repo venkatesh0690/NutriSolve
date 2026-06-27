@@ -1,8 +1,10 @@
 import os
 import shutil
 import datetime
+import hashlib
+import secrets
 from typing import Optional
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Depends
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Depends, Header
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -41,7 +43,67 @@ def get_db():
     finally:
         db.close()
 
+# Password hashing utilities
+def hash_password(password: str) -> str:
+    salt = secrets.token_hex(16)
+    pw_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt.encode('utf-8'), 100000).hex()
+    return f"{salt}:{pw_hash}"
+
+def verify_password(password: str, stored_hash: str) -> bool:
+    if not stored_hash or ":" not in stored_hash:
+        return False
+    salt, original_hash = stored_hash.split(":", 1)
+    pw_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt.encode('utf-8'), 100000).hex()
+    return pw_hash == original_hash
+
+# Authentication Dependency
+def get_current_user(
+    x_user_id: Optional[str] = Header(None, alias="X-User-ID"),
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db)
+) -> User:
+    user_id = None
+    if x_user_id and x_user_id.isdigit():
+        user_id = int(x_user_id)
+    elif authorization:
+        token = authorization.replace("Bearer ", "").strip()
+        if token.isdigit():
+            user_id = int(token)
+            
+    if user_id:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user:
+            return user
+            
+    # Fallback to default demo user for guest compatibility
+    user = db.query(User).first()
+    if not user:
+        user = User(
+            name="Aravind",
+            email="aravind@example.com",
+            password_hash="",
+            age=28,
+            height_cm=175.0,
+            weight_kg=72.0,
+            sex="Male",
+            target_calories=2100,
+            star_target=100
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    return user
+
 # Pydantic Schemas
+class UserSignup(BaseModel):
+    name: str
+    email: str
+    password: str
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
 class ProfileUpdate(BaseModel):
     name: str
     age: int
@@ -63,72 +125,101 @@ class MetricsInput(BaseModel):
     active_issues: str
     family_history: str
 
-@app.get("/api/profile")
-def get_profile(db: Session = Depends(get_db)):
-    user = db.query(User).first()
-    if not user:
-        user = User(
-            name="Aravind",
-            age=28,
-            height_cm=175.0,
-            weight_kg=72.0,
-            sex="Male",
-            target_calories=2100,
-            star_target=100
-        )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
-    return user
-
-@app.put("/api/profile")
-def update_profile(profile: ProfileUpdate, db: Session = Depends(get_db)):
-    user = db.query(User).first()
-    if not user:
-        user = User()
-        db.add(user)
-    
-    user.name = profile.name
-    user.age = profile.age
-    user.height_cm = profile.height_cm
-    user.weight_kg = profile.weight_kg
-    user.sex = profile.sex
-    user.target_calories = profile.target_calories
-    user.star_target = profile.star_target
-    
+# ─── Auth Endpoints ───
+@app.post("/api/auth/signup")
+def signup(data: UserSignup, db: Session = Depends(get_db)):
+    email_clean = data.email.strip().lower()
+    if not email_clean or not data.password.strip():
+        raise HTTPException(status_code=400, detail="Email and password are required")
+        
+    existing = db.query(User).filter(User.email == email_clean).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="An account with this email already exists")
+        
+    user = User(
+        name=data.name.strip() or "User",
+        email=email_clean,
+        password_hash=hash_password(data.password.strip()),
+        age=28,
+        height_cm=175.0,
+        weight_kg=72.0,
+        sex="Male",
+        target_calories=2000,
+        star_target=100
+    )
+    db.add(user)
     db.commit()
     db.refresh(user)
-    return user
+    
+    return {
+        "success": True,
+        "token": str(user.id),
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "target_calories": user.target_calories
+        }
+    }
+
+@app.post("/api/auth/login")
+def login(data: UserLogin, db: Session = Depends(get_db)):
+    email_clean = data.email.strip().lower()
+    user = db.query(User).filter(User.email == email_clean).first()
+    if not user or not verify_password(data.password.strip(), user.password_hash):
+        raise HTTPException(status_code=400, detail="Invalid email or password")
+        
+    return {
+        "success": True,
+        "token": str(user.id),
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "target_calories": user.target_calories
+        }
+    }
+
+# ─── User Profile Endpoints ───
+@app.get("/api/profile")
+def get_profile(current_user: User = Depends(get_current_user)):
+    return current_user
+
+@app.put("/api/profile")
+def update_profile(
+    profile: ProfileUpdate, 
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    current_user.name = profile.name
+    current_user.age = profile.age
+    current_user.height_cm = profile.height_cm
+    current_user.weight_kg = profile.weight_kg
+    current_user.sex = profile.sex
+    current_user.target_calories = profile.target_calories
+    current_user.star_target = profile.star_target
+    
+    db.commit()
+    db.refresh(current_user)
+    return current_user
 
 @app.post("/api/metrics")
-def submit_metrics(metrics: MetricsInput, db: Session = Depends(get_db)):
-    user = db.query(User).first()
-    if not user:
-        user = User(
-            name="Aravind",
-            age=28,
-            height_cm=175.0,
-            weight_kg=72.0,
-            sex="Male",
-            target_calories=2100,
-            star_target=100
-        )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
-        
+def submit_metrics(
+    metrics: MetricsInput, 
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     try:
-        # 1. Run scoring engine
         metrics_dict = metrics.dict()
-        sex = user.sex if (user and user.sex) else "Male"
+        sex = current_user.sex if (current_user and current_user.sex) else "Male"
         active_issues = metrics.active_issues
         family_history = metrics.family_history
         
-        weight_kg = user.weight_kg if (user and user.weight_kg and user.weight_kg > 0) else 70.0
+        weight_kg = current_user.weight_kg if (current_user and current_user.weight_kg and current_user.weight_kg > 0) else 70.0
         result = generate_optimized_diet_plan(metrics_dict, sex, active_issues, family_history, weight_kg)
         
-        # 2. Persist HealthMetrics record
         db_metrics = HealthMetrics(
+            user_id=current_user.id,
             waist_cm=metrics.waist_cm,
             height_cm=metrics.height_cm,
             body_fat_pct=metrics.body_fat_pct,
@@ -144,8 +235,8 @@ def submit_metrics(metrics: MetricsInput, db: Session = Depends(get_db)):
         )
         db.add(db_metrics)
         
-        # 3. Persist DietPlan record
         db_diet = DietPlan(
+            user_id=current_user.id,
             calories=result["macros"]["calories"],
             protein_g=result["macros"]["protein_g"],
             carb_g=result["macros"]["carb_g"],
@@ -159,9 +250,7 @@ def submit_metrics(metrics: MetricsInput, db: Session = Depends(get_db)):
         )
         db.add(db_diet)
         
-        # 4. Update user's target calories based on recommendation
-        user.target_calories = result["macros"]["calories"]
-        
+        current_user.target_calories = result["macros"]["calories"]
         db.commit()
         return result
     except Exception as e:
@@ -174,14 +263,16 @@ def submit_metrics(metrics: MetricsInput, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 @app.get("/api/metrics/latest")
-def get_latest_diet_plan(db: Session = Depends(get_db)):
-    latest_plan = db.query(DietPlan).order_by(DietPlan.created_at.desc()).first()
-    latest_metrics = db.query(HealthMetrics).order_by(HealthMetrics.created_at.desc()).first()
+def get_latest_diet_plan(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    latest_plan = db.query(DietPlan).filter(DietPlan.user_id == current_user.id).order_by(DietPlan.created_at.desc()).first()
+    latest_metrics = db.query(HealthMetrics).filter(HealthMetrics.user_id == current_user.id).order_by(HealthMetrics.created_at.desc()).first()
     
     if not latest_plan:
         return {"has_plan": False}
         
-    # Evaluate list formats
     import ast
     try:
         rec_foods = ast.literal_eval(latest_plan.recommended_foods)
@@ -212,6 +303,7 @@ def get_latest_diet_plan(db: Session = Depends(get_db)):
         }
     }
 
+# ─── Daily Intake Endpoints ───
 @app.post("/api/intake")
 async def log_intake(
     date_str: Optional[str] = Form(None),
@@ -222,12 +314,11 @@ async def log_intake(
     dinner: str = Form(""),
     text_input: str = Form(""),
     image_file: Optional[UploadFile] = File(None),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # Determine the date (use browser local date_str if provided, else server date)
     today_str = date_str if date_str else datetime.date.today().isoformat()
     
-    # Save image file if uploaded
     image_path = ""
     image_bytes = None
     if image_file:
@@ -235,9 +326,8 @@ async def log_intake(
         filename = f"{timestamp_str}_{image_file.filename}"
         dest_path = os.path.join(UPLOAD_DIR, filename)
         
-        # Read bytes for API parsing
         image_bytes = await image_file.read()
-        await image_file.seek(0) # reset stream
+        await image_file.seek(0)
         
         with open(dest_path, "wb") as buffer:
             shutil.copyfileobj(image_file.file, buffer)
@@ -251,26 +341,22 @@ async def log_intake(
         "Dinner": dinner
     }
     
-    # Fallback to general input if meal fields are empty but text_input or image is present
     if not any(meals.values()):
         if text_input:
             meals["General"] = text_input
         elif image_file:
             meals["General"] = "Photo Logged"
             
-    existing_logs = db.query(IntakeLog).filter(IntakeLog.date == today_str).all()
+    existing_logs = db.query(IntakeLog).filter(IntakeLog.user_id == current_user.id, IntakeLog.date == today_str).all()
     existing_logs_map = {l.meal_type: l for l in existing_logs}
     
-    # If the user is submitting all empty fields, check if they are trying to clear existing logs
     is_empty_submission = not any(meals.values())
     
     if is_empty_submission:
         if existing_logs:
-            # Delete all logs for this date (including any General logs)
             for l in existing_logs:
                 db.delete(l)
-            # Delete daily aggregate record
-            daily = db.query(DailyIntake).filter(DailyIntake.date == today_str).first()
+            daily = db.query(DailyIntake).filter(DailyIntake.user_id == current_user.id, DailyIntake.date == today_str).first()
             if daily:
                 db.delete(daily)
             db.commit()
@@ -298,7 +384,6 @@ async def log_intake(
         existing_log = existing_logs_map.get(meal_type)
         
         if meal_text_clean:
-            # Deconstruct and parse each logged meal (new or updated)
             current_image_bytes = None
             current_image_path = ""
             if image_file and not image_used:
@@ -309,13 +394,11 @@ async def log_intake(
             try:
                 deduced_items, macros = await process_food_log(meal_text_clean, current_image_bytes)
             except Exception as e:
-                # If AI fails, proceed with safe mock logic so logging never fails
                 from agents import generate_mock_agent_a, generate_mock_agent_b
                 deduced_items = generate_mock_agent_a(meal_text_clean, current_image_bytes is not None)
                 macros = generate_mock_agent_b(deduced_items)
                 
             if existing_log:
-                # Update existing log
                 existing_log.text_input = meal_text_clean
                 existing_log.image_path = current_image_path or existing_log.image_path
                 existing_log.deduced_items = json.dumps(deduced_items)
@@ -326,8 +409,8 @@ async def log_intake(
                 existing_log.flagged_g = macros["flagged_g"]
                 existing_log.timestamp = datetime.datetime.utcnow()
             else:
-                # Insert new log
                 log = IntakeLog(
+                    user_id=current_user.id,
                     date=today_str,
                     text_input=meal_text_clean,
                     image_path=current_image_path,
@@ -341,14 +424,12 @@ async def log_intake(
                 )
                 db.add(log)
         else:
-            # Text is empty. If it was previously logged, delete it
             if existing_log:
                 db.delete(existing_log)
                 
     db.commit()
     
-    # Recalculate DailyIntake aggregates based on all remaining logs for this date
-    all_logs = db.query(IntakeLog).filter(IntakeLog.date == today_str).all()
+    all_logs = db.query(IntakeLog).filter(IntakeLog.user_id == current_user.id, IntakeLog.date == today_str).all()
     
     total_calories = sum(l.calories for l in all_logs)
     total_protein = sum(l.protein_g for l in all_logs)
@@ -356,10 +437,11 @@ async def log_intake(
     total_fiber = sum(l.fiber_g for l in all_logs)
     total_flagged = sum(l.flagged_g for l in all_logs)
     
-    daily = db.query(DailyIntake).filter(DailyIntake.date == today_str).first()
+    daily = db.query(DailyIntake).filter(DailyIntake.user_id == current_user.id, DailyIntake.date == today_str).first()
     if all_logs:
         if not daily:
             daily = DailyIntake(
+                user_id=current_user.id,
                 date=today_str,
                 calories=total_calories,
                 protein_g=total_protein,
@@ -380,13 +462,11 @@ async def log_intake(
             
     db.commit()
     
-    # Calculate health score for this batch of meals
     clean_grams = total_protein + total_fiber
     flagged_grams = total_flagged
     total_g = clean_grams + flagged_grams
     meal_score = (clean_grams / total_g * 100) if total_g > 0 else 100.0
     
-    # Build list of processed meals
     processed_meals = {}
     for l in all_logs:
         try:
@@ -418,12 +498,11 @@ async def log_intake(
         "meal_score": round(meal_score, 1)
     }
 
-def get_current_macro_targets(db: Session):
-    user = db.query(User).first()
+def get_current_macro_targets(db: Session, user: User):
     weight_kg = user.weight_kg if user else 80.0
     sex = user.sex if user else "Male"
     
-    latest_metrics = db.query(HealthMetrics).order_by(HealthMetrics.created_at.desc()).first()
+    latest_metrics = db.query(HealthMetrics).filter(HealthMetrics.user_id == user.id).order_by(HealthMetrics.created_at.desc()).first()
     if latest_metrics:
         metrics_dict = {
             "waist_cm": latest_metrics.waist_cm,
@@ -456,24 +535,21 @@ def get_current_macro_targets(db: Session):
         }
 
 @app.get("/api/analytics")
-def get_analytics(local_date: Optional[str] = None, db: Session = Depends(get_db)):
-    """
-    Computes Daily score percentage based on target calories and Weekly rolling 7-day average.
-    Penalizes overconsumption: if intake exceeds target, compliance drops.
-    """
-    user = db.query(User).first()
-    targets = get_current_macro_targets(db)
+def get_analytics(
+    local_date: Optional[str] = None, 
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    targets = get_current_macro_targets(db, current_user)
     target_calories = targets["calories"]
     
-    # Sync user target calories in database
-    if user and user.target_calories != target_calories:
-        user.target_calories = target_calories
+    if current_user and current_user.target_calories != target_calories:
+        current_user.target_calories = target_calories
         db.commit()
         
     today_str = local_date if local_date else datetime.date.today().isoformat()
-    daily = db.query(DailyIntake).filter(DailyIntake.date == today_str).first()
+    daily = db.query(DailyIntake).filter(DailyIntake.user_id == current_user.id, DailyIntake.date == today_str).first()
     
-    # 1. Daily calorie compliance score (penalizes overconsumption)
     today_calories = daily.calories if daily else 0.0
     daily_score = 0.0
     if target_calories > 0 and today_calories > 0:
@@ -483,12 +559,11 @@ def get_analytics(local_date: Optional[str] = None, db: Session = Depends(get_db
         else:
             daily_score = max(0.0, 100.0 - (ratio - 1.0) * 100.0)
         
-    # 2. Weekly rolling average of calorie compliance
     base_date = datetime.date.fromisoformat(today_str)
     weekly_scores = []
     for i in range(7):
         date_check = (base_date - datetime.timedelta(days=i)).isoformat()
-        day_record = db.query(DailyIntake).filter(DailyIntake.date == date_check).first()
+        day_record = db.query(DailyIntake).filter(DailyIntake.user_id == current_user.id, DailyIntake.date == date_check).first()
         if day_record:
             day_calories = day_record.calories
             if target_calories > 0 and day_calories > 0:
@@ -517,10 +592,6 @@ def get_analytics(local_date: Optional[str] = None, db: Session = Depends(get_db
     }
 
 def calculate_stars_for_day(day_record, target_calories: float) -> int:
-    """
-    Calculates star rating out of 5 based on calorie compliance percentage.
-    Penalizes both under-eating and over-eating relative to target.
-    """
     if not day_record or day_record.calories == 0 or target_calories <= 0:
         return 0
     ratio = day_record.calories / target_calories
@@ -541,12 +612,12 @@ def calculate_stars_for_day(day_record, target_calories: float) -> int:
     return 0
 
 @app.get("/api/history")
-def get_history(local_date: Optional[str] = None, db: Session = Depends(get_db)):
-    """
-    Returns historical data for the last 7 days, including carbs and stars rating.
-    """
-    user = db.query(User).first()
-    target_calories = user.target_calories if user else 2000.0
+def get_history(
+    local_date: Optional[str] = None, 
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    target_calories = current_user.target_calories if current_user else 2000.0
     
     if local_date:
         try:
@@ -562,12 +633,13 @@ def get_history(local_date: Optional[str] = None, db: Session = Depends(get_db))
         date_str = check_date.isoformat()
         label = check_date.strftime("%a")
         
-        day_record = db.query(DailyIntake).filter(DailyIntake.date == date_str).first()
+        day_record = db.query(DailyIntake).filter(DailyIntake.user_id == current_user.id, DailyIntake.date == date_str).first()
         if day_record:
             stars = calculate_stars_for_day(day_record, target_calories)
             history.append({
                 "date": date_str,
                 "label": label,
+                "has_data": True,
                 "healthy_g": round(day_record.protein_g + day_record.fiber_g, 1),
                 "unhealthy_g": round(day_record.flagged_g, 1),
                 "carb_g": round(day_record.carb_g, 1),
@@ -578,21 +650,23 @@ def get_history(local_date: Optional[str] = None, db: Session = Depends(get_db))
             history.append({
                 "date": date_str,
                 "label": label,
-                "healthy_g": 0.0,
-                "unhealthy_g": 0.0,
-                "carb_g": 0.0,
-                "calories": 0.0,
+                "has_data": False,
+                "healthy_g": 0,
+                "unhealthy_g": 0,
+                "carb_g": 0,
+                "calories": 0,
                 "stars": 0
             })
             
     return history
 
 @app.get("/api/calendar")
-def get_calendar_view(local_date: Optional[str] = None, db: Session = Depends(get_db)):
-    """
-    Returns daily aggregates and details for the last 30 calendar days to render in calendar grid.
-    """
-    targets = get_current_macro_targets(db)
+def get_calendar_view(
+    local_date: Optional[str] = None, 
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    targets = get_current_macro_targets(db, current_user)
     target_calories = targets["calories"]
     
     if local_date:
@@ -609,10 +683,9 @@ def get_calendar_view(local_date: Optional[str] = None, db: Session = Depends(ge
         check_date = (base_date - datetime.timedelta(days=i))
         date_str = check_date.isoformat()
         
-        day_record = db.query(DailyIntake).filter(DailyIntake.date == date_str).first()
+        day_record = db.query(DailyIntake).filter(DailyIntake.user_id == current_user.id, DailyIntake.date == date_str).first()
+        logs = db.query(IntakeLog).filter(IntakeLog.user_id == current_user.id, IntakeLog.date == date_str).order_by(IntakeLog.timestamp.asc()).all()
         
-        # Fetch detailed logs for this date and aggregate by meal_type
-        logs = db.query(IntakeLog).filter(IntakeLog.date == date_str).order_by(IntakeLog.timestamp.asc()).all()
         detailed_meals = {}
         for l in logs:
             try:
@@ -688,11 +761,11 @@ def get_calendar_view(local_date: Optional[str] = None, db: Session = Depends(ge
     return calendar_days
 
 @app.get("/api/logs")
-def get_recent_logs(db: Session = Depends(get_db)):
-    """
-    Returns all raw logs sorted by time.
-    """
-    logs = db.query(IntakeLog).order_by(IntakeLog.timestamp.desc()).limit(20).all()
+def get_recent_logs(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    logs = db.query(IntakeLog).filter(IntakeLog.user_id == current_user.id).order_by(IntakeLog.timestamp.desc()).limit(20).all()
     out = []
     import json
     for log in logs:
@@ -733,4 +806,3 @@ if os.path.exists(FRONTEND_DIST):
         if os.path.exists(index_file):
             return FileResponse(index_file)
         raise HTTPException(status_code=404, detail="Not Found")
-

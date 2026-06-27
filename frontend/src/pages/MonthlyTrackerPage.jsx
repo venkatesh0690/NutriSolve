@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Star, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { API_BASE } from '../config';
 
-export default function MonthlyTrackerPage() {
+export default function MonthlyTrackerPage({ currentUser }) {
   const [calendarDays, setCalendarDays] = useState([]);
   const [clickedDay, setClickedDay] = useState(null);
   const [targetCalories, setTargetCalories] = useState(1650);
@@ -26,7 +26,9 @@ export default function MonthlyTrackerPage() {
     setLoading(true);
     try {
       const ts = Date.now();
-      const resAnalytic = await fetch(`${API_BASE}/api/analytics?local_date=${localDateStr}&_t=${ts}`);
+      const headers = {};
+      if (currentUser && currentUser.id) headers['X-User-ID'] = String(currentUser.id);
+      const resAnalytic = await fetch(`${API_BASE}/api/analytics?local_date=${localDateStr}&_t=${ts}`, { headers });
       if (resAnalytic.ok) {
         const data = await resAnalytic.json();
         setTargetCalories(data.target_calories || 1650);
@@ -37,7 +39,7 @@ export default function MonthlyTrackerPage() {
       }
 
       const ts2 = Date.now();
-      const res = await fetch(`${API_BASE}/api/calendar?local_date=${localDateStr}&_t=${ts2}`);
+      const res = await fetch(`${API_BASE}/api/calendar?local_date=${localDateStr}&_t=${ts2}`, { headers });
       if (res.ok) {
         const data = await res.json();
         setCalendarDays(data);

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { User, Settings, Award, Save, RefreshCw, BarChart2, Star, Target, Flame, Edit, Check } from 'lucide-react';
 import { API_BASE } from '../config';
 
-export default function ProfilePage({ onProfileSave }) {
+export default function ProfilePage({ onProfileSave, currentUser }) {
   const [profile, setProfile] = useState({
     name: 'Aravind',
     age: 28,
@@ -22,9 +22,15 @@ export default function ProfilePage({ onProfileSave }) {
   const [errorMsg, setErrorMsg] = useState('');
   const [chartMode, setChartMode] = useState('calories'); // 'calories' or 'grams'
 
+  const getHeaders = () => {
+    const headers = {};
+    if (currentUser && currentUser.id) headers['X-User-ID'] = String(currentUser.id);
+    return headers;
+  };
+
   const fetchProfile = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/profile`);
+      const res = await fetch(`${API_BASE}/api/profile`, { headers: getHeaders() });
       if (res.ok) {
         const data = await res.json();
         setProfile(data);
@@ -37,15 +43,16 @@ export default function ProfilePage({ onProfileSave }) {
   const fetchHistoryAndCalendar = async () => {
     setLoading(true);
     try {
+      const headers = getHeaders();
       // Fetch 7-day history
-      const resHistory = await fetch(`${API_BASE}/api/history`);
+      const resHistory = await fetch(`${API_BASE}/api/history`, { headers });
       if (resHistory.ok) {
         const data = await resHistory.json();
         setHistoryData(data);
       }
       
       // Fetch 30-day calendar to compute cumulative stars
-      const resCalendar = await fetch(`${API_BASE}/api/calendar`);
+      const resCalendar = await fetch(`${API_BASE}/api/calendar`, { headers });
       if (resCalendar.ok) {
         const data = await resCalendar.json();
         setCalendarData(data);
@@ -60,7 +67,7 @@ export default function ProfilePage({ onProfileSave }) {
   useEffect(() => {
     fetchProfile();
     fetchHistoryAndCalendar();
-  }, []);
+  }, [currentUser]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -76,9 +83,10 @@ export default function ProfilePage({ onProfileSave }) {
     
     // Save to backend immediately
     try {
+      const headers = { 'Content-Type': 'application/json', ...getHeaders() };
       await fetch(`${API_BASE}/api/profile`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(updatedProfile)
       });
       onProfileSave();
@@ -94,9 +102,10 @@ export default function ProfilePage({ onProfileSave }) {
     setErrorMsg('');
 
     try {
+      const headers = { 'Content-Type': 'application/json', ...getHeaders() };
       const res = await fetch(`${API_BASE}/api/profile`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(profile)
       });
 

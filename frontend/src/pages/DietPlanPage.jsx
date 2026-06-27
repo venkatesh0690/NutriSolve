@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Shield, Sparkles, Scale, Heart, AlertTriangle, CheckCircle, HelpCircle } from 'lucide-react';
 import { API_BASE } from '../config';
 
-export default function DietPlanPage({ onPlanSubmit }) {
+export default function DietPlanPage({ onPlanSubmit, currentUser }) {
   const [formData, setFormData] = useState({
     waist_cm: '',
     height_cm: '',
@@ -24,7 +24,9 @@ export default function DietPlanPage({ onPlanSubmit }) {
   useEffect(() => {
     const fetchLatestPlan = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/metrics/latest`);
+        const headers = {};
+        if (currentUser && currentUser.id) headers['X-User-ID'] = String(currentUser.id);
+        const res = await fetch(`${API_BASE}/api/metrics/latest`, { headers });
         if (res.ok) {
           const data = await res.json();
           if (data.has_plan) {
@@ -82,9 +84,11 @@ export default function DietPlanPage({ onPlanSubmit }) {
     }
 
     try {
+      const reqHeaders = { 'Content-Type': 'application/json' };
+      if (currentUser && currentUser.id) reqHeaders['X-User-ID'] = String(currentUser.id);
       const res = await fetch(`${API_BASE}/api/metrics`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: reqHeaders,
         body: JSON.stringify({
           waist_cm: parseFloat(formData.waist_cm),
           height_cm: parseFloat(formData.height_cm),

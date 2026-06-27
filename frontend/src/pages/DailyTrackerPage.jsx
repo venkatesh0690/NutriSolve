@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Camera, Send, FileText, Check, AlertCircle, Trash2, Utensils } from 'lucide-react';
 import { API_BASE } from '../config';
 
-export default function DailyTrackerPage({ onLogSubmit }) {
+export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
   const [mealsForm, setMealsForm] = useState({
     breakfast: '', morning_snack: '', lunch: '', evening_snack: '', dinner: ''
   });
@@ -47,7 +47,9 @@ export default function DailyTrackerPage({ onLogSubmit }) {
     setLoadingData(true);
     try {
       const ts = Date.now();
-      const resAnalytic = await fetch(`${API_BASE}/api/analytics?local_date=${localDateStr}&_t=${ts}`);
+      const headers = {};
+      if (currentUser && currentUser.id) headers['X-User-ID'] = String(currentUser.id);
+      const resAnalytic = await fetch(`${API_BASE}/api/analytics?local_date=${localDateStr}&_t=${ts}`, { headers });
       if (resAnalytic.ok) {
         const aData = await resAnalytic.json();
         setTargetCalories(aData.target_calories || 1650);
@@ -58,7 +60,7 @@ export default function DailyTrackerPage({ onLogSubmit }) {
       }
 
       const ts2 = Date.now();
-      const resCalendar = await fetch(`${API_BASE}/api/calendar?local_date=${localDateStr}&_t=${ts2}`);
+      const resCalendar = await fetch(`${API_BASE}/api/calendar?local_date=${localDateStr}&_t=${ts2}`, { headers });
       if (resCalendar.ok) {
         const data = await resCalendar.json();
         setCalendarDays(data);
@@ -157,7 +159,9 @@ export default function DailyTrackerPage({ onLogSubmit }) {
     if (imageFile) formData.append('image_file', imageFile);
 
     try {
-      const res = await fetch(`${API_BASE}/api/intake`, { method: 'POST', body: formData });
+      const reqHeaders = {};
+      if (currentUser && currentUser.id) reqHeaders['X-User-ID'] = String(currentUser.id);
+      const res = await fetch(`${API_BASE}/api/intake`, { method: 'POST', headers: reqHeaders, body: formData });
       if (!res.ok) {
         let errMsg = 'Meal parsing failed.';
         try {
@@ -204,7 +208,9 @@ export default function DailyTrackerPage({ onLogSubmit }) {
     formData.append('dinner', '');
 
     try {
-      const res = await fetch(`${API_BASE}/api/intake`, { method: 'POST', body: formData });
+      const reqHeaders = {};
+      if (currentUser && currentUser.id) reqHeaders['X-User-ID'] = String(currentUser.id);
+      const res = await fetch(`${API_BASE}/api/intake`, { method: 'POST', headers: reqHeaders, body: formData });
       if (!res.ok) throw new Error('Failed to clear day entry.');
       const data = await res.json();
 
