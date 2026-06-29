@@ -479,8 +479,61 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
 
               {/* Dynamic Meal Plan */}
               {(() => {
-                const mealOptions = dietPlan.meal_plan_options || [dietPlan.meal_plan];
-                const currentMealPlan = mealOptions[mealOptionIdx % mealOptions.length] || dietPlan.meal_plan;
+                const base = dietPlan.meal_plan || {};
+                const mealOptions = (dietPlan.meal_plan_options && dietPlan.meal_plan_options.length >= 7) 
+                  ? dietPlan.meal_plan_options 
+                  : [
+                      {
+                        name: "Option 1 (Baseline Optimal)",
+                        breakfast: base.breakfast || "2 Whole Eggs poached on multi-grain toast, paired with fresh berries and green tea.",
+                        lunch: base.lunch || "Grilled Chicken / Paneer stir-fry with bell peppers and broccoli over wild rice.",
+                        snacks: base.snacks || "Unsweetened Greek yogurt with raw almonds and blueberries.",
+                        dinner: base.dinner || "Baked Salmon or Tofu with asparagus spears and cauliflower mash."
+                      },
+                      {
+                        name: "Option 2 (Metabolic Reset)",
+                        breakfast: "Spinach & Feta Egg Omelet (2 eggs + 2 whites) with sliced tomatoes and matcha green tea.",
+                        lunch: "Mediterranean Turkey or Chickpea Salad Bowl with cucumber, kalamata olives, and olive oil.",
+                        snacks: "Celery sticks with 2 tbsp almond butter and pumpkin seeds.",
+                        dinner: "Grilled Herb Cod or Paneer Skewers with roasted Brussels sprouts and garlic kale."
+                      },
+                      {
+                        name: "Option 3 (Lean Vitality)",
+                        breakfast: "Chia seed pudding made with almond milk, protein powder, and fresh raspberries.",
+                        lunch: "Avocado & Tuna or Tempeh lettuce wraps with cherry tomatoes and roasted cauliflower.",
+                        snacks: "2 hard-boiled eggs with black pepper and sea salt.",
+                        dinner: "Pan-seared Garlic Steak strips or Grilled Tofu with steamed green beans."
+                      },
+                      {
+                        name: "Option 4 (Low-GI Power)",
+                        breakfast: "Smoked Salmon or Sautéed Mushrooms on flaxseed crackers with avocado mash.",
+                        lunch: "Chicken or Lentil & Vegetable Stew seasoned with rosemary, garlic, and turmeric.",
+                        snacks: "Handful of macadamia nuts and roasted pumpkin seeds.",
+                        dinner: "Grilled Shrimp or Seitan Fajita Bowl with sautéed peppers, onions, and guacamole."
+                      },
+                      {
+                        name: "Option 5 (Clean Green)",
+                        breakfast: "Green Smoothie (kale, spinach, protein powder, flaxseeds, almond milk, half avocado).",
+                        lunch: "Beef or Black Bean Chili with diced tomatoes, bell peppers, and cilantro.",
+                        snacks: "Sliced bell pepper strips with fresh homemade guacamole.",
+                        dinner: "Lemon Baked Halibut or Tofu Steak with asparagus spears and lemon-dressed arugula."
+                      },
+                      {
+                        name: "Option 6 (Cardio Protect)",
+                        breakfast: "Poached eggs (2) over sautéed spinach and garlic with portobello caps.",
+                        lunch: "Grilled Chicken Caesar or Tofu salad with kale, shaved almonds, and olive oil vinaigrette.",
+                        snacks: "Unsweetened cottage cheese or coconut yogurt with flaxseeds.",
+                        dinner: "Baked Trout or Edamame Bowl with stir-fried bok choy and sesame seeds."
+                      },
+                      {
+                        name: "Option 7 (Weekend Refresh)",
+                        breakfast: "Almond Flour Protein Pancakes (2 small) topped with fresh strawberry puree.",
+                        lunch: "Roasted Turkey or Lentil patties with a large Mediterranean garden salad.",
+                        snacks: "Handful of unsalted pecans and chamomile tea.",
+                        dinner: "Grilled Lean Sirloin or Seitan Kebabs with grilled bell peppers and zucchini."
+                      }
+                    ];
+                const currentMealPlan = mealOptions[mealOptionIdx % mealOptions.length] || mealOptions[0];
                 return (
                   <div className="glass-panel border border-white/10 rounded-3xl p-6 shadow-xl space-y-6">
                     

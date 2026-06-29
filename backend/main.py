@@ -395,7 +395,14 @@ def get_latest_diet_plan(
             "hdl_status": scores["hdl_status"],
             "vit_d_status": scores["vit_d_status"]
         }
-        
+    meal_options = generate_meal_options(
+        latest_plan.calories, 
+        rec_foods, 
+        avd_foods, 
+        calc_metrics.get("metabolic_status") == "High Diabetes Risk", 
+        calc_metrics.get("ldl_status") in ["Elevated LDL", "High LDL (Hyperlipidemia)"]
+    )
+
     return {
         "has_plan": True,
         "metrics": latest_metrics,
@@ -413,7 +420,8 @@ def get_latest_diet_plan(
             "lunch": latest_plan.meal_lunch,
             "snacks": latest_plan.meal_snacks,
             "dinner": latest_plan.meal_dinner
-        }
+        },
+        "meal_plan_options": meal_options
     }
 
 # ─── Daily Intake Endpoints ───
