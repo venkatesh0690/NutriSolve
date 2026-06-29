@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Activity, User, BookOpen, Utensils, RefreshCw, Calendar, LogIn, LogOut, ShieldCheck } from 'lucide-react';
+import { Activity, User, BookOpen, Utensils, RefreshCw, Calendar, LogIn, LogOut, ShieldCheck, Sun, Moon } from 'lucide-react';
 import { API_BASE } from '../config';
 
-export default function Header({ currentTab, setCurrentTab, refreshTrigger, currentUser, onOpenAuth, onLogout }) {
+export default function Header({ currentTab, setCurrentTab, refreshTrigger, currentUser, onOpenAuth, onLogout, theme, onToggleTheme }) {
   const [metrics, setMetrics] = useState({
     daily_healthy_pct: 0,
     weekly_healthy_pct: 0,
@@ -200,28 +200,43 @@ export default function Header({ currentTab, setCurrentTab, refreshTrigger, curr
             </button>
           </nav>
 
-          {/* Desktop User Badge / Login button */}
-          <div className="hidden lg:block">
-            {currentUser ? (
-              <div className="flex items-center gap-2 bg-slate-100 px-3.5 py-2 rounded-2xl border border-slate-200 text-xs">
-                <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                <span className="font-extrabold text-slate-900 max-w-[100px] truncate">{currentUser.name}</span>
+          {/* Theme Toggle & User Account Controls */}
+          <div className="flex items-center gap-2">
+            {/* Sun / Moon Light & Dark Theme Toggle Button */}
+            <button
+              onClick={onToggleTheme}
+              className="flex items-center justify-center h-10 w-10 rounded-2xl bg-slate-100 border border-slate-200 text-slate-700 hover:bg-orange-50 hover:border-orange-200 hover:text-orange-600 transition shadow-sm cursor-pointer"
+              title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
+            >
+              {theme === 'light' ? (
+                <Moon className="h-4 w-4 text-slate-700" />
+              ) : (
+                <Sun className="h-4 w-4 text-amber-400 animate-pulse" />
+              )}
+            </button>
+
+            <div className="hidden lg:block">
+              {currentUser ? (
+                <div className="flex items-center gap-2 bg-slate-100 px-3.5 py-2 rounded-2xl border border-slate-200 text-xs">
+                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                  <span className="font-extrabold text-slate-900 max-w-[100px] truncate">{currentUser.name}</span>
+                  <button 
+                    onClick={onLogout} 
+                    title="Log Out" 
+                    className="text-slate-400 hover:text-rose-600 p-1 rounded-lg hover:bg-slate-200 transition ml-1 flex items-center gap-1 text-[10px] font-bold cursor-pointer"
+                  >
+                    <LogOut className="h-3.5 w-3.5" /> Logout
+                  </button>
+                </div>
+              ) : (
                 <button 
-                  onClick={onLogout} 
-                  title="Log Out" 
-                  className="text-slate-400 hover:text-rose-600 p-1 rounded-lg hover:bg-slate-200 transition ml-1 flex items-center gap-1 text-[10px] font-bold cursor-pointer"
+                  onClick={onOpenAuth} 
+                  className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-extrabold px-4.5 py-2 rounded-2xl shadow-md shadow-orange-500/20 transition text-xs cursor-pointer"
                 >
-                  <LogOut className="h-3.5 w-3.5" /> Logout
+                  <LogIn className="h-3.5 w-3.5" /> Login / Signup
                 </button>
-              </div>
-            ) : (
-              <button 
-                onClick={onOpenAuth} 
-                className="flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-extrabold px-4.5 py-2 rounded-2xl shadow-md shadow-orange-500/20 transition text-xs cursor-pointer"
-              >
-                <LogIn className="h-3.5 w-3.5" /> Login / Signup
-              </button>
-            )}
+              )}
+            </div>
           </div>
         </div>
 
