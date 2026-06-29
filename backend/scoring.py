@@ -233,11 +233,11 @@ def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issue
     
     # Calculate target calories directly from TDEE and Activity Level
     if needs_weight_loss:
-        total_cal = int(tdee * 0.85)  # Caloric deficit for healthy weight management
+        total_cal = int(tdee_target * 0.85)  # Caloric deficit for healthy weight management
     elif scores["body_fat_status"] == "Underfat":
-        total_cal = int(tdee * 1.10)  # Caloric surplus for healthy gain
+        total_cal = int(tdee_target * 1.10)  # Caloric surplus for healthy gain
     else:
-        total_cal = int(tdee)  # Maintenance
+        total_cal = int(tdee_target)  # Maintenance
         
     total_cal = max(1200, min(4500, total_cal))
     
