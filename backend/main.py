@@ -4,7 +4,7 @@ import datetime
 import hashlib
 import secrets
 from typing import Optional
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Depends, Header
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Depends, Header, Request
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -129,13 +129,41 @@ class MetricsInput(BaseModel):
     active_issues: Optional[str] = ""
     family_history: Optional[str] = ""
 
+# In-memory rate limiting tracking
+RATE_LIMIT_STORE = {}
+MAX_AUTH_ATTEMPTS = 5  # Max 5 signup/login requests
+RATE_LIMIT_WINDOW = 60  # per 60 seconds
+
+def check_rate_limit(ip: str):
+    import time
+    now = time.time()
+    if ip not in RATE_LIMIT_STORE:
+        RATE_LIMIT_STORE[ip] = []
+    
+    # Filter out timestamps older than window
+    RATE_LIMIT_STORE[ip] = [ts for ts in RATE_LIMIT_STORE[ip] if now - ts < RATE_LIMIT_WINDOW]
+    
+    if len(RATE_LIMIT_STORE[ip]) >= MAX_AUTH_ATTEMPTS:
+        raise HTTPException(
+            status_code=429, 
+            detail="Too many authentication requests. Please wait a minute before trying again."
+        )
+    
+    RATE_LIMIT_STORE[ip].append(now)
+
 # ─── Auth Endpoints ───
 @app.post("/api/auth/signup")
-def signup(data: UserSignup, db: Session = Depends(get_db)):
+def signup(data: UserSignup, request: Request, db: Session = Depends(get_db)):
+    client_ip = request.client.host if request.client else "unknown"
+    check_rate_limit(client_ip)
+
     email_clean = data.email.strip().lower()
     if not email_clean or not data.password.strip():
         raise HTTPException(status_code=400, detail="Email and password are required")
         
+    if len(data.password.strip()) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters long")
+
     existing = db.query(User).filter(User.email == email_clean).first()
     if existing:
         raise HTTPException(status_code=400, detail="An account with this email already exists")
@@ -167,7 +195,10 @@ def signup(data: UserSignup, db: Session = Depends(get_db)):
     }
 
 @app.post("/api/auth/login")
-def login(data: UserLogin, db: Session = Depends(get_db)):
+def login(data: UserLogin, request: Request, db: Session = Depends(get_db)):
+    client_ip = request.client.host if request.client else "unknown"
+    check_rate_limit(client_ip)
+
     email_clean = data.email.strip().lower()
     user = db.query(User).filter(User.email == email_clean).first()
     if not user or not verify_password(data.password.strip(), user.password_hash):
