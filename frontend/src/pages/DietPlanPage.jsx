@@ -180,11 +180,11 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
         <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/10 px-4 py-1.5 text-xs font-black text-teal-400 border border-teal-500/20 mb-4 shadow-sm">
           <Sparkles className="h-4 w-4 text-teal-400" /> AI Clinical Nutrition &amp; Macro Engine
         </span>
-        <h2 className="text-4xl sm:text-5xl font-black tracking-tight text-white leading-tight">
-          Eat Smarter, Live Stronger, <br />
+        <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
           <span className="bg-gradient-to-r from-teal-300 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
-            Feel Happier Everyday
-          </span>
+            Eat Smarter, Live Stronger,
+          </span> <br />
+          <span className="text-slate-200">Feel Happier Everyday</span>
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-sm sm:text-base font-medium text-slate-300 leading-relaxed">
           Enter your physiological, blood, and metabolic markers to calculate a clinical, multi-variable nutritional blueprint tailored to your exact metabolic needs.
