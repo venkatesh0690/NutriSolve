@@ -145,17 +145,20 @@ export default function MonthlyTrackerPage({ currentUser }) {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 space-y-6">
-      {/* Header */}
-      <div className="mb-4 text-center">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-500/10 px-3 py-1 text-xs font-semibold text-teal-400 border border-teal-500/20 mb-3 shadow-[0_0_15px_rgba(20,184,166,0.15)]">
-          <Calendar className="h-3.5 w-3.5" /> Monthly Overview
+      {/* Minimal Hero Banner Box */}
+      <div className="mb-8 text-center relative overflow-hidden glass-panel rounded-3xl p-6 sm:p-8 border border-teal-500/20 shadow-xl">
+        <div className="absolute top-0 right-0 -mr-12 -mt-12 h-64 w-64 rounded-full bg-teal-500/10 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 -ml-12 -mb-12 h-64 w-64 rounded-full bg-cyan-500/10 blur-3xl pointer-events-none" />
+        
+        <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/10 px-4 py-1.5 text-xs font-black text-teal-400 border border-teal-500/20 mb-3 shadow-sm">
+          <Calendar className="h-4 w-4 text-teal-400" /> Monthly Overview
         </span>
-        <h2 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
+        <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight m-0">
           <span className="bg-gradient-to-r from-teal-300 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
             Monthly Calendar
           </span>
         </h2>
-        <p className="mx-auto mt-2 max-w-2xl text-sm text-slate-400">
+        <p className="mx-auto mt-2 max-w-2xl text-sm font-medium text-slate-400">
           Track your monthly intake compliance. Click any date to view detailed meal logs.
         </p>
       </div>

@@ -257,12 +257,15 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 space-y-6">
-      {/* Header */}
-      <div className="mb-6 text-center">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-500/10 px-3.5 py-1 text-xs font-bold text-teal-400 border border-teal-500/20 mb-3 shadow-[0_0_15px_rgba(20,184,166,0.15)]">
+      {/* Minimal Hero Banner Box */}
+      <div className="mb-8 text-center relative overflow-hidden glass-panel rounded-3xl p-6 sm:p-8 border border-teal-500/20 shadow-xl">
+        <div className="absolute top-0 right-0 -mr-12 -mt-12 h-64 w-64 rounded-full bg-teal-500/10 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 -ml-12 -mb-12 h-64 w-64 rounded-full bg-cyan-500/10 blur-3xl pointer-events-none" />
+        
+        <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/10 px-4 py-1.5 text-xs font-black text-teal-400 border border-teal-500/20 mb-3 shadow-sm">
           <Utensils className="h-4 w-4 text-teal-400" /> Daily Food Tracker
         </span>
-        <h2 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
+        <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight m-0">
           <span className="bg-gradient-to-r from-teal-300 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
             Log Meals &amp; Nutrition
           </span>
