@@ -594,7 +594,7 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
                             <ChevronLeft className="h-4 w-4" />
                           </button>
                           <span className="text-xs font-black text-teal-400 bg-teal-500/10 border border-teal-500/20 px-3 py-1 rounded-full shadow-sm">
-                            {currentMealPlan.name || `Option ${(mealOptionIdx % mealOptions.length) + 1} of ${mealOptions.length}`}
+                            {(currentMealPlan.name ? currentMealPlan.name.replace(/\s*\((Low-Sodium Dash|Gluten-Free Modified|Dairy-Free Modified|Low-Purine Modified|Thyroid Vitality|Hormone Balance)\)/gi, '') : `Option ${(mealOptionIdx % mealOptions.length) + 1} of ${mealOptions.length}`)}
                           </span>
                           <button
                             type="button"

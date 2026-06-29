@@ -408,7 +408,9 @@ def get_latest_diet_plan(
         rec_foods, 
         avd_foods, 
         calc_metrics.get("metabolic_status") == "High Diabetes Risk", 
-        calc_metrics.get("ldl_status") in ["Elevated LDL", "High LDL (Hyperlipidemia)"]
+        calc_metrics.get("ldl_status") in ["Elevated LDL", "High LDL (Hyperlipidemia)"],
+        latest_metrics.active_issues if latest_metrics else "",
+        latest_metrics.family_history if latest_metrics else ""
     )
 
     return {
