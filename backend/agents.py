@@ -327,7 +327,7 @@ def parse_multiplier(name: str) -> Tuple[float, str]:
         "ten": 10.0
     }
     
-    units_regex = r'(bowls|bowl|cups|cup|plates|plate|servings|serving|pieces|piece|pcs|whole|boiled|glasses|glass|tbsp|tsp|kg|grams|gram|g|ml)'
+    units_regex = r'(bowls|bowl|cups|cup|plates|plate|servings|serving|pieces|piece|pcs|whole|glasses|glass|tbsp|tsp|kg|grams|gram|g|ml)'
     
     # We check word mappings first
     for word, val in word_mappings.items():
@@ -422,8 +422,14 @@ async def generate_mock_agent_b(items: List[Dict[str, Any]]) -> Dict[str, float]
         "rice bowl": {"cal": 204.0, "pro": 4.2, "carb": 44.08, "fib": 0.6, "flg": 0.0},
         "potato": {"cal": 140.0, "pro": 2.5, "carb": 24.0, "fib": 2.5, "flg": 5.0},
         "potato curry": {"cal": 140.0, "pro": 2.5, "carb": 24.0, "fib": 2.5, "flg": 5.0},
-        "channa": {"cal": 150.0, "pro": 8.0, "carb": 20.0, "fib": 5.0, "flg": 0.0},
-        "chana": {"cal": 150.0, "pro": 8.0, "carb": 20.0, "fib": 5.0, "flg": 0.0},
+        "boiled chickpeas": {"cal": 180.0, "pro": 9.54, "carb": 29.98, "fib": 7.6, "flg": 0.0},
+        "boiled chickpea": {"cal": 180.0, "pro": 9.54, "carb": 29.98, "fib": 7.6, "flg": 0.0},
+        "chickpeas": {"cal": 180.0, "pro": 9.54, "carb": 29.98, "fib": 7.6, "flg": 0.0},
+        "chickpea": {"cal": 180.0, "pro": 9.54, "carb": 29.98, "fib": 7.6, "flg": 0.0},
+        "boiled chana": {"cal": 180.0, "pro": 9.54, "carb": 29.98, "fib": 7.6, "flg": 0.0},
+        "chana": {"cal": 180.0, "pro": 9.54, "carb": 29.98, "fib": 7.6, "flg": 0.0},
+        "channa": {"cal": 180.0, "pro": 9.54, "carb": 29.98, "fib": 7.6, "flg": 0.0},
+        "chole": {"cal": 180.0, "pro": 9.54, "carb": 29.98, "fib": 7.6, "flg": 0.0},
         "biscuits": {"cal": 120.0, "pro": 2.0, "carb": 18.0, "fib": 0.5, "flg": 15.0},
         "biscuit": {"cal": 120.0, "pro": 2.0, "carb": 18.0, "fib": 0.5, "flg": 15.0},
         "puri with potato curry": {"cal": 420.0, "pro": 8.0, "carb": 55.0, "fib": 4.0, "flg": 30.0},
@@ -510,9 +516,10 @@ async def generate_mock_agent_b(items: List[Dict[str, Any]]) -> Dict[str, float]
         name = cleaned_name.lower().strip()
         is_clean = item.get("type", "clean") == "clean"
         
-        # 1. Try exact match in food_db
+        # 1. Try match in food_db (sorted by length descending for exact priority)
         matched = False
-        for key, macros in food_db.items():
+        sorted_db = sorted(food_db.items(), key=lambda x: len(x[0]), reverse=True)
+        for key, macros in sorted_db:
             if key == name or key in name:
                 total_cal += macros["cal"] * mult
                 total_p += macros["pro"] * mult
@@ -730,12 +737,12 @@ async def run_agent_b(parsed_items: List[Dict[str, Any]]) -> Dict[str, float]:
 async def process_food_log(text_input: str, image_bytes: bytes = None) -> Tuple[List[Dict[str, Any]], Dict[str, float]]:
     """
     Executes Agent A and Agent B in a sequential pipeline.
-    First parses items with Agent A, then calculates macros with Agent B.
+    First parses items with Agent A, then calculates exact macros with Agent B.
     """
     # 1. Run Agent A
     deduced_items = await run_agent_a(text_input, image_bytes)
     
-    # 2. Run Agent B
-    macros = await run_agent_b(deduced_items)
+    # 2. Run deterministic macro calculator for exact food_db consistency
+    macros = await generate_mock_agent_b(deduced_items)
     
     return deduced_items, macros
