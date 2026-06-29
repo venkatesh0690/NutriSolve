@@ -109,12 +109,12 @@ def compute_health_scores(metrics: Dict[str, Any], sex: str, age: int = 30) -> D
 
     if weight_kg > max_normal_w and max_normal_w > 0:
         var_pct = ((weight_kg - max_normal_w) / max_normal_w) * 100.0
-        weight_variance_str = f"+{var_pct:.1f}%"
-        weight_variance_status = "Overweight Variance"
+        weight_variance_str = f"-{var_pct:.1f}%"
+        weight_variance_status = "Overweight"
     elif weight_kg < min_normal_w and min_normal_w > 0:
         var_pct = ((min_normal_w - weight_kg) / min_normal_w) * 100.0
         weight_variance_str = f"-{var_pct:.1f}%"
-        weight_variance_status = "Underweight Variance"
+        weight_variance_status = "Underweight"
     else:
         weight_variance_str = "0.0%"
         weight_variance_status = "Optimal Weight"
