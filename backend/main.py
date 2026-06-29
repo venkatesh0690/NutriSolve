@@ -364,9 +364,39 @@ def get_latest_diet_plan(
     except:
         avd_foods = []
         
+    calc_metrics = {}
+    if latest_metrics:
+        m_dict = {
+            "weight_kg": latest_metrics.weight_kg,
+            "height_cm": latest_metrics.height_cm,
+            "body_fat_pct": latest_metrics.body_fat_pct,
+            "hba1c_pct": latest_metrics.hba1c_pct,
+            "fasting_glucose_mg_dl": latest_metrics.fasting_glucose_mg_dl,
+            "cholesterol_ldl_mg_dl": latest_metrics.cholesterol_ldl_mg_dl,
+            "cholesterol_hdl_mg_dl": latest_metrics.cholesterol_hdl_mg_dl,
+            "vitamin_d_ng_ml": latest_metrics.vitamin_d_ng_ml,
+            "steps_per_day": latest_metrics.steps_per_day,
+            "activity_level": latest_metrics.activity_level
+        }
+        from scoring import compute_health_scores
+        scores = compute_health_scores(m_dict, current_user.sex or "Male", current_user.age or 30)
+        calc_metrics = {
+            "weight_variance_str": scores["weight_variance_str"],
+            "weight_variance_status": scores["weight_variance_status"],
+            "step_target_str": scores["step_target_str"],
+            "step_target_status": scores["step_target_status"],
+            "bmi": scores["bmi"],
+            "body_fat_status": scores["body_fat_status"],
+            "metabolic_status": scores["metabolic_status"],
+            "ldl_status": scores["ldl_status"],
+            "hdl_status": scores["hdl_status"],
+            "vit_d_status": scores["vit_d_status"]
+        }
+        
     return {
         "has_plan": True,
         "metrics": latest_metrics,
+        "calculated_metrics": calc_metrics,
         "macros": {
             "calories": latest_plan.calories,
             "protein_g": latest_plan.protein_g,

@@ -260,9 +260,11 @@ def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issue
     
     return {
         "calculated_metrics": {
-            "bmr": round(scores["bmr"], 1),
-            "bmr_status": scores["bmr_status"],
-            "tdee": round(scores["tdee"], 0),
+            "weight_variance_str": scores["weight_variance_str"],
+            "weight_variance_status": scores["weight_variance_status"],
+            "step_target_str": scores["step_target_str"],
+            "step_target_status": scores["step_target_status"],
+            "bmi": scores["bmi"],
             "body_fat_status": scores["body_fat_status"],
             "metabolic_status": scores["metabolic_status"],
             "ldl_status": scores["ldl_status"],
