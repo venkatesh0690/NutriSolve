@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Sparkles, Scale, Heart, AlertTriangle, CheckCircle, Flame, Activity, Info, Plus, Minus } from 'lucide-react';
+import { Shield, Sparkles, Scale, Heart, AlertTriangle, CheckCircle, Flame, Activity, Info, Plus, Minus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { API_BASE } from '../config';
 
 export default function DietPlanPage({ onPlanSubmit, currentUser }) {
@@ -24,6 +24,7 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
   const [activeTooltip, setActiveTooltip] = useState(null); // 'bmr', 'tdee', etc for mobile tap
   const [showRecommended, setShowRecommended] = useState(false);
   const [showAvoid, setShowAvoid] = useState(false);
+  const [mealOptionIdx, setMealOptionIdx] = useState(0);
 
   const renderBullets = (text, dotColor = 'bg-brand-primary') => {
     if (!text) return null;
@@ -477,132 +478,161 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
               </div>
 
               {/* Dynamic Meal Plan */}
-              <div className="bg-dark-card border border-dark-border rounded-3xl p-6 shadow-xl space-y-6">
-                
-                {/* Calories & Macro Splits */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-dark-border/60 pb-5 gap-4">
-                  <div>
-                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                      <Heart className="h-5 w-5 text-rose-500" /> Customized Meal Plan
-                    </h3>
-                    <p className="text-xs text-slate-400">Baseline calculated targets for dietary adjustments</p>
-                  </div>
-                  
-                  <div className="flex items-center gap-4 bg-slate-900 px-4 py-2.5 rounded-2xl border border-dark-border">
-                    <div>
-                      <span className="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">Daily Target</span>
-                      <span className="text-lg font-black text-brand-primary">{dietPlan.macros?.calories} kcal</span>
+              {(() => {
+                const mealOptions = dietPlan.meal_plan_options || [dietPlan.meal_plan];
+                const currentMealPlan = mealOptions[mealOptionIdx % mealOptions.length] || dietPlan.meal_plan;
+                return (
+                  <div className="glass-panel border border-white/10 rounded-3xl p-6 shadow-xl space-y-6">
+                    
+                    {/* Calories & Macro Splits & Navigation Controls */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-white/10 pb-5 gap-4">
+                      <div>
+                        <div className="flex items-center gap-3">
+                          <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                            <Heart className="h-5 w-5 text-rose-400" /> Customized Meal Plan
+                          </h3>
+                        </div>
+
+                        {/* Variety Selector Carousel Buttons */}
+                        <div className="flex items-center gap-2 mt-2">
+                          <button
+                            type="button"
+                            onClick={() => setMealOptionIdx(prev => (prev - 1 + mealOptions.length) % mealOptions.length)}
+                            className="p-1.5 rounded-xl bg-slate-900/90 border border-white/10 hover:border-teal-400 text-slate-300 hover:text-teal-400 transition cursor-pointer shadow-sm"
+                            title="Previous Meal Variety"
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                          </button>
+                          <span className="text-xs font-black text-teal-400 bg-teal-500/10 border border-teal-500/20 px-3 py-1 rounded-full shadow-sm">
+                            {currentMealPlan.name || `Option ${(mealOptionIdx % mealOptions.length) + 1} of ${mealOptions.length}`}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setMealOptionIdx(prev => (prev + 1) % mealOptions.length)}
+                            className="p-1.5 rounded-xl bg-slate-900/90 border border-white/10 hover:border-teal-400 text-slate-300 hover:text-teal-400 transition cursor-pointer shadow-sm"
+                            title="Next Meal Variety"
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-4 bg-slate-900/80 px-4 py-2.5 rounded-2xl border border-white/10 shadow-md">
+                        <div>
+                          <span className="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">Daily Target</span>
+                          <span className="text-lg font-black text-teal-400">{dietPlan.macros?.calories} kcal</span>
+                        </div>
+                        <div className="h-8 w-px bg-white/10" />
+                        <div className="flex gap-3 text-xs">
+                          <div>
+                            <span className="block text-[9px] text-slate-400 uppercase font-semibold">PRO</span>
+                            <span className="font-bold text-emerald-400">{dietPlan.macros?.protein_g}g</span>
+                          </div>
+                          <div>
+                            <span className="block text-[9px] text-slate-400 uppercase font-semibold">CARB</span>
+                            <span className="font-bold text-cyan-400">{dietPlan.macros?.carb_g}g</span>
+                          </div>
+                          <div>
+                            <span className="block text-[9px] text-slate-400 uppercase font-semibold">FAT</span>
+                            <span className="font-bold text-amber-400">{dietPlan.macros?.fat_g}g</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="h-8 w-px bg-dark-border" />
-                    <div className="flex gap-3 text-xs">
-                      <div>
-                        <span className="block text-[9px] text-slate-500 uppercase font-semibold">PRO</span>
-                        <span className="font-bold text-emerald-400">{dietPlan.macros?.protein_g}g</span>
+
+                    {/* Meal Sections */}
+                    <div className="grid gap-5 md:grid-cols-2">
+                      <div className="glass-card p-4 rounded-2xl border-l-4 border-l-teal-400 shadow-lg hover:border-teal-400/40 transition duration-300">
+                        <span className="text-[10px] font-extrabold uppercase text-teal-400 tracking-wider flex items-center gap-1.5">
+                          <span className="h-2 w-2 rounded-full bg-teal-400 animate-pulse shadow-[0_0_8px_#2dd4bf]" /> 🌅 Breakfast Blueprint
+                        </span>
+                        {renderBullets(currentMealPlan?.breakfast, 'bg-teal-400')}
                       </div>
-                      <div>
-                        <span className="block text-[9px] text-slate-500 uppercase font-semibold">CARB</span>
-                        <span className="font-bold text-cyan-400">{dietPlan.macros?.carb_g}g</span>
+
+                      <div className="glass-card p-4 rounded-2xl border-l-4 border-l-emerald-400 shadow-lg hover:border-emerald-400/40 transition duration-300">
+                        <span className="text-[10px] font-extrabold uppercase text-emerald-400 tracking-wider flex items-center gap-1.5">
+                          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" /> 🍽️ Lunch Blueprint
+                        </span>
+                        {renderBullets(currentMealPlan?.lunch, 'bg-emerald-400')}
                       </div>
-                      <div>
-                        <span className="block text-[9px] text-slate-500 uppercase font-semibold">FAT</span>
-                        <span className="font-bold text-amber-400">{dietPlan.macros?.fat_g}g</span>
+
+                      <div className="glass-card p-4 rounded-2xl border-l-4 border-l-amber-400 shadow-lg hover:border-amber-400/40 transition duration-300">
+                        <span className="text-[10px] font-extrabold uppercase text-amber-400 tracking-wider flex items-center gap-1.5">
+                          <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_#fbbf24]" /> 🍎 Evening Snack
+                        </span>
+                        {renderBullets(currentMealPlan?.snacks, 'bg-amber-400')}
+                      </div>
+
+                      <div className="glass-card p-4 rounded-2xl border-l-4 border-l-cyan-400 shadow-lg hover:border-cyan-400/40 transition duration-300">
+                        <span className="text-[10px] font-extrabold uppercase text-cyan-400 tracking-wider flex items-center gap-1.5">
+                          <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#22d3ee]" /> 🌙 Dinner Blueprint
+                        </span>
+                        {renderBullets(currentMealPlan?.dinner, 'bg-cyan-400')}
                       </div>
                     </div>
                   </div>
-                </div>
+                );
+              })()}
 
-                {/* Meal Sections */}
-                <div className="grid gap-5 md:grid-cols-2">
-                  <div className="glass-card p-4 rounded-2xl border-l-4 border-l-brand-primary shadow-lg hover:border-brand-primary/40 transition duration-300">
-                    <span className="text-[10px] font-extrabold uppercase text-brand-primary tracking-wider flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-brand-primary animate-pulse shadow-[0_0_8px_#10b981]" /> 🌅 Breakfast Blueprint
+              {/* Recommended vs Avoid Foods (Collapsed Default + / -) */}
+              <div className="grid gap-5 md:grid-cols-2 pt-2">
+                {/* Recommended Clean Foods */}
+                <div className="space-y-3 glass-card p-4 rounded-2xl border border-white/10 hover:border-emerald-500/30 transition duration-300">
+                  <div 
+                    onClick={() => setShowRecommended(!showRecommended)}
+                    className="flex items-center justify-between cursor-pointer select-none group"
+                  >
+                    <span className="text-xs font-extrabold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4" /> Recommended Clean Foods
                     </span>
-                    {renderBullets(dietPlan.meal_plan?.breakfast, 'bg-brand-primary')}
-                  </div>
-
-                  <div className="glass-card p-4 rounded-2xl border-l-4 border-l-emerald-400 shadow-lg hover:border-emerald-400/40 transition duration-300">
-                    <span className="text-[10px] font-extrabold uppercase text-emerald-400 tracking-wider flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" /> 🍽️ Lunch Blueprint
-                    </span>
-                    {renderBullets(dietPlan.meal_plan?.lunch, 'bg-emerald-400')}
-                  </div>
-
-                  <div className="glass-card p-4 rounded-2xl border-l-4 border-l-amber-400 shadow-lg hover:border-amber-400/40 transition duration-300">
-                    <span className="text-[10px] font-extrabold uppercase text-amber-400 tracking-wider flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_#fbbf24]" /> 🍎 Evening Snack
-                    </span>
-                    {renderBullets(dietPlan.meal_plan?.snacks, 'bg-amber-400')}
-                  </div>
-
-                  <div className="glass-card p-4 rounded-2xl border-l-4 border-l-cyan-400 shadow-lg hover:border-cyan-400/40 transition duration-300">
-                    <span className="text-[10px] font-extrabold uppercase text-cyan-400 tracking-wider flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#22d3ee]" /> 🌙 Dinner Blueprint
-                    </span>
-                    {renderBullets(dietPlan.meal_plan?.dinner, 'bg-cyan-400')}
-                  </div>
-                </div>
-
-                {/* Recommended vs Avoid Foods (Collapsed Default + / -) */}
-                <div className="grid gap-5 md:grid-cols-2 border-t border-white/10 pt-6">
-                  {/* Recommended Clean Foods */}
-                  <div className="space-y-3 glass-card p-4 rounded-2xl border border-white/10 hover:border-emerald-500/30 transition duration-300">
-                    <div 
-                      onClick={() => setShowRecommended(!showRecommended)}
-                      className="flex items-center justify-between cursor-pointer select-none group"
+                    <button 
+                      type="button"
+                      className="h-7 w-7 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center group-hover:bg-emerald-500/20 transition shadow-[0_0_10px_rgba(16,185,129,0.15)]"
                     >
-                      <span className="text-xs font-extrabold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4" /> Recommended Clean Foods
-                      </span>
-                      <button 
-                        type="button"
-                        className="h-7 w-7 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center group-hover:bg-emerald-500/20 transition shadow-[0_0_10px_rgba(16,185,129,0.15)]"
-                      >
-                        {showRecommended ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-                      </button>
-                    </div>
-
-                    {showRecommended && (
-                      <ul className="space-y-2 pt-1 transition-all duration-300">
-                        {dietPlan.recommended_foods?.map((food, i) => (
-                          <li key={i} className="text-xs text-slate-200 flex items-center gap-2.5 bg-slate-950/50 px-3.5 py-2 rounded-xl border border-white/5 hover:border-emerald-500/40 transition">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0 shadow-[0_0_6px_#34d399]" />
-                            <span className="font-medium">{food}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+                      {showRecommended ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                    </button>
                   </div>
 
-                  {/* Foods & Ingredients to Avoid */}
-                  <div className="space-y-3 glass-card p-4 rounded-2xl border border-white/10 hover:border-rose-500/30 transition duration-300">
-                    <div 
-                      onClick={() => setShowAvoid(!showAvoid)}
-                      className="flex items-center justify-between cursor-pointer select-none group"
-                    >
-                      <span className="text-xs font-extrabold text-rose-400 uppercase tracking-wider flex items-center gap-2">
-                        <AlertTriangle className="h-4 w-4" /> Foods &amp; Ingredients to Avoid
-                      </span>
-                      <button 
-                        type="button"
-                        className="h-7 w-7 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 flex items-center justify-center group-hover:bg-rose-500/20 transition shadow-[0_0_10px_rgba(244,63,94,0.15)]"
-                      >
-                        {showAvoid ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-                      </button>
-                    </div>
-
-                    {showAvoid && (
-                      <ul className="space-y-2 pt-1 transition-all duration-300">
-                        {dietPlan.avoid_foods?.map((food, i) => (
-                          <li key={i} className="text-xs text-slate-200 flex items-center gap-2.5 bg-slate-950/50 px-3.5 py-2 rounded-xl border border-white/5 hover:border-rose-500/40 transition">
-                            <span className="h-1.5 w-1.5 rounded-full bg-rose-400 shrink-0 shadow-[0_0_6px_#fb7185]" />
-                            <span className="font-medium">{food}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
+                  {showRecommended && (
+                    <ul className="space-y-2 pt-1 transition-all duration-300">
+                      {dietPlan.recommended_foods?.map((food, i) => (
+                        <li key={i} className="text-xs text-slate-200 flex items-center gap-2.5 bg-slate-950/50 px-3.5 py-2 rounded-xl border border-white/5 hover:border-emerald-500/40 transition">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0 shadow-[0_0_6px_#34d399]" />
+                          <span className="font-medium">{food}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
 
+                {/* Foods & Ingredients to Avoid */}
+                <div className="space-y-3 glass-card p-4 rounded-2xl border border-white/10 hover:border-rose-500/30 transition duration-300">
+                  <div 
+                    onClick={() => setShowAvoid(!showAvoid)}
+                    className="flex items-center justify-between cursor-pointer select-none group"
+                  >
+                    <span className="text-xs font-extrabold text-rose-400 uppercase tracking-wider flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4" /> Foods &amp; Ingredients to Avoid
+                    </span>
+                    <button 
+                      type="button"
+                      className="h-7 w-7 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 flex items-center justify-center group-hover:bg-rose-500/20 transition shadow-[0_0_10px_rgba(244,63,94,0.15)]"
+                    >
+                      {showAvoid ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                    </button>
+                  </div>
+
+                  {showAvoid && (
+                    <ul className="space-y-2 pt-1 transition-all duration-300">
+                      {dietPlan.avoid_foods?.map((food, i) => (
+                        <li key={i} className="text-xs text-slate-200 flex items-center gap-2.5 bg-slate-950/50 px-3.5 py-2 rounded-xl border border-white/5 hover:border-rose-500/40 transition">
+                          <span className="h-1.5 w-1.5 rounded-full bg-rose-400 shrink-0 shadow-[0_0_6px_#fb7185]" />
+                          <span className="font-medium">{food}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
             </>
           ) : (

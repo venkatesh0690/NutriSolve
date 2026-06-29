@@ -278,29 +278,164 @@ def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issue
         },
         "recommended_foods": recommended_foods,
         "avoid_foods": avoid_foods,
-        "meal_plan": meal_plan
+        "meal_plan": meal_plan[0],
+        "meal_plan_options": meal_plan
     }
 
-def generate_meal_options(calories: int, recommended: List[str], avoid: List[str], low_carb: bool, low_fat: bool) -> Dict[str, str]:
+def generate_meal_options(calories: int, recommended: List[str], avoid: List[str], low_carb: bool, low_fat: bool) -> List[Dict[str, str]]:
     if low_carb:
-        breakfast = "Scrambled Egg Whites (3) or Tofu scramble with spinach, sautéed mushrooms, and half an avocado. Season with pepper, turmeric, and a dash of nutritional yeast."
-        lunch = "Grilled Salmon or Lemon Herb Tempeh served over a bed of Quinoa with steamed broccoli, asparagus, and a side of mixed leafy greens dressed in olive oil and lemon juice."
-        snacks = "A handful of raw almonds (10-12) or walnuts, paired with a cup of unsweetened Greek yogurt topped with fresh blueberries."
-        dinner = "Baked Chicken Breast or Grilled Seitan with baked zucchini slices, cauliflower mash, and a mixed cucumber-tomato salad."
+        return [
+            {
+                "name": "Option 1 (Keto / High Protein)",
+                "breakfast": "Scrambled Egg Whites (3) or Tofu scramble with spinach, sautéed mushrooms, and half an avocado. Season with pepper and turmeric.",
+                "lunch": "Grilled Salmon or Lemon Herb Tempeh served over a bed of Quinoa with steamed broccoli, asparagus, and mixed leafy greens.",
+                "snacks": "A handful of raw almonds (10-12) or walnuts, paired with a cup of unsweetened Greek yogurt topped with fresh blueberries.",
+                "dinner": "Baked Chicken Breast or Grilled Seitan with baked zucchini slices, cauliflower mash, and a mixed cucumber-tomato salad."
+            },
+            {
+                "name": "Option 2 (Metabolic Reset)",
+                "breakfast": "Spinach & Feta Egg Omelet (2 eggs + 2 whites) with sliced tomatoes and a cup of matcha green tea.",
+                "lunch": "Mediterranean Turkey or Chickpea Salad Bowl with cucumber, kalamata olives, bell peppers, and extra virgin olive oil.",
+                "snacks": "Celery sticks with 2 tbsp almond butter and pumpkin seeds.",
+                "dinner": "Grilled Herb Cod or Paneer Skewers with roasted Brussels sprouts and sautéed kale in garlic oil."
+            },
+            {
+                "name": "Option 3 (Clean Lean Muscle)",
+                "breakfast": "Chia seed pudding made with almond milk, scoop of whey/plant protein, and fresh raspberries.",
+                "lunch": "Avocado & Tuna or Tempeh lettuce wraps with cherry tomatoes and a side of roasted cauliflower florets.",
+                "snacks": "2 hard-boiled eggs with a pinch of black pepper and sea salt.",
+                "dinner": "Pan-seared Garlic Steak strips or Grilled Tofu with steamed green beans and mashed avocado salad."
+            },
+            {
+                "name": "Option 4 (Low-GI Vitality)",
+                "breakfast": "Smoked Salmon or Sautéed Mushrooms on flaxseed crackers with avocado mash and microgreens.",
+                "lunch": "Chicken or Lentil & Vegetable Stew seasoned with rosemary, thyme, garlic, and turmeric.",
+                "snacks": "Handful of macadamia nuts and roasted pumpkin seeds.",
+                "dinner": "Grilled Shrimp or Seitan Fajita Bowl (no tortillas) with sautéed peppers, onions, guacamole, and salsa."
+            },
+            {
+                "name": "Option 5 (Paleo / Clean Green)",
+                "breakfast": "Green Smoothie (kale, spinach, protein powder, flaxseeds, almond milk, half avocado).",
+                "lunch": "Beef or Black Bean Chili with diced tomatoes, bell peppers, kidney beans, and cilantro.",
+                "snacks": "Sliced bell pepper strips with 3 tbsp fresh homemade guacamole.",
+                "dinner": "Lemon Baked Halibut or Tofu Steak with asparagus spears and a side of lemon-dressed arugula."
+            },
+            {
+                "name": "Option 6 (Cardio Protection)",
+                "breakfast": "Poached eggs (2) over sautéed spinach and garlic with grilled portobello mushroom caps.",
+                "lunch": "Grilled Chicken Caesar or Tofu salad with kale, shaved almonds, and olive oil vinaigrette.",
+                "snacks": "Unsweetened cottage cheese or coconut yogurt with flaxseeds.",
+                "dinner": "Baked Trout or Edamame Bowl with stir-fried bok choy, zucchini noodles, and sesame seeds."
+            },
+            {
+                "name": "Option 7 (Weekend Refresh)",
+                "breakfast": "Almond Flour Protein Pancakes (2 small) topped with fresh strawberry puree.",
+                "lunch": "Roasted Turkey or Lentil patties with a large Mediterranean garden salad.",
+                "snacks": "Handful of unsalted pecans and a cup of chamomile tea.",
+                "dinner": "Grilled Lean Sirloin or Seitan Kebabs with grilled bell peppers and zucchini skewers."
+            }
+        ]
     elif low_fat:
-        breakfast = "Oatmeal cooked in skimmed or fortified plant milk, topped with sliced bananas, flaxseeds, and a sprinkle of cinnamon."
-        lunch = "Lentil Soup with a large bowl of green salad (cucumbers, carrots, bell peppers) and boiled chicken breast (no oil) or boiled chickpea chaat."
-        snacks = "One medium apple with a tablespoon of peanut butter, or roasted chickpeas (without salt/oil)."
-        dinner = "Steamed cod or grilled tofu wrapped in lettuce leaves, served with brown rice and stir-fried vegetables in a low-sodium soy sauce."
+        return [
+            {
+                "name": "Option 1 (Heart Healthy)",
+                "breakfast": "Oatmeal cooked in skimmed or fortified plant milk, topped with sliced bananas, flaxseeds, and a sprinkle of cinnamon.",
+                "lunch": "Lentil Soup with a large bowl of green salad (cucumbers, carrots, bell peppers) and boiled chicken breast (no oil) or boiled chickpea chaat.",
+                "snacks": "One medium apple with a tablespoon of peanut butter, or roasted chickpeas (without salt/oil).",
+                "dinner": "Steamed cod or grilled tofu wrapped in lettuce leaves, served with brown rice and stir-fried vegetables in a low-sodium soy sauce."
+            },
+            {
+                "name": "Option 2 (Lipid Lowering)",
+                "breakfast": "Whole grain toast (1 slice) with mashed banana, chia seeds, and a glass of freshly squeezed orange juice.",
+                "lunch": "Black bean & corn salad with lime-cilantro dressing, paired with steamed brown rice and baked tofu.",
+                "snacks": "Air-popped popcorn (no butter) or rice cakes with sliced cucumber.",
+                "dinner": "Baked chicken breast (skinless) or Lentil stew with steamed carrots, green peas, and quinoa."
+            },
+            {
+                "name": "Option 3 (High Fiber Power)",
+                "breakfast": "Smoothie bowl with frozen mixed berries, banana, spinach, and skim milk topped with rolled oats.",
+                "lunch": "Minestrone soup rich in beans, zucchini, tomatoes, and whole-wheat pasta.",
+                "snacks": "Fresh watermelon slices or a pear.",
+                "dinner": "Steamed white fish or Edamame served with steamed jasmine rice and stir-fried snow peas."
+            },
+            {
+                "name": "Option 4 (Digestive Cleanse)",
+                "breakfast": "Buckwheat or Quinoa porridge cooked in almond milk with diced peaches and chia seeds.",
+                "lunch": "Warm Chickpea & Spinach salad with pomegranate seeds and lemon juice vinaigrette.",
+                "snacks": "Baked sweet potato wedges (oil-free) with sea salt.",
+                "dinner": "Grilled Lean Turkey burger patty or Seitan patty on a bed of steamed kale and roasted beets."
+            },
+            {
+                "name": "Option 5 (Endurance Fuel)",
+                "breakfast": "Whole grain cereal with skim milk, sliced strawberries, and a hard-boiled egg white.",
+                "lunch": "Grilled Veggie & Hummus Wrap (whole wheat tortilla) with carrots, cucumber, and lettuce.",
+                "snacks": "Cup of fresh pineapple chunks or grapes.",
+                "dinner": "Poached Salmon fillet or Tofu with steamed wild rice, green beans, and roasted squash."
+            },
+            {
+                "name": "Option 6 (Low Cholesterol)",
+                "breakfast": "Egg white omelet (3 whites) with tomatoes, bell peppers, and mushrooms, plus 1 slice whole wheat toast.",
+                "lunch": "Yellow dal (lentil tadka with minimal oil) with brown rice and cucumber raita.",
+                "snacks": "Handful of dried figs or apricots.",
+                "dinner": "Baked Haddock or Tofu skewers with steamed cauliflower mash and sautéed spinach."
+            },
+            {
+                "name": "Option 7 (Light Recovery)",
+                "breakfast": "Overnight oats with chia seeds, almond milk, and grated green apple.",
+                "lunch": "Barley & Vegetable soup with a side salad dressed in balsamic vinegar.",
+                "snacks": "Sliced orange or grapefruit half.",
+                "dinner": "Steamed chicken breast tenderloins or boiled chickpeas with steamed broccoli and red quinoa."
+            }
+        ]
     else:
-        breakfast = "2 Whole Eggs poached on a slice of multi-grain toast, paired with a side of mixed berries and green tea."
-        lunch = "Chicken Breast / Paneer stir-fry with bell peppers, onions, and broccoli, served with a small bowl of wild rice."
-        snacks = "A protein shake or a handful of mixed nuts (walnuts, almonds) and a piece of dark chocolate (85%+)."
-        dinner = "Baked Turkey Meatballs or Lentil Pasta in a home-made tomato basil sauce, with a large mixed side salad."
-        
-    return {
-        "breakfast": breakfast,
-        "lunch": lunch,
-        "snacks": snacks,
-        "dinner": dinner
-    }
+        return [
+            {
+                "name": "Option 1 (Balanced Optimal)",
+                "breakfast": "2 Whole Eggs poached on a slice of multi-grain toast, paired with a side of mixed berries and green tea.",
+                "lunch": "Chicken Breast / Paneer stir-fry with bell peppers, onions, and broccoli, served with a small bowl of wild rice.",
+                "snacks": "A protein shake or a handful of mixed nuts (walnuts, almonds) and a piece of dark chocolate (85%+).",
+                "dinner": "Baked Turkey Meatballs or Lentil Pasta in a home-made tomato basil sauce, with a large mixed side salad."
+            },
+            {
+                "name": "Option 2 (Performance Boost)",
+                "breakfast": "Greek yogurt bowl with granola, honey, chia seeds, and fresh kiwi slices.",
+                "lunch": "Turkey or Tempeh avocado wrap with whole-wheat tortilla, spinach, and garlic hummus.",
+                "snacks": "Edamame pods lightly salted with sea salt.",
+                "dinner": "Grilled Salmon steak with roasted asparagus and sweet potato mash."
+            },
+            {
+                "name": "Option 3 (Mediterranean Diet)",
+                "breakfast": "Avocado toast with hemp seeds, poached egg, and cherry tomatoes.",
+                "lunch": "Greek Salad with grilled chicken breast or halloumi, olives, cucumber, feta cheese, and olive oil.",
+                "snacks": "Apple slices dipped in almond butter.",
+                "dinner": "Baked Sea Bass or Paneer tikka with quinoa pilaf and roasted Mediterranean vegetables."
+            },
+            {
+                "name": "Option 4 (Lean Athletic)",
+                "breakfast": "Protein oatmeal with banana slices, peanut butter, and cinnamon.",
+                "lunch": "Lean beef steak or Seitan bowl with jasmine rice, steamed broccoli, and teriyaki glaze.",
+                "snacks": "Cottage cheese with pineapple chunks.",
+                "dinner": "Pan-seared cod or Tofu with roasted red potatoes and steamed asparagus."
+            },
+            {
+                "name": "Option 5 (Nutrient Dense)",
+                "breakfast": "Vegetable & cheese omelet with a side of grapefruit half and herbal tea.",
+                "lunch": "Quinoa power bowl with roasted chickpeas, roasted sweet potato, kale, and tahini dressing.",
+                "snacks": "Handful of trail mix (almonds, raisins, pumpkin seeds).",
+                "dinner": "Roasted chicken thighs (skinless) or Paneer kebabs with sautéed green beans and wild rice."
+            },
+            {
+                "name": "Option 6 (Vitality Active)",
+                "breakfast": "Scrambled eggs (2) with sautéed mushrooms, spinach, and 1 slice sourdough toast.",
+                "lunch": "Brown rice sushi bowl with salmon or tofu, avocado, cucumber, edamame, and sesame dressing.",
+                "snacks": "Protein bar or handful of mixed berries and walnuts.",
+                "dinner": "Grilled Lamb chops or Grilled Tempeh with roasted carrots and garlic kale."
+            },
+            {
+                "name": "Option 7 (Chef's Special Variety)",
+                "breakfast": "Spinach & ricotta stuffed crepe or egg wrap with fresh orange juice.",
+                "lunch": "Mexican Burrito Bowl with chicken or black beans, guacamole, brown rice, and pico de gallo.",
+                "snacks": "Sliced pear with pumpkin seeds.",
+                "dinner": "Baked Trout or Grilled Tofu with quinoa, steamed asparagus, and lemon butter sauce."
+            }
+        ]
