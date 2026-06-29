@@ -3,19 +3,44 @@ import { Shield, Sparkles, Scale, Heart, AlertTriangle, CheckCircle, Flame, Acti
 import { API_BASE } from '../config';
 
 export default function DietPlanPage({ onPlanSubmit, currentUser }) {
-  const [formData, setFormData] = useState({
-    weight_kg: '',
-    height_cm: '',
-    body_fat_pct: '',
-    hba1c_pct: '',
-    fasting_glucose_mg_dl: '',
-    cholesterol_ldl_mg_dl: '',
-    cholesterol_hdl_mg_dl: '',
-    vitamin_d_ng_ml: '',
-    steps_per_day: '5000',
-    activity_level: 'sedentary',
-    active_issues: '',
-    family_history: ''
+  const [formData, setFormData] = useState(() => {
+    try {
+      const cachedPlan = localStorage.getItem('nutrisolve_saved_diet_plan');
+      if (cachedPlan) {
+        const parsed = JSON.parse(cachedPlan);
+        const m = parsed.metrics;
+        if (m) {
+          return {
+            weight_kg: m.weight_kg || '',
+            height_cm: m.height_cm || '',
+            body_fat_pct: m.body_fat_pct || '',
+            hba1c_pct: m.hba1c_pct || '',
+            fasting_glucose_mg_dl: m.fasting_glucose_mg_dl || '',
+            cholesterol_ldl_mg_dl: m.cholesterol_ldl_mg_dl || '',
+            cholesterol_hdl_mg_dl: m.cholesterol_hdl_mg_dl || '',
+            vitamin_d_ng_ml: m.vitamin_d_ng_ml || '',
+            steps_per_day: m.steps_per_day || '5000',
+            activity_level: m.activity_level || 'sedentary',
+            active_issues: m.active_issues || '',
+            family_history: m.family_history || ''
+          };
+        }
+      }
+    } catch (e) {}
+    return {
+      weight_kg: '',
+      height_cm: '',
+      body_fat_pct: '',
+      hba1c_pct: '',
+      fasting_glucose_mg_dl: '',
+      cholesterol_ldl_mg_dl: '',
+      cholesterol_hdl_mg_dl: '',
+      vitamin_d_ng_ml: '',
+      steps_per_day: '5000',
+      activity_level: 'sedentary',
+      active_issues: '',
+      family_history: ''
+    };
   });
 
   const [loading, setLoading] = useState(false);
