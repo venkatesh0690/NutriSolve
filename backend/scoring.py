@@ -102,17 +102,16 @@ def compute_health_scores(metrics: Dict[str, Any], sex: str, age: int = 30) -> D
         vit_d_status = "Insufficient"
         
     # BMI and Weight Variance %
-    height_m = height / 100.0
+    height_m = height / 100.0 if height > 0 else 1.70
     bmi = weight_kg / (height_m ** 2) if height_m > 0 else 22.0
-    min_normal_w = 18.5 * (height_m ** 2)
-    max_normal_w = 24.9 * (height_m ** 2)
+    ideal_weight = 22.0 * (height_m ** 2)
 
-    if weight_kg > max_normal_w and max_normal_w > 0:
-        var_pct = ((weight_kg - max_normal_w) / max_normal_w) * 100.0
+    if bmi > 24.9:
+        var_pct = ((weight_kg - ideal_weight) / ideal_weight) * 100.0
         weight_variance_str = f"-{var_pct:.1f}%"
         weight_variance_status = "Overweight"
-    elif weight_kg < min_normal_w and min_normal_w > 0:
-        var_pct = ((min_normal_w - weight_kg) / min_normal_w) * 100.0
+    elif bmi < 18.5:
+        var_pct = ((ideal_weight - weight_kg) / ideal_weight) * 100.0
         weight_variance_str = f"-{var_pct:.1f}%"
         weight_variance_status = "Underweight"
     else:

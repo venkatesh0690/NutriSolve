@@ -288,8 +288,11 @@ def submit_metrics(
         family_history = metrics.family_history or ""
         
         weight_kg = metrics.weight_kg if metrics.weight_kg > 0 else (current_user.weight_kg if current_user and current_user.weight_kg > 0 else 70.0)
+        height_cm = metrics.height_cm if metrics.height_cm > 0 else (current_user.height_cm if current_user and current_user.height_cm > 0 else 170.0)
         current_user.weight_kg = weight_kg
-        current_user.height_cm = metrics.height_cm
+        current_user.height_cm = height_cm
+        metrics_dict["weight_kg"] = weight_kg
+        metrics_dict["height_cm"] = height_cm
         
         result = generate_optimized_diet_plan(metrics_dict, sex, active_issues, family_history, weight_kg, age)
         
