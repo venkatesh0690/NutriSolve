@@ -169,7 +169,6 @@ def init_db():
                     conn.execute(sa.text("ALTER TABLE daily_intake ADD COLUMN carb_g FLOAT DEFAULT 0.0"))
                 if 'user_id' not in daily_columns:
                     conn.execute(sa.text("ALTER TABLE daily_intake ADD COLUMN user_id INTEGER"))
-                    
             # Check columns for intake_logs
             log_columns = [col['name'] for col in inspector.get_columns('intake_logs')]
             with engine.begin() as conn:
@@ -179,6 +178,13 @@ def init_db():
                     conn.execute(sa.text("ALTER TABLE intake_logs ADD COLUMN meal_type VARCHAR DEFAULT 'General'"))
                 if 'user_id' not in log_columns:
                     conn.execute(sa.text("ALTER TABLE intake_logs ADD COLUMN user_id INTEGER"))
+
+            # Auto-migrate legacy orphaned records
+            with engine.begin() as conn:
+                conn.execute(sa.text("UPDATE intake_logs SET user_id = 1 WHERE user_id IS NULL"))
+                conn.execute(sa.text("UPDATE daily_intake SET user_id = 1 WHERE user_id IS NULL"))
+                conn.execute(sa.text("UPDATE health_metrics SET user_id = 1 WHERE user_id IS NULL"))
+                conn.execute(sa.text("UPDATE diet_plans SET user_id = 1 WHERE user_id IS NULL"))
         except Exception as e:
             print(f"Migration error: {str(e)}")
 

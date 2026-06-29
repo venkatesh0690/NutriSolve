@@ -151,6 +151,17 @@ def check_rate_limit(ip: str):
     
     RATE_LIMIT_STORE[ip].append(now)
 
+def claim_orphaned_data(target_user_id: int, db: Session):
+    try:
+        from sqlalchemy import or_
+        db.query(IntakeLog).filter(or_(IntakeLog.user_id == None, IntakeLog.user_id == 1)).update({IntakeLog.user_id: target_user_id}, synchronize_session=False)
+        db.query(DailyIntake).filter(or_(DailyIntake.user_id == None, DailyIntake.user_id == 1)).update({DailyIntake.user_id: target_user_id}, synchronize_session=False)
+        db.query(HealthMetrics).filter(or_(HealthMetrics.user_id == None, HealthMetrics.user_id == 1)).update({HealthMetrics.user_id: target_user_id}, synchronize_session=False)
+        db.query(DietPlan).filter(or_(DietPlan.user_id == None, DietPlan.user_id == 1)).update({DietPlan.user_id: target_user_id}, synchronize_session=False)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+
 # ─── Auth Endpoints ───
 @app.post("/api/auth/signup")
 def signup(data: UserSignup, request: Request, db: Session = Depends(get_db)):
@@ -183,6 +194,8 @@ def signup(data: UserSignup, request: Request, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
     
+    claim_orphaned_data(user.id, db)
+
     return {
         "success": True,
         "token": str(user.id),
@@ -204,6 +217,8 @@ def login(data: UserLogin, request: Request, db: Session = Depends(get_db)):
     if not user or not verify_password(data.password.strip(), user.password_hash):
         raise HTTPException(status_code=400, detail="Invalid email or password")
         
+    claim_orphaned_data(user.id, db)
+
     return {
         "success": True,
         "token": str(user.id),
@@ -213,6 +228,27 @@ def login(data: UserLogin, request: Request, db: Session = Depends(get_db)):
             "email": user.email,
             "target_calories": user.target_calories
         }
+    }
+
+# ─── Admin & Database Inspection Endpoints ───
+@app.get("/api/admin/stats")
+def get_admin_stats(db: Session = Depends(get_db)):
+    total_users = db.query(User).count()
+    total_logs = db.query(IntakeLog).count()
+    total_daily = db.query(DailyIntake).count()
+    users_list = [
+        {
+            "id": u.id,
+            "name": u.name,
+            "email": u.email or "Guest/Legacy",
+            "created_at": u.created_at.isoformat() if u.created_at else None
+        } for u in db.query(User).all()
+    ]
+    return {
+        "total_accounts": total_users,
+        "total_meal_logs": total_logs,
+        "total_daily_records": total_daily,
+        "accounts": users_list
     }
 
 # ─── User Profile Endpoints ───
