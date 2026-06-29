@@ -401,15 +401,11 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {/* Daily Target Calorie Count Card */}
-                  <div 
-                    onClick={() => toggleTooltip('daily_cal')}
-                    className="group relative bg-slate-900/60 p-4 rounded-2xl border border-dark-border hover:border-amber-500/50 transition cursor-pointer"
-                  >
+                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border shadow-md">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1">
                         <Flame className="h-3 w-3 text-amber-400" /> Daily Target Calories
                       </span>
-                      <Info className="h-3.5 w-3.5 text-slate-500 group-hover:text-amber-400 transition" />
                     </div>
 
                     <div className="text-xl font-black text-white mt-1.5">
@@ -419,26 +415,14 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
                     <span className="inline-block mt-2 text-[10px] font-semibold px-2 py-0.5 rounded border bg-amber-500/10 text-amber-400 border-amber-500/20">
                       Calculated Target
                     </span>
-
-                    {/* Tooltip on Hover / Tap */}
-                    <div className={`absolute left-0 right-0 top-full mt-2 z-30 p-3 bg-slate-950 border border-amber-500/30 rounded-xl shadow-2xl text-[11px] text-slate-300 leading-relaxed pointer-events-none transition-all duration-200 ${activeTooltip === 'daily_cal' ? 'block' : 'hidden group-hover:block'}`}>
-                      <p className="font-semibold text-amber-400 mb-1 flex items-center gap-1">
-                        <Flame className="h-3 w-3" /> Daily Calorie Goal
-                      </p>
-                      Mathematically tailored daily energy target designed to achieve your metabolic health and body composition goals.
-                    </div>
                   </div>
 
                   {/* Daily Step Target Card */}
-                  <div 
-                    onClick={() => toggleTooltip('steps_target')}
-                    className="group relative bg-slate-900/60 p-4 rounded-2xl border border-dark-border hover:border-brand-primary/50 transition cursor-pointer"
-                  >
+                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border shadow-md">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1">
                         <Activity className="h-3 w-3 text-brand-primary" /> Daily Step Goal
                       </span>
-                      <Info className="h-3.5 w-3.5 text-slate-500 group-hover:text-brand-primary transition" />
                     </div>
 
                     <div className="text-xl font-black text-brand-primary mt-1.5">
@@ -448,14 +432,6 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
                     <span className="inline-block mt-2 text-[10px] font-semibold px-2 py-0.5 rounded border bg-brand-primary/10 text-brand-primary border-brand-primary/20">
                       {dietPlan.calculated_metrics?.step_target_status || 'BMI Target: 10,000 steps'}
                     </span>
-
-                    {/* Tooltip on Hover / Tap */}
-                    <div className={`absolute left-0 right-0 top-full mt-2 z-30 p-3 bg-slate-950 border border-brand-primary/30 rounded-xl shadow-2xl text-[11px] text-slate-300 leading-relaxed pointer-events-none transition-all duration-200 ${activeTooltip === 'steps_target' ? 'block' : 'hidden group-hover:block'}`}>
-                      <p className="font-semibold text-brand-primary mb-1 flex items-center gap-1">
-                        <Activity className="h-3 w-3" /> BMI Step Target %
-                      </p>
-                      Your daily step completion percentage calculated against a recommended physical activity goal customized to your BMI.
-                    </div>
                   </div>
 
                   {/* Metabolic Status Card */}
