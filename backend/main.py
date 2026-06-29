@@ -307,8 +307,8 @@ def submit_metrics(
             activity_level=metrics.activity_level or "sedentary",
             active_issues=active_issues,
             family_history=family_history,
-            bmr=result["calculated_metrics"]["bmr"],
-            tdee=result["calculated_metrics"]["tdee"],
+            bmr=result["calculated_metrics"].get("bmr", 0.0),
+            tdee=result["calculated_metrics"].get("tdee", 0.0),
             waist_cm=metrics.waist_cm or 0.0,
             bri=0.0,
             whtr=0.0
