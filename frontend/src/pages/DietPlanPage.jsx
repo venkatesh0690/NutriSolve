@@ -19,7 +19,14 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
   });
 
   const [loading, setLoading] = useState(false);
-  const [dietPlan, setDietPlan] = useState(null);
+  const [dietPlan, setDietPlan] = useState(() => {
+    try {
+      const cached = localStorage.getItem('nutrisolve_saved_diet_plan');
+      return cached ? JSON.parse(cached) : null;
+    } catch (e) {
+      return null;
+    }
+  });
   const [error, setError] = useState('');
   const [activeTooltip, setActiveTooltip] = useState(null); // 'bmr', 'tdee', etc for mobile tap
   const [showRecommended, setShowRecommended] = useState(false);
@@ -56,6 +63,9 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
           const data = await res.json();
           if (data.has_plan) {
             setDietPlan(data);
+            try {
+              localStorage.setItem('nutrisolve_saved_diet_plan', JSON.stringify(data));
+            } catch (e) {}
             const m = data.metrics;
             if (m) {
               setFormData({
@@ -145,6 +155,9 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
 
       const data = await res.json();
       setDietPlan(data);
+      try {
+        localStorage.setItem('nutrisolve_saved_diet_plan', JSON.stringify(data));
+      } catch (e) {}
       onPlanSubmit();
     } catch (err) {
       setError(err.message || 'Server error occurred.');
