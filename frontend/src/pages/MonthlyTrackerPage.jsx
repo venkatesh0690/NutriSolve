@@ -150,7 +150,11 @@ export default function MonthlyTrackerPage({ currentUser }) {
         <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-500/10 px-3 py-1 text-xs font-semibold text-teal-400 border border-teal-500/20 mb-3 shadow-[0_0_15px_rgba(20,184,166,0.15)]">
           <Calendar className="h-3.5 w-3.5" /> Monthly Overview
         </span>
-        <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">Monthly Calendar</h2>
+        <h2 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
+          <span className="bg-gradient-to-r from-teal-300 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+            Monthly Calendar
+          </span>
+        </h2>
         <p className="mx-auto mt-2 max-w-2xl text-sm text-slate-400">
           Track your monthly intake compliance. Click any date to view detailed meal logs.
         </p>

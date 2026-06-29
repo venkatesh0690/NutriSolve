@@ -172,21 +172,21 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:px-6">
       
-      {/* Reference Inspired Hero Banner (Inspired by Image 2 & 3: Nourish Template) */}
-      <div className="mb-10 text-center relative overflow-hidden glass-panel rounded-3xl p-8 sm:p-12 border border-slate-200 shadow-sm">
-        <div className="absolute top-0 right-0 -mr-12 -mt-12 h-64 w-64 rounded-full bg-orange-500/10 blur-3xl pointer-events-none" />
+      {/* Reference Inspired Hero Banner */}
+      <div className="mb-10 text-center relative overflow-hidden glass-panel rounded-3xl p-8 sm:p-12 border border-teal-500/20 shadow-xl">
+        <div className="absolute top-0 right-0 -mr-12 -mt-12 h-64 w-64 rounded-full bg-teal-500/10 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 -ml-12 -mb-12 h-64 w-64 rounded-full bg-cyan-500/10 blur-3xl pointer-events-none" />
         
-        <span className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-500/10 to-emerald-500/10 px-4 py-1.5 text-xs font-black text-orange-600 border border-orange-500/20 mb-4 shadow-sm">
-          <Sparkles className="h-4 w-4 text-orange-500" /> AI Clinical Nutrition &amp; Macro Engine
+        <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/10 px-4 py-1.5 text-xs font-black text-teal-400 border border-teal-500/20 mb-4 shadow-sm">
+          <Sparkles className="h-4 w-4 text-teal-400" /> AI Clinical Nutrition &amp; Macro Engine
         </span>
-        <h2 className="text-4xl sm:text-5xl font-black tracking-tight text-slate-900 leading-tight">
+        <h2 className="text-4xl sm:text-5xl font-black tracking-tight text-white leading-tight">
           Eat Smarter, Live Stronger, <br />
-          <span className="bg-gradient-to-r from-orange-500 via-emerald-500 to-cyan-500 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-teal-300 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
             Feel Happier Everyday
           </span>
         </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-sm sm:text-base font-medium text-slate-600 leading-relaxed">
+        <p className="mx-auto mt-4 max-w-2xl text-sm sm:text-base font-medium text-slate-300 leading-relaxed">
           Enter your physiological, blood, and metabolic markers to calculate a clinical, multi-variable nutritional blueprint tailored to your exact metabolic needs.
         </p>
       </div>

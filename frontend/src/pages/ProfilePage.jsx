@@ -173,7 +173,11 @@ export default function ProfilePage({ onProfileSave, currentUser }) {
           <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-500/10 px-3 py-1 text-xs font-semibold text-teal-400 border border-teal-500/20 mb-3">
             <Award className="h-3 w-3" /> Dashboard
           </span>
-          <h2 className="text-3xl font-extrabold tracking-tight text-white m-0">User Profile &amp; Trends</h2>
+          <h2 className="text-3xl font-black tracking-tight leading-tight m-0">
+            <span className="bg-gradient-to-r from-teal-300 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+              User Profile &amp; Trends
+            </span>
+          </h2>
           <p className="text-sm text-slate-400 mt-1 max-w-lg">
             Monitor nutritional scores, track daily stars target progress, and view rolling calorie limits.
           </p>

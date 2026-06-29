@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Camera, Send, FileText, Check, AlertCircle, Trash2, Utensils, Calendar } from 'lucide-react';
+import { Camera, Send, FileText, Check, AlertCircle, Trash2, Utensils, Calendar, Sun, Apple, Coffee, Moon, Sparkles } from 'lucide-react';
 import { API_BASE } from '../config';
 
 export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
@@ -245,11 +245,11 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
   };
 
   const mealTypesList = [
-    { key: 'breakfast', label: 'Breakfast', emoji: '🌅' },
-    { key: 'morning_snack', label: 'Morning Snack', emoji: '🍎' },
-    { key: 'lunch', label: 'Lunch', emoji: '🍽️' },
-    { key: 'evening_snack', label: 'Evening Snack', emoji: '🫖' },
-    { key: 'dinner', label: 'Dinner', emoji: '🌙' }
+    { key: 'breakfast', label: 'Breakfast', icon: Sun, color: 'text-amber-400', border: 'border-amber-500/30 focus:border-amber-400 focus:ring-amber-400/20', bg: 'bg-amber-500/10', placeholder: 'e.g., Eggs, oats, fruit, tea...' },
+    { key: 'morning_snack', label: 'Morning Snack', icon: Apple, color: 'text-rose-400', border: 'border-rose-500/30 focus:border-rose-400 focus:ring-rose-400/20', bg: 'bg-rose-500/10', placeholder: 'e.g., Greek yogurt, almonds...' },
+    { key: 'lunch', label: 'Lunch', icon: Utensils, color: 'text-emerald-400', border: 'border-emerald-500/30 focus:border-emerald-400 focus:ring-emerald-400/20', bg: 'bg-emerald-500/10', placeholder: 'e.g., Grilled chicken, rice, salad...' },
+    { key: 'evening_snack', label: 'Evening Snack', icon: Coffee, color: 'text-purple-400', border: 'border-purple-500/30 focus:border-purple-400 focus:ring-purple-400/20', bg: 'bg-purple-500/10', placeholder: 'e.g., Green tea, walnuts, protein shake...' },
+    { key: 'dinner', label: 'Dinner', icon: Moon, color: 'text-cyan-400', border: 'border-cyan-500/30 focus:border-cyan-400 focus:ring-cyan-400/20', bg: 'bg-cyan-500/10', placeholder: 'e.g., Salmon, broccoli, quinoa...' }
   ];
 
   // Get last 7 days from calendar data
@@ -262,7 +262,11 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
         <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-500/10 px-3.5 py-1 text-xs font-bold text-teal-400 border border-teal-500/20 mb-3 shadow-[0_0_15px_rgba(20,184,166,0.15)]">
           <Utensils className="h-4 w-4 text-teal-400" /> Daily Food Tracker
         </span>
-        <h2 className="text-3xl font-black tracking-tight text-white sm:text-4xl">Log Meals &amp; Nutrition</h2>
+        <h2 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
+          <span className="bg-gradient-to-r from-teal-300 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+            Log Meals &amp; Nutrition
+          </span>
+        </h2>
         <p className="mx-auto mt-2 max-w-2xl text-sm font-medium text-slate-400">
           Track your daily calorie budget and macro distribution against your target goals.
         </p>
@@ -288,43 +292,44 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
               )}
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
-              {mealTypesList.map((meal) => (
-                <div key={meal.key}>
-                  <label className="flex items-center gap-1.5 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">
-                    <span>{meal.emoji}</span> {meal.label}
-                  </label>
-                  <textarea
-                    name={meal.key}
-                    value={mealsForm[meal.key]}
-                    onChange={handleMealChange}
-                    placeholder={`What did you eat for ${meal.label.toLowerCase()}?`}
-                    className="w-full bg-slate-900/80 border border-white/10 rounded-2xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20 transition min-h-[48px] resize-y"
-                  />
-                </div>
-              ))}
+              {mealTypesList.map((meal) => {
+                const IconComp = meal.icon;
+                return (
+                  <div key={meal.key}>
+                    <label className="flex items-center justify-between text-[11px] font-extrabold uppercase tracking-wider mb-1.5">
+                      <span className={`flex items-center gap-1.5 ${meal.color}`}>
+                        <span className={`p-1 rounded-lg ${meal.bg} border border-white/5`}>
+                          <IconComp className="h-3.5 w-3.5" />
+                        </span>
+                        {meal.label}
+                      </span>
+                    </label>
+                    <textarea
+                      name={meal.key}
+                      value={mealsForm[meal.key]}
+                      onChange={handleMealChange}
+                      placeholder={meal.placeholder}
+                      className={`w-full bg-slate-950/90 border ${meal.border} rounded-2xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition min-h-[50px] resize-y`}
+                    />
+                  </div>
+                );
+              })}
 
-              {/* Photo upload */}
-              <div>
-                <label className="block text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-1.5">📷 Meal Photo (Optional)</label>
-                {imagePreview ? (
-                  <div className="relative rounded-2xl overflow-hidden border border-white/10 h-36 bg-slate-900">
-                    <img src={imagePreview} alt="Meal" className="w-full h-full object-cover" />
-                    <button type="button" onClick={clearImage} className="absolute top-2 right-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl p-1.5 transition shadow-md text-xs cursor-pointer">
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <div
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop}
-                    onClick={() => fileInputRef.current?.click()}
-                    className="border-2 border-dashed border-white/10 hover:border-teal-400/50 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer bg-slate-900/50 hover:bg-teal-500/5 transition group min-h-[64px]"
-                  >
-                    <Camera className="h-5 w-5 text-slate-400 group-hover:text-teal-400 transition mb-1" />
-                    <span className="text-[11px] font-bold text-slate-400 group-hover:text-teal-300">Click or drag to upload photo</span>
-                    <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
-                  </div>
-                )}
+              {/* Photo upload - Coming Soon Feature */}
+              <div className="bg-slate-950/80 border border-teal-500/20 rounded-2xl p-4 relative overflow-hidden group">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="flex items-center gap-1.5 text-[11px] font-extrabold text-slate-300 uppercase tracking-wider">
+                    📷 Meal Photo Recognition
+                  </label>
+                  <span className="inline-flex items-center gap-1 text-[10px] font-black px-2.5 py-0.5 rounded-full bg-gradient-to-r from-teal-400 to-cyan-400 text-slate-950 shadow-md">
+                    <Sparkles className="h-3 w-3" /> Coming Soon
+                  </span>
+                </div>
+                <div className="border-2 border-dashed border-teal-500/30 rounded-xl p-3.5 flex flex-col items-center justify-center bg-teal-500/5 text-center">
+                  <Camera className="h-6 w-6 text-teal-400 mb-1.5 animate-pulse" />
+                  <span className="text-xs font-bold text-white">Instant AI Dish Macro Scanner</span>
+                  <p className="text-[10px] text-slate-400 mt-1 max-w-xs font-medium">Snap a photo of your plate to automatically calculate calories &amp; macros. Launching in upcoming build!</p>
+                </div>
               </div>
 
               {error && (
@@ -551,18 +556,22 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
                   {['Breakfast', 'Morning Snack', 'Lunch', 'Evening Snack', 'Dinner', 'General'].map((mType) => {
                     const mealLog = selectedDate.meals?.[mType];
                     if (!mealLog) return null;
-                    const emoji = mealTypesList.find(m => m.label === mType)?.emoji || '🍴';
+                    const mealConfig = mealTypesList.find(m => m.label === mType) || { icon: Utensils, color: 'text-teal-400', bg: 'bg-teal-500/10 border-teal-500/20' };
+                    const IconComp = mealConfig.icon || Utensils;
                     return (
-                      <div key={mType} className="bg-slate-900/60 border border-white/10 hover:border-teal-400/40 rounded-3xl p-5 transition duration-300 shadow-sm space-y-3">
+                      <div key={mType} className="bg-slate-900/80 border border-white/10 hover:border-teal-400/40 rounded-3xl p-5 transition duration-300 shadow-md space-y-3">
                         <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                          <span className="text-base font-black text-white uppercase tracking-wider flex items-center gap-2">
-                            <span className="text-xl">{emoji}</span> {mType}
+                          <span className={`text-base font-black uppercase tracking-wider flex items-center gap-2 ${mealConfig.color}`}>
+                            <span className={`p-1.5 rounded-xl ${mealConfig.bg} border border-white/5`}>
+                              <IconComp className="h-4 w-4" />
+                            </span>
+                            {mType}
                           </span>
-                          <span className="text-lg font-black text-teal-400 bg-teal-500/10 px-3.5 py-1 rounded-full border border-teal-500/20">
+                          <span className={`text-lg font-black ${mealConfig.color} ${mealConfig.bg} px-3.5 py-1 rounded-full border`}>
                             {formatMacro(mealLog.calories)} kcal
                           </span>
                         </div>
-                        <p className="text-xs text-slate-300 leading-relaxed font-medium">{mealLog.text}</p>
+                        <p className="text-xs text-slate-200 leading-relaxed font-medium">{mealLog.text}</p>
                         <div className="flex flex-wrap gap-4 text-xs text-slate-400 pt-2 font-mono border-t border-white/10">
                           <span>PRO: <strong className="text-emerald-400 font-extrabold">{formatMacro(mealLog.protein_g)}g</strong></span>
                           <span>CARB: <strong className="text-sky-400 font-extrabold">{formatMacro(mealLog.carb_g)}g</strong></span>
