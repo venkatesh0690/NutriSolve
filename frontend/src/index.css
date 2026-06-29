@@ -2,85 +2,61 @@
 
 @theme {
   --color-brand-primary: #10b981;
-  --color-brand-orange: #ff5722;
+  --color-brand-orange: #f97316;
   --color-brand-cyan: #06b6d4;
   --color-brand-blue: #0284c7;
+  --color-dark-bg: #090d16;
+  --color-dark-card: #121827;
+  --color-dark-border: #1f293d;
 }
 
 body {
-  background-color: #f4f7f6;
+  background-color: #080c14;
   background-image: 
-    radial-gradient(at 10% 10%, rgba(6, 182, 212, 0.08) 0px, transparent 50%),
-    radial-gradient(at 90% 10%, rgba(255, 87, 34, 0.06) 0px, transparent 50%),
-    radial-gradient(at 50% 90%, rgba(16, 185, 129, 0.06) 0px, transparent 50%);
+    radial-gradient(at 10% 10%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
+    radial-gradient(at 90% 10%, rgba(6, 182, 212, 0.08) 0px, transparent 50%),
+    radial-gradient(at 50% 90%, rgba(249, 115, 22, 0.06) 0px, transparent 50%);
   background-attachment: fixed;
-  color: #0f172a;
+  color: #f8fafc;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Dark Mode Overrides */
-body.dark-mode {
-  background-color: #080c14;
-  background-image: 
-    radial-gradient(at 10% 10%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
-    radial-gradient(at 90% 10%, rgba(59, 130, 246, 0.08) 0px, transparent 50%),
-    radial-gradient(at 50% 90%, rgba(139, 92, 246, 0.06) 0px, transparent 50%);
-  color: #f8fafc;
 }
 
 .glass-panel {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(18, 24, 39, 0.75);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
-  transition: all 0.3s ease;
-}
-
-body.dark-mode .glass-panel {
-  background: rgba(15, 23, 42, 0.75);
-  border-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
 .glass-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-  transition: all 0.3s ease;
-}
-
-body.dark-mode .glass-card {
-  background: rgba(30, 41, 59, 0.5);
-  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(30, 41, 59, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .glass-card-hover {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .glass-card-hover:hover {
-  border-color: #ff5722;
+  border-color: #10b981;
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(255, 87, 34, 0.1);
+  box-shadow: 0 12px 30px rgba(16, 185, 129, 0.15);
 }
 
 .glass-input {
-  background: #ffffff !important;
-  border: 1px solid #cbd5e1 !important;
-  color: #0f172a !important;
-}
-body.dark-mode .glass-input {
   background: rgba(15, 23, 42, 0.8) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
   color: #ffffff !important;
 }
 .glass-input:focus {
-  border-color: #0284c7 !important;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.2) !important;
 }
 
 /* Custom scrollbars */
@@ -88,18 +64,12 @@ body.dark-mode .glass-input {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-body.dark-mode ::-webkit-scrollbar-track {
   background: #080c14;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #1e293b;
   border-radius: 4px;
 }
-body.dark-mode ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-}
 ::-webkit-scrollbar-thumb:hover {
-  background: #ff5722;
+  background: #10b981;
 }

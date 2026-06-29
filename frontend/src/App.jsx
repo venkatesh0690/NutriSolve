@@ -12,7 +12,6 @@ export default function App() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-  const [theme, setTheme] = useState(localStorage.getItem('nutrisolve_theme') || 'light');
 
   useEffect(() => {
     const savedUser = localStorage.getItem('nutrisolve_user');
@@ -22,19 +21,6 @@ export default function App() {
       } catch (e) {}
     }
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem('nutrisolve_theme', theme);
-    if (theme === 'dark') {
-      document.body.classList.add('dark-mode');
-    } else {
-      document.body.classList.remove('dark-mode');
-    }
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
-  };
 
   const triggerRefresh = () => {
     setRefreshTrigger(prev => prev + 1);
@@ -67,7 +53,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col transition-colors duration-300">
+    <div className="min-h-screen flex flex-col">
       <Header 
         currentTab={currentTab} 
         setCurrentTab={setCurrentTab} 
@@ -75,8 +61,6 @@ export default function App() {
         currentUser={currentUser}
         onOpenAuth={() => setIsAuthOpen(true)}
         onLogout={handleLogout}
-        theme={theme}
-        onToggleTheme={toggleTheme}
       />
       <main className="flex-1 w-full max-w-7xl mx-auto py-4 px-4">
         {renderContent()}
