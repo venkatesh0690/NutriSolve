@@ -189,11 +189,11 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
 
       <div className="grid gap-8 lg:grid-cols-12">
         {/* Metric collection form */}
-        <div className="lg:col-span-5 glass-panel rounded-3xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-orange-500/5 blur-3xl pointer-events-none" />
+        <div className="lg:col-span-5 glass-panel rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-teal-500/5 blur-3xl pointer-events-none" />
           
-          <h3 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-2">
-            <Scale className="h-5 w-5 text-orange-500" /> Physiological &amp; Metabolic Markers
+          <h3 className="text-xl font-black text-white mb-6 flex items-center gap-2">
+            <Scale className="h-5 w-5 text-teal-400" /> Physiological &amp; Metabolic Markers
           </h3>
           
           <form onSubmit={handleSubmit} className="space-y-4">
