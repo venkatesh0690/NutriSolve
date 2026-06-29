@@ -35,14 +35,13 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
     
     if (items.length === 0) return null;
     return (
-      <ul className="space-y-2 mt-2.5">
+      <div className="space-y-2 mt-2.5">
         {items.map((item, idx) => (
-          <li key={idx} className="text-xs text-slate-200 flex items-start gap-2.5 leading-relaxed font-normal bg-slate-950/40 p-2 rounded-xl border border-white/5">
-            <span className={`h-2 w-2 rounded-full ${dotColor} mt-1 shrink-0 shadow-[0_0_8px_currentColor]`} />
+          <div key={idx} className="text-xs text-slate-200 leading-relaxed font-normal bg-slate-950/40 p-2.5 rounded-xl border border-white/5">
             <span className="capitalize">{item}</span>
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
     );
   };
 
