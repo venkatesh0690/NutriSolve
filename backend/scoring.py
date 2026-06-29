@@ -173,12 +173,13 @@ def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issue
     
     issues_lower = active_issues.lower() if active_issues else ""
     history_lower = family_history.lower() if family_history else ""
+    combined_notes = (issues_lower + " " + history_lower).strip()
     
     # Adjust for Body Fat / Weight Management
     needs_weight_loss = (
         scores["body_fat_status"] in ["Overweight", "Obese"] or
-        "weight loss" in issues_lower or
-        "obesity" in history_lower
+        "weight loss" in combined_notes or
+        "obesity" in combined_notes
     )
     
     if needs_weight_loss:
@@ -190,7 +191,7 @@ def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issue
         avoid_foods.extend(["White Rice", "Maida (Refined Flour)", "Processed Snacks"])
         
     # Adjust for Metabolic Status (HbA1c & Fasting Glucose)
-    is_diabetic_risk = scores["metabolic_status"] in ["Diabetic Range", "Prediabetic Range"] or "diabetic" in issues_lower or "diabetes" in issues_lower
+    is_diabetic_risk = scores["metabolic_status"] in ["Diabetic Range", "Prediabetic Range"] or "diabetic" in combined_notes or "diabetes" in combined_notes
     if is_diabetic_risk:
         carb_pct = min(carb_pct, 0.30)
         protein_pct = max(protein_pct, 0.35)
@@ -198,8 +199,8 @@ def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issue
         recommended_foods.extend(["Avocado", "Quinoa", "Spinach", "Walnuts", "Cinnamon"])
         avoid_foods.extend(["Fruit Juices", "Refined Flour", "White Bread", "White Potatoes", "Honey / Maple Syrup"])
         
-    # Adjust for Cholesterol
-    has_cholesterol_risk = scores["ldl_status"] in ["Borderline High", "High"] or "cholesterol" in issues_lower or "heart" in history_lower
+    # Adjust for Cholesterol & Heart Health
+    has_cholesterol_risk = scores["ldl_status"] in ["Borderline High", "High"] or "cholesterol" in combined_notes or "heart" in combined_notes or "cardiovascular" in combined_notes
     if has_cholesterol_risk:
         fat_pct = min(fat_pct, 0.25)
         protein_pct = max(protein_pct, 0.30)
@@ -211,9 +212,40 @@ def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issue
     if scores["vit_d_status"] in ["Deficient", "Insufficient"]:
         recommended_foods.extend(["Vitamin D Fortified Milk", "Egg Yolks", "Mushrooms (UV exposed)", "Salmon / Sardines"])
         
-    if "hypertension" in issues_lower or "blood pressure" in issues_lower:
-        recommended_foods.extend(["Bananas (Potassium)", "Beetroot", "Celery", "Hibiscus Tea"])
-        avoid_foods.extend(["High-Sodium Processed Foods", "Pickles", "Canned Soups", "Table Salt (Excess)"])
+    # Adjust for Hypertension / High Blood Pressure
+    if "hypertension" in combined_notes or "blood pressure" in combined_notes or "bp" in combined_notes:
+        recommended_foods.extend(["Bananas (Potassium)", "Beetroot", "Celery", "Hibiscus Tea", "Pomegranate"])
+        avoid_foods.extend(["High-Sodium Processed Foods", "Pickles", "Canned Soups", "Table Salt (Excess)", "Salty Soy Sauce"])
+        
+    # Adjust for Thyroid / Hypothyroidism
+    if "thyroid" in combined_notes or "hypothyroid" in combined_notes:
+        recommended_foods.extend(["Brazil Nuts (Selenium)", "Cooked Spinach", "Pumpkin Seeds", "Seaweed / Kelp"])
+        avoid_foods.extend(["Raw Cruciferous Veggies (Excess)", "Uncooked Soy Products", "Gluten Heavy Baked Goods"])
+
+    # Adjust for Uric Acid / Gout
+    if "uric acid" in combined_notes or "gout" in combined_notes:
+        recommended_foods.extend(["Cherries", "Low-Fat Cottage Cheese", "Lemon Water", "Cucumber", "Celery"])
+        avoid_foods.extend(["Red Meat", "Organ Meats", "Shellfish / Anchovies", "Beer / Alcohol", "High-Fructose Corn Syrup"])
+
+    # Adjust for PCOS / PCOD
+    if "pcos" in combined_notes or "pcod" in combined_notes:
+        recommended_foods.extend(["Spearmint Tea", "Cinnamon", "Flaxseeds", "Lentils", "Dark Leafy Greens"])
+        avoid_foods.extend(["Sugary Drinks", "Refined Carbohydrates", "Processed Meats", "Fried Foods"])
+
+    # Adjust for Fatty Liver
+    if "fatty liver" in combined_notes or "hepatic" in combined_notes:
+        recommended_foods.extend(["Green Tea", "Garlic", "Grapefruit", "Walnuts", "Broccoli"])
+        avoid_foods.extend(["Alcohol", "Added Sugars", "Fried Foods", "Saturated Fats"])
+
+    # Adjust for Gluten Intolerance / Celiac
+    if "celiac" in combined_notes or "gluten" in combined_notes:
+        recommended_foods.extend(["Gluten-Free Oats", "Quinoa", "Brown Rice", "Buckwheat", "Millet"])
+        avoid_foods.extend(["Wheat / Maida", "Barley", "Rye", "Standard Pasta", "Bread containing Gluten"])
+
+    # Adjust for Lactose Intolerance
+    if "lactose" in combined_notes or "dairy allergy" in combined_notes:
+        recommended_foods.extend(["Almond Milk", "Coconut Yogurt", "Tofu / Tempeh", "Fortified Soy Milk"])
+        avoid_foods.extend(["Whole Dairy Milk", "Butter", "Heavy Cream", "Cheese (Standard)", "Paneer"])
         
     recommended_foods = list(dict.fromkeys(recommended_foods))
     avoid_foods = list(dict.fromkeys(avoid_foods))
@@ -224,9 +256,11 @@ def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issue
         protein_factor += 0.2
     if is_diabetic_risk:
         protein_factor += 0.3
-    if "fatty liver" in issues_lower:
+    if "fatty liver" in combined_notes:
         protein_factor += 0.3
-    if "hypertension" in issues_lower or "blood pressure" in issues_lower:
+    if "hypertension" in combined_notes or "blood pressure" in combined_notes:
+        protein_factor += 0.1
+    if "thyroid" in combined_notes:
         protein_factor += 0.1
         
     protein_factor = max(0.8, min(1.8, protein_factor))
@@ -246,7 +280,7 @@ def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issue
     p_cal = p_g * 4
     rem_cal = max(400, total_cal - p_cal)
     
-    if is_diabetic_risk or "fatty liver" in issues_lower:
+    if is_diabetic_risk or "fatty liver" in combined_notes or "pcos" in combined_notes:
         c_g = int((rem_cal * 0.35) / 4)
         f_g = int((rem_cal * 0.65) / 9)
     elif has_cholesterol_risk:
@@ -256,7 +290,7 @@ def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issue
         c_g = int((rem_cal * 0.55) / 4)
         f_g = int((rem_cal * 0.45) / 9)
     
-    meal_plan = generate_meal_options(total_cal, recommended_foods, avoid_foods, is_diabetic_risk, has_cholesterol_risk)
+    meal_plan = generate_meal_options(total_cal, recommended_foods, avoid_foods, is_diabetic_risk, has_cholesterol_risk, active_issues, family_history)
     
     return {
         "calculated_metrics": {
@@ -283,9 +317,9 @@ def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issue
         "meal_plan_options": meal_plan
     }
 
-def generate_meal_options(calories: int, recommended: List[str], avoid: List[str], low_carb: bool, low_fat: bool) -> List[Dict[str, str]]:
+def generate_meal_options(calories: int, recommended: List[str], avoid: List[str], low_carb: bool, low_fat: bool, active_issues: str = "", family_history: str = "") -> List[Dict[str, str]]:
     if low_carb:
-        return [
+        options = [
             {
                 "name": "Option 1 (Keto / High Protein)",
                 "breakfast": "Scrambled Egg Whites (3) or Tofu scramble with spinach, sautéed mushrooms, and half an avocado. Season with pepper and turmeric.",
@@ -337,7 +371,7 @@ def generate_meal_options(calories: int, recommended: List[str], avoid: List[str
             }
         ]
     elif low_fat:
-        return [
+        options = [
             {
                 "name": "Option 1 (Heart Healthy)",
                 "breakfast": "Oatmeal cooked in skimmed or fortified plant milk, topped with sliced bananas, flaxseeds, and a sprinkle of cinnamon.",
@@ -389,7 +423,7 @@ def generate_meal_options(calories: int, recommended: List[str], avoid: List[str
             }
         ]
     else:
-        return [
+        options = [
             {
                 "name": "Option 1 (Balanced Optimal)",
                 "breakfast": "2 Whole Eggs poached on a slice of multi-grain toast, paired with a side of mixed berries and green tea.",
@@ -440,3 +474,26 @@ def generate_meal_options(calories: int, recommended: List[str], avoid: List[str
                 "dinner": "Baked Trout or Grilled Tofu with quinoa, steamed asparagus, and lemon butter sauce."
             }
         ]
+
+    notes = (str(active_issues or "") + " " + str(family_history or "")).lower()
+    if notes.strip():
+        for opt in options:
+            if "celiac" in notes or "gluten" in notes:
+                opt["name"] += " (Gluten-Free Modified)"
+                for key in ["breakfast", "lunch", "snacks", "dinner"]:
+                    opt[key] = opt[key].replace("toast", "gluten-free toast").replace("pasta", "quinoa pasta").replace("tortilla", "lettuce wrap")
+            if "lactose" in notes or "dairy" in notes:
+                opt["name"] += " (Dairy-Free Modified)"
+                for key in ["breakfast", "lunch", "snacks", "dinner"]:
+                    opt[key] = opt[key].replace("yogurt", "coconut yogurt").replace("milk", "almond milk").replace("cheese", "vegan cheese").replace("paneer", "tofu")
+            if "uric acid" in notes or "gout" in notes:
+                opt["name"] += " (Low-Purine Modified)"
+                for key in ["breakfast", "lunch", "snacks", "dinner"]:
+                    opt[key] = opt[key].replace("Steak", "Paneer/Tofu").replace("beef", "chickpeas")
+            if "hypertension" in notes or "blood pressure" in notes or "bp" in notes:
+                opt["name"] += " (Low-Sodium Dash)"
+            if "thyroid" in notes:
+                opt["name"] += " (Thyroid Vitality)"
+            if "pcos" in notes or "pcod" in notes:
+                opt["name"] += " (Hormone Balance)"
+    return options
