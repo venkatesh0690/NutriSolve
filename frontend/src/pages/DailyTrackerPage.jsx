@@ -401,12 +401,20 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
           )}
         </div>
 
-        {/* ─── Right Column: Date Selector + Intake Report ─── */}
+        {/* ─── Right Column: Date Selector + Hero Calorie Balance & Intake Report ─── */}
         <div className="lg:col-span-7 space-y-5">
-          {/* Previous Week Date Chips */}
-          <div className="bg-dark-card border border-dark-border rounded-2xl p-4 shadow-xl">
-            <span className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-3">📅 Select Date to View Intake</span>
-            <div className="flex gap-2 overflow-x-auto pb-1">
+          {/* Reference App Style Date Selector Strip */}
+          <div className="glass-panel rounded-3xl p-4 shadow-xl">
+            <div className="flex items-center justify-between mb-3 px-1">
+              <span className="text-[11px] uppercase font-extrabold text-slate-400 tracking-wider flex items-center gap-1.5">
+                <Calendar className="h-4 w-4 text-brand-primary" /> Select Date
+              </span>
+              <span className="text-xs font-bold text-slate-300 bg-slate-800/60 px-2.5 py-1 rounded-full border border-white/5">
+                {selectedDate?.date === localDateStr ? 'Today' : selectedDate?.date}
+              </span>
+            </div>
+            
+            <div className="flex gap-2.5 overflow-x-auto pb-1.5 scrollbar-thin">
               {last7Days.map((day) => {
                 const isSelected = selectedDate?.date === day.date;
                 const isToday = day.date === localDateStr;
@@ -415,108 +423,154 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
                   <button
                     key={day.date}
                     onClick={() => setSelectedDate(day)}
-                    className={`flex flex-col items-center min-w-[72px] px-3 py-2.5 rounded-xl border transition-all duration-200 ${
+                    className={`flex flex-col items-center min-w-[76px] px-3.5 py-3 rounded-2xl border transition-all duration-300 cursor-pointer ${
                       isSelected
-                        ? 'bg-brand-primary/15 border-brand-primary text-white ring-1 ring-brand-primary/30 shadow-lg shadow-brand-primary/10 scale-105'
+                        ? 'bg-gradient-to-b from-brand-primary/25 to-brand-primary/10 border-brand-primary text-white ring-2 ring-brand-primary/40 shadow-lg shadow-brand-primary/20 scale-105'
                         : day.has_data
-                          ? 'bg-slate-900/60 border-dark-border hover:border-slate-600 hover:bg-slate-800/60 text-slate-300'
-                          : 'bg-slate-900/30 border-dark-border/40 text-slate-500 hover:border-slate-700'
+                          ? 'glass-card hover:border-slate-500 text-slate-300'
+                          : 'bg-slate-900/30 border-white/5 text-slate-500 hover:border-slate-700'
                     }`}
                   >
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">{dayOfWeek}</span>
-                    <span className={`text-lg font-black mt-0.5 ${isToday ? 'text-brand-primary' : ''}`}>{day.day_number}</span>
-                    <span className="text-[8px] text-slate-500 font-semibold">{day.month_name.substring(0, 3)}</span>
+                    <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">{dayOfWeek}</span>
+                    <span className={`text-xl font-black mt-0.5 ${isToday ? 'text-brand-primary' : ''}`}>{day.day_number}</span>
+                    <span className="text-[9px] text-slate-400 font-semibold">{day.month_name.substring(0, 3)}</span>
                     {day.has_data && (
-                      <span className={`text-[9px] font-bold mt-1 ${getScoreColor(day.score_pct)}`}>{day.score_pct}%</span>
+                      <span className={`text-[9px] font-extrabold mt-1 px-1.5 py-0.5 rounded-full bg-slate-950/60 ${getScoreColor(day.score_pct)}`}>{day.score_pct}%</span>
                     )}
-                    {isToday && <span className="text-[7px] text-brand-primary font-bold mt-0.5 uppercase">Today</span>}
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Selected Date Nutrition Report */}
-          <div className="bg-dark-card border border-dark-border rounded-3xl p-6 shadow-xl relative overflow-hidden space-y-5">
-            <div className="absolute top-0 right-0 h-32 w-32 rounded-full bg-brand-primary/5 blur-3xl" />
+          {/* Selected Date Nutrition & Calorie Balance Dashboard */}
+          <div className="glass-panel rounded-3xl p-6 shadow-2xl relative overflow-hidden space-y-6">
+            <div className="absolute top-0 right-0 h-48 w-48 rounded-full bg-brand-primary/10 blur-3xl pointer-events-none" />
 
-            {/* Report Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-dark-border/60 pb-3 gap-2 relative z-10">
+            {/* Reference App Inspired Hero Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-4 gap-3 relative z-10">
               <div>
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Nutrition Summary</span>
-                <h3 className="text-xl font-bold text-white mt-0.5">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Nutrition Dashboard</span>
+                <h3 className="text-2xl font-black text-white mt-0.5">
                   {selectedDate
-                    ? new Date(selectedDate.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+                    ? new Date(selectedDate.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })
                     : 'Select a date'}
                 </h3>
               </div>
               {selectedDate?.has_data && (
-                <span className={`text-sm font-bold px-3 py-1.5 rounded-full border ${getScoreBg(selectedDate.score_pct)}`}>
-                  Calorie Compliance: {selectedDate.score_pct}%
+                <span className={`inline-flex items-center gap-1.5 text-xs font-black px-3.5 py-1.5 rounded-full border shadow-lg ${getScoreBg(selectedDate.score_pct)}`}>
+                  <Check className="h-4 w-4" /> Compliance: {selectedDate.score_pct}%
                 </span>
               )}
             </div>
 
             {loadingData ? (
-              <div className="h-44 flex items-center justify-center">
-                <div className="h-8 w-8 border-3 border-brand-primary border-t-transparent rounded-full animate-spin" />
+              <div className="h-52 flex items-center justify-center">
+                <div className="h-10 w-10 border-4 border-brand-primary border-t-transparent rounded-full animate-spin" />
               </div>
             ) : selectedDate?.has_data ? (
               <div className="space-y-6 relative z-10">
-                {/* ── Macro Summary with BIGGER fonts ── */}
-                <div>
-                  <span className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-3">Macro Tracker Summary</span>
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
-                    <div className="bg-slate-900/60 p-3 rounded-2xl border border-dark-border col-span-2 sm:col-span-1">
-                      <span className="block text-[9px] text-slate-500 font-semibold uppercase">Calories</span>
-                      <span className="text-2xl font-black text-orange-400 block mt-1">
-                        {formatMacro(selectedDate.macros.calories)}
-                      </span>
-                      <span className="text-[10px] text-slate-500 font-semibold">/ {targetCalories} kcal</span>
+                
+                {/* ── Reference App Style Circular Gauge & Calorie Budget Widget ── */}
+                <div className="glass-card p-5 rounded-3xl border border-white/10 grid grid-cols-1 md:grid-cols-12 gap-6 items-center shadow-inner">
+                  
+                  {/* Calorie Dial & Big Stats (Left 7 cols) */}
+                  <div className="md:col-span-7 flex items-center gap-5">
+                    <div className="relative flex h-24 w-24 shrink-0 items-center justify-center">
+                      <svg className="h-full w-full -rotate-90">
+                        <circle cx="48" cy="48" r="40" className="stroke-slate-800 fill-none" strokeWidth="8" />
+                        <circle
+                          cx="48" cy="48" r="40"
+                          className={`fill-none transition-all duration-1000 ${getProgressColor(selectedDate.score_pct)}`}
+                          strokeWidth="8"
+                          strokeDasharray={2 * Math.PI * 40}
+                          strokeDashoffset={2 * Math.PI * 40 * (1 - Math.min(100, selectedDate.score_pct) / 100)}
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      <div className="absolute flex flex-col items-center justify-center text-center">
+                        <span className="text-lg font-black text-white leading-none">{selectedDate.score_pct}%</span>
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-1">Goal</span>
+                      </div>
                     </div>
-                    <div className="bg-slate-900/60 p-3 rounded-2xl border border-dark-border">
-                      <span className="block text-[9px] text-slate-500 font-semibold uppercase">Protein</span>
-                      <span className="text-2xl font-black text-emerald-400 block mt-1">{formatMacro(selectedDate.macros.protein_g)}g</span>
-                      <span className="text-[10px] text-slate-500 font-semibold">/ {targetProtein}g</span>
+
+                    <div>
+                      <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Consumed vs Target</span>
+                      <div className="text-3xl font-black text-white mt-0.5 tracking-tight">
+                        {formatMacro(selectedDate.macros.calories)} <span className="text-base font-bold text-slate-400">/ {targetCalories} kcal</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-brand-primary/15 text-brand-primary border border-brand-primary/30">
+                          {targetCalories - formatMacro(selectedDate.macros.calories) >= 0 
+                            ? `${Math.round(targetCalories - formatMacro(selectedDate.macros.calories))} kcal left` 
+                            : `${Math.abs(Math.round(targetCalories - formatMacro(selectedDate.macros.calories)))} kcal over`}
+                        </span>
+                      </div>
                     </div>
-                    <div className="bg-slate-900/60 p-3 rounded-2xl border border-dark-border">
-                      <span className="block text-[9px] text-slate-500 font-semibold uppercase">Carbs</span>
-                      <span className="text-2xl font-black text-cyan-400 block mt-1">{formatMacro(selectedDate.macros.carb_g)}g</span>
-                      <span className="text-[10px] text-slate-500 font-semibold">/ {targetCarbs}g</span>
+                  </div>
+
+                  {/* Macro Progress Bars (Right 5 cols - inspired by Image 1 & 3) */}
+                  <div className="md:col-span-5 space-y-3 border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-5">
+                    
+                    {/* Protein Bar */}
+                    <div>
+                      <div className="flex justify-between text-xs font-bold mb-1">
+                        <span className="text-emerald-400 flex items-center gap-1">🟢 Protein</span>
+                        <span className="text-slate-300">{formatMacro(selectedDate.macros.protein_g)}g / {targetProtein}g</span>
+                      </div>
+                      <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden">
+                        <div className="h-full bg-emerald-400 rounded-full transition-all duration-700" style={{ width: `${Math.min(100, (selectedDate.macros.protein_g / targetProtein) * 100)}%` }} />
+                      </div>
                     </div>
-                    <div className="bg-slate-900/60 p-3 rounded-2xl border border-dark-border">
-                      <span className="block text-[9px] text-slate-500 font-semibold uppercase">Fiber</span>
-                      <span className="text-2xl font-black text-blue-400 block mt-1">{formatMacro(selectedDate.macros.fiber_g)}g</span>
-                      <span className="text-[10px] text-slate-500 font-semibold">/ {targetFiber}g</span>
+
+                    {/* Carbs Bar */}
+                    <div>
+                      <div className="flex justify-between text-xs font-bold mb-1">
+                        <span className="text-cyan-400 flex items-center gap-1">🔵 Carbs</span>
+                        <span className="text-slate-300">{formatMacro(selectedDate.macros.carb_g)}g / {targetCarbs}g</span>
+                      </div>
+                      <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden">
+                        <div className="h-full bg-cyan-400 rounded-full transition-all duration-700" style={{ width: `${Math.min(100, (selectedDate.macros.carb_g / targetCarbs) * 100)}%` }} />
+                      </div>
                     </div>
-                    <div className="bg-slate-900/60 p-3 rounded-2xl border border-dark-border">
-                      <span className="block text-[9px] text-slate-500 font-semibold uppercase">Flagged</span>
-                      <span className="text-2xl font-black text-rose-400 block mt-1">{formatMacro(selectedDate.macros.flagged_g)}g</span>
-                      <span className="text-[10px] text-slate-500 font-semibold">/ {targetFlagged}g</span>
+
+                    {/* Fiber Bar */}
+                    <div>
+                      <div className="flex justify-between text-xs font-bold mb-1">
+                        <span className="text-blue-400 flex items-center gap-1">🟣 Fiber</span>
+                        <span className="text-slate-300">{formatMacro(selectedDate.macros.fiber_g)}g / {targetFiber}g</span>
+                      </div>
+                      <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden">
+                        <div className="h-full bg-blue-400 rounded-full transition-all duration-700" style={{ width: `${Math.min(100, (selectedDate.macros.fiber_g / targetFiber) * 100)}%` }} />
+                      </div>
                     </div>
+
                   </div>
                 </div>
 
-                {/* ── Individual Meal Breakdown ── */}
-                <div className="space-y-3">
-                  <span className="block text-xs uppercase font-bold text-slate-400 tracking-wider">Meal Breakdown</span>
+                {/* ── Reference App Style Individual Meal Cards ── */}
+                <div className="space-y-3.5">
+                  <span className="block text-xs uppercase font-extrabold text-slate-400 tracking-wider">Tracked Meals</span>
                   {['Breakfast', 'Morning Snack', 'Lunch', 'Evening Snack', 'Dinner', 'General'].map((mType) => {
                     const mealLog = selectedDate.meals?.[mType];
                     if (!mealLog) return null;
+                    const emoji = mealTypesList.find(m => m.label === mType)?.emoji || '🍴';
                     return (
-                      <div key={mType} className="bg-slate-900/40 border border-dark-border rounded-2xl p-4">
-                        <div className="flex items-center justify-between border-b border-dark-border/40 pb-2 mb-2">
-                          <span className="text-sm font-bold text-brand-secondary uppercase tracking-wider">
-                            {mealTypesList.find(m => m.label === mType)?.emoji || '🍴'} {mType}
+                      <div key={mType} className="glass-card border border-white/10 hover:border-slate-500/50 rounded-2xl p-4.5 transition duration-300 shadow-md">
+                        <div className="flex items-center justify-between border-b border-white/10 pb-2.5 mb-2.5">
+                          <span className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+                            <span className="text-lg">{emoji}</span> {mType}
                           </span>
-                          <span className="text-xl font-black text-orange-400">{formatMacro(mealLog.calories)} kcal</span>
+                          <span className="text-lg font-black text-orange-400 bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20">
+                            {formatMacro(mealLog.calories)} kcal
+                          </span>
                         </div>
-                        <p className="text-sm text-slate-200 leading-relaxed">{mealLog.text}</p>
-                        <div className="flex gap-4 text-xs text-slate-400 mt-3 border-t border-dark-border/40 pt-2 font-mono">
-                          <span>PRO: <strong className="text-emerald-400">{formatMacro(mealLog.protein_g)}g</strong></span>
-                          <span>CARB: <strong className="text-cyan-400">{formatMacro(mealLog.carb_g)}g</strong></span>
-                          <span>FIB: <strong className="text-blue-400">{formatMacro(mealLog.fiber_g)}g</strong></span>
-                          <span>FLG: <strong className="text-rose-400">{formatMacro(mealLog.flagged_g)}g</strong></span>
+                        <p className="text-xs text-slate-200 leading-relaxed font-medium">{mealLog.text}</p>
+                        <div className="flex flex-wrap gap-3.5 text-[11px] text-slate-400 mt-3.5 border-t border-white/5 pt-2.5 font-mono">
+                          <span>PRO: <strong className="text-emerald-400 font-bold">{formatMacro(mealLog.protein_g)}g</strong></span>
+                          <span>CARB: <strong className="text-cyan-400 font-bold">{formatMacro(mealLog.carb_g)}g</strong></span>
+                          <span>FIB: <strong className="text-blue-400 font-bold">{formatMacro(mealLog.fiber_g)}g</strong></span>
+                          <span>FLG: <strong className="text-rose-400 font-bold">{formatMacro(mealLog.flagged_g)}g</strong></span>
                         </div>
                       </div>
                     );
@@ -524,10 +578,16 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
                 </div>
               </div>
             ) : (
-              <div className="text-center py-16 text-slate-500 text-xs relative z-10">
-                {selectedDate?.date === localDateStr
-                  ? '🍽️ No food logs for today yet. Use the form on the left to log meals.'
-                  : '📋 No food logs recorded for this date.'}
+              <div className="text-center py-20 text-slate-400 text-xs relative z-10 glass-card rounded-3xl p-8 border border-white/5">
+                <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-800/60 text-slate-400 mx-auto mb-4 border border-white/10">
+                  <Utensils className="h-8 w-8 text-brand-primary" />
+                </div>
+                <h4 className="text-lg font-bold text-white mb-1">No Food Logs Recorded</h4>
+                <p className="text-slate-400 max-w-sm mx-auto">
+                  {selectedDate?.date === localDateStr
+                    ? 'Use the form on the left to log your meals for today and track your calories.'
+                    : 'No food logs were recorded for this selected date.'}
+                </p>
               </div>
             )}
           </div>
