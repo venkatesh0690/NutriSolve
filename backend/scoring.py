@@ -101,17 +101,46 @@ def compute_health_scores(metrics: Dict[str, Any], sex: str, age: int = 30) -> D
     elif 20 <= vit_d < 30:
         vit_d_status = "Insufficient"
         
-    # BMR Status
-    bmr_status = "Optimal Rate"
-    if bmr < 1200:
-        bmr_status = "Low Rate"
-    elif bmr > 1800:
-        bmr_status = "High Rate"
+    # BMI and Weight Variance %
+    height_m = height / 100.0
+    bmi = weight_kg / (height_m ** 2) if height_m > 0 else 22.0
+    min_normal_w = 18.5 * (height_m ** 2)
+    max_normal_w = 24.9 * (height_m ** 2)
+
+    if weight_kg > max_normal_w and max_normal_w > 0:
+        var_pct = ((weight_kg - max_normal_w) / max_normal_w) * 100.0
+        weight_variance_str = f"+{var_pct:.1f}%"
+        weight_variance_status = "Overweight Variance"
+    elif weight_kg < min_normal_w and min_normal_w > 0:
+        var_pct = ((min_normal_w - weight_kg) / min_normal_w) * 100.0
+        weight_variance_str = f"-{var_pct:.1f}%"
+        weight_variance_status = "Underweight Variance"
+    else:
+        weight_variance_str = "0.0%"
+        weight_variance_status = "Optimal Weight"
+
+    # Daily Step Target % based on BMI
+    if bmi >= 25.0:
+        target_steps = 10000
+    elif bmi < 18.5:
+        target_steps = 7000
+    else:
+        target_steps = 8000
+
+    steps_pct = min(100.0, (steps / target_steps) * 100.0) if target_steps > 0 else 0.0
+    step_target_str = f"{steps_pct:.0f}%"
+    step_target_status = f"Target: {target_steps:,} steps"
 
     return {
         "bmr": bmr,
-        "bmr_status": bmr_status,
         "tdee": tdee,
+        "bmi": round(bmi, 1),
+        "weight_variance_str": weight_variance_str,
+        "weight_variance_status": weight_variance_status,
+        "step_target_str": step_target_str,
+        "step_target_status": step_target_status,
+        "current_steps": steps,
+        "target_steps": target_steps,
         "activity_multiplier": multiplier,
         "body_fat_status": bf_status,
         "metabolic_status": metabolic_status,

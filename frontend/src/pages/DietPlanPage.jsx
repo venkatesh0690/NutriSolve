@@ -370,61 +370,61 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
                 </h3>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {/* BMR Card */}
+                  {/* Weight Variance Card */}
                   <div 
-                    onClick={() => toggleTooltip('bmr')}
+                    onClick={() => toggleTooltip('weight_var')}
                     className="group relative bg-slate-900/60 p-4 rounded-2xl border border-dark-border hover:border-amber-500/50 transition cursor-pointer"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1">
-                        <Flame className="h-3 w-3 text-amber-400" /> Basal Metabolic Rate (BMR)
+                        <Scale className="h-3 w-3 text-amber-400" /> Weight Variance
                       </span>
                       <Info className="h-3.5 w-3.5 text-slate-500 group-hover:text-amber-400 transition" />
                     </div>
 
                     <div className="text-xl font-black text-white mt-1.5">
-                      {dietPlan.calculated_metrics?.bmr || dietPlan.metrics?.bmr || '1,426.5'} <span className="text-xs font-semibold text-slate-400">kcal/day</span>
+                      {dietPlan.calculated_metrics?.weight_variance_str || '0.0%'} <span className="text-xs font-semibold text-slate-400">vs Normal BMI</span>
                     </div>
 
-                    <span className={`inline-block mt-2 text-[10px] font-semibold px-2 py-0.5 rounded border ${getStatusBadgeClass(dietPlan.calculated_metrics?.bmr_status || 'Optimal Rate')}`}>
-                      {dietPlan.calculated_metrics?.bmr_status || 'Optimal Rate'}
+                    <span className={`inline-block mt-2 text-[10px] font-semibold px-2 py-0.5 rounded border ${getStatusBadgeClass(dietPlan.calculated_metrics?.weight_variance_status || 'Optimal Weight')}`}>
+                      {dietPlan.calculated_metrics?.weight_variance_status || 'Optimal Weight'}
                     </span>
 
                     {/* Tooltip on Hover / Tap */}
-                    <div className={`absolute left-0 right-0 top-full mt-2 z-30 p-3 bg-slate-950 border border-amber-500/30 rounded-xl shadow-2xl text-[11px] text-slate-300 leading-relaxed pointer-events-none transition-all duration-200 ${activeTooltip === 'bmr' ? 'block' : 'hidden group-hover:block'}`}>
+                    <div className={`absolute left-0 right-0 top-full mt-2 z-30 p-3 bg-slate-950 border border-amber-500/30 rounded-xl shadow-2xl text-[11px] text-slate-300 leading-relaxed pointer-events-none transition-all duration-200 ${activeTooltip === 'weight_var' ? 'block' : 'hidden group-hover:block'}`}>
                       <p className="font-semibold text-amber-400 mb-1 flex items-center gap-1">
-                        <Flame className="h-3 w-3" /> What is BMR?
+                        <Scale className="h-3 w-3" /> Overweight / Underweight %
                       </p>
-                      The baseline calories the body burns at complete rest to maintain vital functions, calculated using age, gender, height, and current weight.
+                      Calculates how far your current weight deviates from the ideal normal BMI range (18.5 – 24.9) for your height.
                     </div>
                   </div>
 
-                  {/* TDEE Card */}
+                  {/* Daily Step Target Card */}
                   <div 
-                    onClick={() => toggleTooltip('tdee')}
+                    onClick={() => toggleTooltip('steps_target')}
                     className="group relative bg-slate-900/60 p-4 rounded-2xl border border-dark-border hover:border-brand-primary/50 transition cursor-pointer"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1">
-                        <Activity className="h-3 w-3 text-brand-primary" /> Total Daily Energy (TDEE)
+                        <Activity className="h-3 w-3 text-brand-primary" /> Daily Step Goal
                       </span>
                       <Info className="h-3.5 w-3.5 text-slate-500 group-hover:text-brand-primary transition" />
                     </div>
 
                     <div className="text-xl font-black text-brand-primary mt-1.5">
-                      {dietPlan.calculated_metrics?.tdee || dietPlan.metrics?.tdee || '1,712'} <span className="text-xs font-semibold text-slate-400">kcal/day</span>
+                      {dietPlan.calculated_metrics?.step_target_str || '100%'} <span className="text-xs font-semibold text-slate-400">completed</span>
                     </div>
 
                     <span className="inline-block mt-2 text-[10px] font-semibold px-2 py-0.5 rounded border bg-brand-primary/10 text-brand-primary border-brand-primary/20">
-                      Activity Adjusted
+                      {dietPlan.calculated_metrics?.step_target_status || 'BMI Target: 10,000 steps'}
                     </span>
 
                     {/* Tooltip on Hover / Tap */}
-                    <div className={`absolute left-0 right-0 top-full mt-2 z-30 p-3 bg-slate-950 border border-brand-primary/30 rounded-xl shadow-2xl text-[11px] text-slate-300 leading-relaxed pointer-events-none transition-all duration-200 ${activeTooltip === 'tdee' ? 'block' : 'hidden group-hover:block'}`}>
+                    <div className={`absolute left-0 right-0 top-full mt-2 z-30 p-3 bg-slate-950 border border-brand-primary/30 rounded-xl shadow-2xl text-[11px] text-slate-300 leading-relaxed pointer-events-none transition-all duration-200 ${activeTooltip === 'steps_target' ? 'block' : 'hidden group-hover:block'}`}>
                       <p className="font-semibold text-brand-primary mb-1 flex items-center gap-1">
-                        <Activity className="h-3 w-3" /> What is TDEE?
+                        <Activity className="h-3 w-3" /> BMI Step Target %
                       </p>
-                      The actual number of calories burned per day, calculated by multiplying the BMR by an individual's specific physical activity multiplier.
+                      Your daily step completion percentage calculated against a recommended physical activity goal customized to your BMI.
                     </div>
                   </div>
 
