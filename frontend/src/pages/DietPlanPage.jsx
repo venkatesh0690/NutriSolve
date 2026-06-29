@@ -172,24 +172,32 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:px-6">
       
-      {/* Introduction Banner */}
-      <div className="mb-10 text-center">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-primary/10 px-3 py-1 text-xs font-semibold text-brand-primary border border-brand-primary/20 mb-3 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-          <Sparkles className="h-3 w-3" /> Algorithmic Optimization
+      {/* Reference Inspired Hero Banner (Inspired by Image 2 & 3: Nourish Template) */}
+      <div className="mb-10 text-center relative overflow-hidden glass-panel rounded-3xl p-8 sm:p-12 border border-slate-200 shadow-sm">
+        <div className="absolute top-0 right-0 -mr-12 -mt-12 h-64 w-64 rounded-full bg-orange-500/10 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 -ml-12 -mb-12 h-64 w-64 rounded-full bg-cyan-500/10 blur-3xl pointer-events-none" />
+        
+        <span className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-500/10 to-emerald-500/10 px-4 py-1.5 text-xs font-black text-orange-600 border border-orange-500/20 mb-4 shadow-sm">
+          <Sparkles className="h-4 w-4 text-orange-500" /> AI Clinical Nutrition &amp; Macro Engine
         </span>
-        <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">Optimized Diet Plan</h2>
-        <p className="mx-auto mt-2 max-w-2xl text-base text-slate-400">
-          Enter your multi-variable physiological, blood, and metabolic markers to generate a mathematically tailored nutritional blueprint.
+        <h2 className="text-4xl sm:text-5xl font-black tracking-tight text-slate-900 leading-tight">
+          Eat Smarter, Live Stronger, <br />
+          <span className="bg-gradient-to-r from-orange-500 via-emerald-500 to-cyan-500 bg-clip-text text-transparent">
+            Feel Happier Everyday
+          </span>
+        </h2>
+        <p className="mx-auto mt-4 max-w-2xl text-sm sm:text-base font-medium text-slate-600 leading-relaxed">
+          Enter your physiological, blood, and metabolic markers to calculate a clinical, multi-variable nutritional blueprint tailored to your exact metabolic needs.
         </p>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-12">
         {/* Metric collection form */}
-        <div className="lg:col-span-5 bg-dark-card border border-dark-border rounded-3xl p-6 shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-brand-primary/5 blur-3xl" />
+        <div className="lg:col-span-5 glass-panel rounded-3xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-orange-500/5 blur-3xl pointer-events-none" />
           
-          <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <Scale className="h-5 w-5 text-brand-primary" /> Physiological &amp; Metabolic Markers
+          <h3 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-2">
+            <Scale className="h-5 w-5 text-orange-500" /> Physiological &amp; Metabolic Markers
           </h3>
           
           <form onSubmit={handleSubmit} className="space-y-4">
