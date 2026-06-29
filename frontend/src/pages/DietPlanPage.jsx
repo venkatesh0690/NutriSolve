@@ -22,22 +22,23 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
   const [dietPlan, setDietPlan] = useState(null);
   const [error, setError] = useState('');
   const [activeTooltip, setActiveTooltip] = useState(null); // 'bmr', 'tdee', etc for mobile tap
-  const [showRecommended, setShowRecommended] = useState(true);
-  const [showAvoid, setShowAvoid] = useState(true);
+  const [showRecommended, setShowRecommended] = useState(false);
+  const [showAvoid, setShowAvoid] = useState(false);
 
   const renderBullets = (text, dotColor = 'bg-brand-primary') => {
     if (!text) return null;
-    // Split by bullet point symbols or sentences
-    const items = text.split(/(?:•|;|\n|:\s*(?=[A-Z0-9]))/).map(s => s.strip ? s.strip() : s.trim()).filter(Boolean);
-    if (items.length <= 1) {
-      return <p className="text-xs text-slate-300 leading-relaxed font-normal">{text}</p>;
-    }
+    // Split text cleanly by bullets, periods followed by space, or semicolons
+    let items = text.split(/(?:•|;|\n|\.\s+)/).map(s => s.trim()).filter(Boolean);
+    // Remove trailing periods from individual items
+    items = items.map(item => item.replace(/\.$/, '').trim()).filter(Boolean);
+    
+    if (items.length === 0) return null;
     return (
-      <ul className="space-y-1.5 mt-2">
+      <ul className="space-y-2 mt-2.5">
         {items.map((item, idx) => (
-          <li key={idx} className="text-xs text-slate-300 flex items-start gap-2 leading-relaxed">
-            <span className={`h-1.5 w-1.5 rounded-full ${dotColor} mt-1.5 shrink-0`} />
-            <span>{item}</span>
+          <li key={idx} className="text-xs text-slate-200 flex items-start gap-2.5 leading-relaxed font-normal bg-slate-950/40 p-2 rounded-xl border border-white/5">
+            <span className={`h-2 w-2 rounded-full ${dotColor} mt-1 shrink-0 shadow-[0_0_8px_currentColor]`} />
+            <span className="capitalize">{item}</span>
           </li>
         ))}
       </ul>
@@ -531,61 +532,61 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
                 </div>
 
                 {/* Meal Sections */}
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border border-l-4 border-l-brand-primary shadow-md">
+                <div className="grid gap-5 md:grid-cols-2">
+                  <div className="glass-card p-4 rounded-2xl border-l-4 border-l-brand-primary shadow-lg hover:border-brand-primary/40 transition duration-300">
                     <span className="text-[10px] font-extrabold uppercase text-brand-primary tracking-wider flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-brand-primary animate-pulse" /> Breakfast Option
+                      <span className="h-2 w-2 rounded-full bg-brand-primary animate-pulse shadow-[0_0_8px_#10b981]" /> 🌅 Breakfast Blueprint
                     </span>
                     {renderBullets(dietPlan.meal_plan?.breakfast, 'bg-brand-primary')}
                   </div>
 
-                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border border-l-4 border-l-emerald-400 shadow-md">
+                  <div className="glass-card p-4 rounded-2xl border-l-4 border-l-emerald-400 shadow-lg hover:border-emerald-400/40 transition duration-300">
                     <span className="text-[10px] font-extrabold uppercase text-emerald-400 tracking-wider flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" /> Lunch Option
+                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" /> 🍽️ Lunch Blueprint
                     </span>
                     {renderBullets(dietPlan.meal_plan?.lunch, 'bg-emerald-400')}
                   </div>
 
-                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border border-l-4 border-l-amber-400 shadow-md">
+                  <div className="glass-card p-4 rounded-2xl border-l-4 border-l-amber-400 shadow-lg hover:border-amber-400/40 transition duration-300">
                     <span className="text-[10px] font-extrabold uppercase text-amber-400 tracking-wider flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" /> Evening Snack
+                      <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_#fbbf24]" /> 🍎 Evening Snack
                     </span>
                     {renderBullets(dietPlan.meal_plan?.snacks, 'bg-amber-400')}
                   </div>
 
-                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border border-l-4 border-l-cyan-400 shadow-md">
+                  <div className="glass-card p-4 rounded-2xl border-l-4 border-l-cyan-400 shadow-lg hover:border-cyan-400/40 transition duration-300">
                     <span className="text-[10px] font-extrabold uppercase text-cyan-400 tracking-wider flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" /> Dinner Option
+                      <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#22d3ee]" /> 🌙 Dinner Blueprint
                     </span>
                     {renderBullets(dietPlan.meal_plan?.dinner, 'bg-cyan-400')}
                   </div>
                 </div>
 
-                {/* Recommended vs Avoid Foods (Collapsible + / -) */}
-                <div className="grid gap-4 md:grid-cols-2 border-t border-dark-border/60 pt-5">
+                {/* Recommended vs Avoid Foods (Collapsed Default + / -) */}
+                <div className="grid gap-5 md:grid-cols-2 border-t border-white/10 pt-6">
                   {/* Recommended Clean Foods */}
-                  <div className="space-y-3 bg-slate-900/40 p-4 rounded-2xl border border-dark-border/60">
+                  <div className="space-y-3 glass-card p-4 rounded-2xl border border-white/10 hover:border-emerald-500/30 transition duration-300">
                     <div 
                       onClick={() => setShowRecommended(!showRecommended)}
                       className="flex items-center justify-between cursor-pointer select-none group"
                     >
-                      <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-                        <CheckCircle className="h-3.5 w-3.5" /> Recommended Clean Foods
+                      <span className="text-xs font-extrabold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4" /> Recommended Clean Foods
                       </span>
                       <button 
                         type="button"
-                        className="h-6 w-6 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:bg-emerald-500/20 transition"
+                        className="h-7 w-7 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center group-hover:bg-emerald-500/20 transition shadow-[0_0_10px_rgba(16,185,129,0.15)]"
                       >
-                        {showRecommended ? <Minus className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                        {showRecommended ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
                       </button>
                     </div>
 
                     {showRecommended && (
-                      <ul className="space-y-1.5 transition-all duration-300">
+                      <ul className="space-y-2 pt-1 transition-all duration-300">
                         {dietPlan.recommended_foods?.map((food, i) => (
-                          <li key={i} className="text-xs text-slate-300 flex items-center gap-2 bg-slate-900/60 px-3 py-2 rounded-xl border border-dark-border/40 hover:border-emerald-500/30 transition">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0" />
-                            <span>{food}</span>
+                          <li key={i} className="text-xs text-slate-200 flex items-center gap-2.5 bg-slate-950/50 px-3.5 py-2 rounded-xl border border-white/5 hover:border-emerald-500/40 transition">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0 shadow-[0_0_6px_#34d399]" />
+                            <span className="font-medium">{food}</span>
                           </li>
                         ))}
                       </ul>
@@ -593,28 +594,28 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
                   </div>
 
                   {/* Foods & Ingredients to Avoid */}
-                  <div className="space-y-3 bg-slate-900/40 p-4 rounded-2xl border border-dark-border/60">
+                  <div className="space-y-3 glass-card p-4 rounded-2xl border border-white/10 hover:border-rose-500/30 transition duration-300">
                     <div 
                       onClick={() => setShowAvoid(!showAvoid)}
                       className="flex items-center justify-between cursor-pointer select-none group"
                     >
-                      <span className="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
-                        <AlertTriangle className="h-3.5 w-3.5" /> Foods &amp; Ingredients to Avoid
+                      <span className="text-xs font-extrabold text-rose-400 uppercase tracking-wider flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4" /> Foods &amp; Ingredients to Avoid
                       </span>
                       <button 
                         type="button"
-                        className="h-6 w-6 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center group-hover:bg-rose-500/20 transition"
+                        className="h-7 w-7 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 flex items-center justify-center group-hover:bg-rose-500/20 transition shadow-[0_0_10px_rgba(244,63,94,0.15)]"
                       >
-                        {showAvoid ? <Minus className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                        {showAvoid ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
                       </button>
                     </div>
 
                     {showAvoid && (
-                      <ul className="space-y-1.5 transition-all duration-300">
+                      <ul className="space-y-2 pt-1 transition-all duration-300">
                         {dietPlan.avoid_foods?.map((food, i) => (
-                          <li key={i} className="text-xs text-slate-300 flex items-center gap-2 bg-slate-900/60 px-3 py-2 rounded-xl border border-dark-border/40 hover:border-rose-500/30 transition">
-                            <span className="h-1.5 w-1.5 rounded-full bg-rose-400 shrink-0" />
-                            <span>{food}</span>
+                          <li key={i} className="text-xs text-slate-200 flex items-center gap-2.5 bg-slate-950/50 px-3.5 py-2 rounded-xl border border-white/5 hover:border-rose-500/40 transition">
+                            <span className="h-1.5 w-1.5 rounded-full bg-rose-400 shrink-0 shadow-[0_0_6px_#fb7185]" />
+                            <span className="font-medium">{food}</span>
                           </li>
                         ))}
                       </ul>
