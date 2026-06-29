@@ -479,21 +479,12 @@ def generate_meal_options(calories: int, recommended: List[str], avoid: List[str
     if notes.strip():
         for opt in options:
             if "celiac" in notes or "gluten" in notes:
-                opt["name"] += " (Gluten-Free Modified)"
                 for key in ["breakfast", "lunch", "snacks", "dinner"]:
                     opt[key] = opt[key].replace("toast", "gluten-free toast").replace("pasta", "quinoa pasta").replace("tortilla", "lettuce wrap")
             if "lactose" in notes or "dairy" in notes:
-                opt["name"] += " (Dairy-Free Modified)"
                 for key in ["breakfast", "lunch", "snacks", "dinner"]:
                     opt[key] = opt[key].replace("yogurt", "coconut yogurt").replace("milk", "almond milk").replace("cheese", "vegan cheese").replace("paneer", "tofu")
             if "uric acid" in notes or "gout" in notes:
-                opt["name"] += " (Low-Purine Modified)"
                 for key in ["breakfast", "lunch", "snacks", "dinner"]:
                     opt[key] = opt[key].replace("Steak", "Paneer/Tofu").replace("beef", "chickpeas")
-            if "hypertension" in notes or "blood pressure" in notes or "bp" in notes:
-                opt["name"] += " (Low-Sodium Dash)"
-            if "thyroid" in notes:
-                opt["name"] += " (Thyroid Vitality)"
-            if "pcos" in notes or "pcod" in notes:
-                opt["name"] += " (Hormone Balance)"
     return options
