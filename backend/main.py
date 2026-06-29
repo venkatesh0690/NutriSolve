@@ -253,7 +253,15 @@ def get_admin_stats(db: Session = Depends(get_db)):
 
 # ─── User Profile Endpoints ───
 @app.get("/api/profile")
-def get_profile(current_user: User = Depends(get_current_user)):
+def get_profile(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    latest_plan = db.query(DietPlan).filter(DietPlan.user_id == current_user.id).order_by(DietPlan.created_at.desc()).first()
+    if latest_plan and latest_plan.calories > 0:
+        current_user.target_calories = latest_plan.calories
+        db.commit()
+        db.refresh(current_user)
     return current_user
 
 @app.put("/api/profile")

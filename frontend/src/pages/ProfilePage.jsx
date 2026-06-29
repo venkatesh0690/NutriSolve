@@ -3,14 +3,26 @@ import { User, Settings, Award, Save, RefreshCw, BarChart2, Star, Target, Flame,
 import { API_BASE } from '../config';
 
 export default function ProfilePage({ onProfileSave, currentUser }) {
-  const [profile, setProfile] = useState({
-    name: 'Aravind',
-    age: 28,
-    height_cm: 175.0,
-    weight_kg: 72.0,
-    sex: 'Male',
-    target_calories: 1650,
-    star_target: 100
+  const [profile, setProfile] = useState(() => {
+    let base = {
+      name: 'Aravind',
+      age: 28,
+      height_cm: 175.0,
+      weight_kg: 72.0,
+      sex: 'Male',
+      target_calories: 2000,
+      star_target: 100
+    };
+    try {
+      const cachedPlan = localStorage.getItem('nutrisolve_saved_diet_plan');
+      if (cachedPlan) {
+        const parsed = JSON.parse(cachedPlan);
+        if (parsed.macros && parsed.macros.calories) {
+          base.target_calories = parsed.macros.calories;
+        }
+      }
+    } catch (e) {}
+    return base;
   });
 
   const [historyData, setHistoryData] = useState([]);
@@ -33,7 +45,17 @@ export default function ProfilePage({ onProfileSave, currentUser }) {
       const res = await fetch(`${API_BASE}/api/profile`, { headers: getHeaders() });
       if (res.ok) {
         const data = await res.json();
-        setProfile(data);
+        let updated = { ...data };
+        try {
+          const cachedPlan = localStorage.getItem('nutrisolve_saved_diet_plan');
+          if (cachedPlan) {
+            const parsed = JSON.parse(cachedPlan);
+            if (parsed.macros && parsed.macros.calories) {
+              updated.target_calories = parsed.macros.calories;
+            }
+          }
+        } catch (e) {}
+        setProfile(updated);
       }
     } catch (err) {
       console.error('Failed to fetch user profile:', err);
