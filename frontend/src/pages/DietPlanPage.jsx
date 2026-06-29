@@ -370,32 +370,32 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
                 </h3>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {/* Weight Variance Card */}
+                  {/* Daily Target Calorie Count Card */}
                   <div 
-                    onClick={() => toggleTooltip('weight_var')}
+                    onClick={() => toggleTooltip('daily_cal')}
                     className="group relative bg-slate-900/60 p-4 rounded-2xl border border-dark-border hover:border-amber-500/50 transition cursor-pointer"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1">
-                        <Scale className="h-3 w-3 text-amber-400" /> Weight Variance
+                        <Flame className="h-3 w-3 text-amber-400" /> Daily Target Calories
                       </span>
                       <Info className="h-3.5 w-3.5 text-slate-500 group-hover:text-amber-400 transition" />
                     </div>
 
                     <div className="text-xl font-black text-white mt-1.5">
-                      {dietPlan.calculated_metrics?.weight_variance_str || '0.0%'} <span className="text-xs font-semibold text-slate-400">vs Normal BMI</span>
+                      {dietPlan.macros?.calories || 2000} <span className="text-xs font-semibold text-slate-400">kcal/day</span>
                     </div>
 
-                    <span className={`inline-block mt-2 text-[10px] font-semibold px-2 py-0.5 rounded border ${getStatusBadgeClass(dietPlan.calculated_metrics?.weight_variance_status || 'Optimal Weight')}`}>
-                      {dietPlan.calculated_metrics?.weight_variance_status || 'Optimal Weight'}
+                    <span className="inline-block mt-2 text-[10px] font-semibold px-2 py-0.5 rounded border bg-amber-500/10 text-amber-400 border-amber-500/20">
+                      Calculated Target
                     </span>
 
                     {/* Tooltip on Hover / Tap */}
-                    <div className={`absolute left-0 right-0 top-full mt-2 z-30 p-3 bg-slate-950 border border-amber-500/30 rounded-xl shadow-2xl text-[11px] text-slate-300 leading-relaxed pointer-events-none transition-all duration-200 ${activeTooltip === 'weight_var' ? 'block' : 'hidden group-hover:block'}`}>
+                    <div className={`absolute left-0 right-0 top-full mt-2 z-30 p-3 bg-slate-950 border border-amber-500/30 rounded-xl shadow-2xl text-[11px] text-slate-300 leading-relaxed pointer-events-none transition-all duration-200 ${activeTooltip === 'daily_cal' ? 'block' : 'hidden group-hover:block'}`}>
                       <p className="font-semibold text-amber-400 mb-1 flex items-center gap-1">
-                        <Scale className="h-3 w-3" /> Overweight / Underweight %
+                        <Flame className="h-3 w-3" /> Daily Calorie Goal
                       </p>
-                      Calculates how far your current weight deviates from the ideal normal BMI range (18.5 – 24.9) for your height.
+                      Mathematically tailored daily energy target designed to achieve your metabolic health and body composition goals.
                     </div>
                   </div>
 
