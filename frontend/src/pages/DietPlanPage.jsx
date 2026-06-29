@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Sparkles, Scale, Heart, AlertTriangle, CheckCircle, Flame, Activity, Info } from 'lucide-react';
+import { Shield, Sparkles, Scale, Heart, AlertTriangle, CheckCircle, Flame, Activity, Info, Plus, Minus } from 'lucide-react';
 import { API_BASE } from '../config';
 
 export default function DietPlanPage({ onPlanSubmit, currentUser }) {
@@ -22,6 +22,27 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
   const [dietPlan, setDietPlan] = useState(null);
   const [error, setError] = useState('');
   const [activeTooltip, setActiveTooltip] = useState(null); // 'bmr', 'tdee', etc for mobile tap
+  const [showRecommended, setShowRecommended] = useState(true);
+  const [showAvoid, setShowAvoid] = useState(true);
+
+  const renderBullets = (text, dotColor = 'bg-brand-primary') => {
+    if (!text) return null;
+    // Split by bullet point symbols or sentences
+    const items = text.split(/(?:•|;|\n|:\s*(?=[A-Z0-9]))/).map(s => s.strip ? s.strip() : s.trim()).filter(Boolean);
+    if (items.length <= 1) {
+      return <p className="text-xs text-slate-300 leading-relaxed font-normal">{text}</p>;
+    }
+    return (
+      <ul className="space-y-1.5 mt-2">
+        {items.map((item, idx) => (
+          <li key={idx} className="text-xs text-slate-300 flex items-start gap-2 leading-relaxed">
+            <span className={`h-1.5 w-1.5 rounded-full ${dotColor} mt-1.5 shrink-0`} />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  };
 
   // Fetch the latest plan on mount to show saved baseline data
   useEffect(() => {
@@ -511,55 +532,93 @@ export default function DietPlanPage({ onPlanSubmit, currentUser }) {
 
                 {/* Meal Sections */}
                 <div className="grid gap-4 md:grid-cols-2">
-                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border border-l-4 border-l-brand-primary">
-                    <span className="text-[10px] font-bold uppercase text-brand-primary tracking-wider">Breakfast Option</span>
-                    <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">{dietPlan.meal_plan?.breakfast}</p>
+                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border border-l-4 border-l-brand-primary shadow-md">
+                    <span className="text-[10px] font-extrabold uppercase text-brand-primary tracking-wider flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-brand-primary animate-pulse" /> Breakfast Option
+                    </span>
+                    {renderBullets(dietPlan.meal_plan?.breakfast, 'bg-brand-primary')}
                   </div>
 
-                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border border-l-4 border-l-emerald-400">
-                    <span className="text-[10px] font-bold uppercase text-emerald-400 tracking-wider">Lunch Option</span>
-                    <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">{dietPlan.meal_plan?.lunch}</p>
+                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border border-l-4 border-l-emerald-400 shadow-md">
+                    <span className="text-[10px] font-extrabold uppercase text-emerald-400 tracking-wider flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" /> Lunch Option
+                    </span>
+                    {renderBullets(dietPlan.meal_plan?.lunch, 'bg-emerald-400')}
                   </div>
 
-                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border border-l-4 border-l-amber-400">
-                    <span className="text-[10px] font-bold uppercase text-amber-400 tracking-wider">Evening Snack</span>
-                    <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">{dietPlan.meal_plan?.snacks}</p>
+                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border border-l-4 border-l-amber-400 shadow-md">
+                    <span className="text-[10px] font-extrabold uppercase text-amber-400 tracking-wider flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" /> Evening Snack
+                    </span>
+                    {renderBullets(dietPlan.meal_plan?.snacks, 'bg-amber-400')}
                   </div>
 
-                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border border-l-4 border-l-cyan-400">
-                    <span className="text-[10px] font-bold uppercase text-cyan-400 tracking-wider">Dinner Option</span>
-                    <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">{dietPlan.meal_plan?.dinner}</p>
+                  <div className="bg-slate-900/60 p-4 rounded-2xl border border-dark-border border-l-4 border-l-cyan-400 shadow-md">
+                    <span className="text-[10px] font-extrabold uppercase text-cyan-400 tracking-wider flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" /> Dinner Option
+                    </span>
+                    {renderBullets(dietPlan.meal_plan?.dinner, 'bg-cyan-400')}
                   </div>
                 </div>
 
-                {/* Recommended vs Avoid Foods */}
+                {/* Recommended vs Avoid Foods (Collapsible + / -) */}
                 <div className="grid gap-4 md:grid-cols-2 border-t border-dark-border/60 pt-5">
-                  <div className="space-y-2">
-                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <CheckCircle className="h-3.5 w-3.5" /> Recommended Clean Foods
-                    </span>
-                    <ul className="space-y-1">
-                      {dietPlan.recommended_foods?.map((food, i) => (
-                        <li key={i} className="text-xs text-slate-300 flex items-center gap-2 bg-slate-900/40 px-3 py-1.5 rounded-xl border border-dark-border/40">
-                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                          {food}
-                        </li>
-                      ))}
-                    </ul>
+                  {/* Recommended Clean Foods */}
+                  <div className="space-y-3 bg-slate-900/40 p-4 rounded-2xl border border-dark-border/60">
+                    <div 
+                      onClick={() => setShowRecommended(!showRecommended)}
+                      className="flex items-center justify-between cursor-pointer select-none group"
+                    >
+                      <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <CheckCircle className="h-3.5 w-3.5" /> Recommended Clean Foods
+                      </span>
+                      <button 
+                        type="button"
+                        className="h-6 w-6 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:bg-emerald-500/20 transition"
+                      >
+                        {showRecommended ? <Minus className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                      </button>
+                    </div>
+
+                    {showRecommended && (
+                      <ul className="space-y-1.5 transition-all duration-300">
+                        {dietPlan.recommended_foods?.map((food, i) => (
+                          <li key={i} className="text-xs text-slate-300 flex items-center gap-2 bg-slate-900/60 px-3 py-2 rounded-xl border border-dark-border/40 hover:border-emerald-500/30 transition">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0" />
+                            <span>{food}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
 
-                  <div className="space-y-2">
-                    <span className="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <AlertTriangle className="h-3.5 w-3.5" /> Foods &amp; Ingredients to Avoid
-                    </span>
-                    <ul className="space-y-1">
-                      {dietPlan.avoid_foods?.map((food, i) => (
-                        <li key={i} className="text-xs text-slate-300 flex items-center gap-2 bg-slate-900/40 px-3 py-1.5 rounded-xl border border-dark-border/40">
-                          <span className="h-1.5 w-1.5 rounded-full bg-rose-400" />
-                          {food}
-                        </li>
-                      ))}
-                    </ul>
+                  {/* Foods & Ingredients to Avoid */}
+                  <div className="space-y-3 bg-slate-900/40 p-4 rounded-2xl border border-dark-border/60">
+                    <div 
+                      onClick={() => setShowAvoid(!showAvoid)}
+                      className="flex items-center justify-between cursor-pointer select-none group"
+                    >
+                      <span className="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <AlertTriangle className="h-3.5 w-3.5" /> Foods &amp; Ingredients to Avoid
+                      </span>
+                      <button 
+                        type="button"
+                        className="h-6 w-6 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center group-hover:bg-rose-500/20 transition"
+                      >
+                        {showAvoid ? <Minus className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                      </button>
+                    </div>
+
+                    {showAvoid && (
+                      <ul className="space-y-1.5 transition-all duration-300">
+                        {dietPlan.avoid_foods?.map((food, i) => (
+                          <li key={i} className="text-xs text-slate-300 flex items-center gap-2 bg-slate-900/60 px-3 py-2 rounded-xl border border-dark-border/40 hover:border-rose-500/30 transition">
+                            <span className="h-1.5 w-1.5 rounded-full bg-rose-400 shrink-0" />
+                            <span>{food}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 </div>
 
