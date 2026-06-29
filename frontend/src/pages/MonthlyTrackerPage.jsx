@@ -147,7 +147,7 @@ export default function MonthlyTrackerPage({ currentUser }) {
     <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 space-y-6">
       {/* Header */}
       <div className="mb-4 text-center">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-primary/10 px-3 py-1 text-xs font-semibold text-brand-primary border border-brand-primary/20 mb-3 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-500/10 px-3 py-1 text-xs font-semibold text-teal-400 border border-teal-500/20 mb-3 shadow-[0_0_15px_rgba(20,184,166,0.15)]">
           <Calendar className="h-3.5 w-3.5" /> Monthly Overview
         </span>
         <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">Monthly Calendar</h2>
@@ -158,22 +158,22 @@ export default function MonthlyTrackerPage({ currentUser }) {
 
       {/* Stats Banner */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-dark-card border border-dark-border rounded-2xl p-4 text-center">
-          <span className="block text-[9px] text-slate-500 font-bold uppercase tracking-wider">Total Stars</span>
+        <div className="glass-card rounded-2xl p-4 text-center">
+          <span className="block text-[9px] text-slate-400 font-bold uppercase tracking-wider">Total Stars</span>
           <span className="text-2xl font-black text-amber-400 flex items-center justify-center gap-1 mt-1">
             <Star className="h-5 w-5 fill-amber-400 text-amber-400" /> {totalStars}
           </span>
         </div>
-        <div className="bg-dark-card border border-dark-border rounded-2xl p-4 text-center">
-          <span className="block text-[9px] text-slate-500 font-bold uppercase tracking-wider">Days Tracked</span>
-          <span className="text-2xl font-black text-brand-primary mt-1">{daysWithData}</span>
+        <div className="glass-card rounded-2xl p-4 text-center">
+          <span className="block text-[9px] text-slate-400 font-bold uppercase tracking-wider">Days Tracked</span>
+          <span className="text-2xl font-black text-teal-400 mt-1">{daysWithData}</span>
         </div>
-        <div className="bg-dark-card border border-dark-border rounded-2xl p-4 text-center">
-          <span className="block text-[9px] text-slate-500 font-bold uppercase tracking-wider">Avg Score</span>
+        <div className="glass-card rounded-2xl p-4 text-center">
+          <span className="block text-[9px] text-slate-400 font-bold uppercase tracking-wider">Avg Score</span>
           <span className={`text-2xl font-black mt-1 ${getScoreColor(avgScore)}`}>{avgScore}%</span>
         </div>
-        <div className="bg-dark-card border border-dark-border rounded-2xl p-4 text-center">
-          <span className="block text-[9px] text-slate-500 font-bold uppercase tracking-wider">Next Milestone</span>
+        <div className="glass-card rounded-2xl p-4 text-center">
+          <span className="block text-[9px] text-slate-400 font-bold uppercase tracking-wider">Next Milestone</span>
           <span className="text-2xl font-black text-purple-400 mt-1">{nextMilestone} ⭐</span>
           <div className="h-1.5 bg-slate-800 rounded-full mt-2 overflow-hidden">
             <div className="h-full bg-purple-500 rounded-full transition-all duration-700" style={{ width: `${milestoneProgress}%` }} />
@@ -185,19 +185,19 @@ export default function MonthlyTrackerPage({ currentUser }) {
       <div className="grid gap-6 lg:grid-cols-12">
         {/* Calendar Grid */}
         <div className={`${clickedDay ? 'lg:col-span-7' : 'lg:col-span-12'} transition-all duration-300`}>
-          <div className="bg-dark-card border border-dark-border rounded-3xl p-6 shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-brand-primary/5 blur-3xl" />
+          <div className="glass-panel rounded-3xl p-6 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-teal-500/5 blur-3xl pointer-events-none" />
 
             {/* Month Navigation */}
             <div className="flex items-center justify-between mb-5 relative z-10">
               <button
                 onClick={() => navigateMonth(-1)}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-900/60 border border-dark-border text-slate-300 hover:bg-slate-800 hover:text-white transition text-xs font-medium"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-900/60 border border-white/10 text-slate-300 hover:bg-slate-800 hover:text-white transition text-xs font-medium"
               >
                 <ChevronLeft className="h-4 w-4" /> Prev
               </button>
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-brand-primary" />
+                <Calendar className="h-5 w-5 text-teal-400" />
                 {monthNames[viewMonth.month]} {viewMonth.year}
               </h3>
               <button

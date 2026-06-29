@@ -166,14 +166,14 @@ export default function ProfilePage({ onProfileSave, currentUser }) {
     <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 space-y-6">
       
       {/* Header and profile specification boxes in the top right */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-dark-card border border-dark-border rounded-3xl p-6 shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 left-0 h-40 w-40 rounded-full bg-brand-primary/5 blur-3xl" />
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 glass-panel rounded-3xl p-6 shadow-xl relative overflow-hidden">
+        <div className="absolute top-0 left-0 h-40 w-40 rounded-full bg-teal-500/5 blur-3xl pointer-events-none" />
         
         <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-primary/10 px-3 py-1 text-xs font-semibold text-brand-primary border border-brand-primary/20 mb-3">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-500/10 px-3 py-1 text-xs font-semibold text-teal-400 border border-teal-500/20 mb-3">
             <Award className="h-3 w-3" /> Dashboard
           </span>
-          <h2 className="text-3xl font-extrabold tracking-tight text-white m-0">User Profile & Trends</h2>
+          <h2 className="text-3xl font-extrabold tracking-tight text-white m-0">User Profile &amp; Trends</h2>
           <p className="text-sm text-slate-400 mt-1 max-w-lg">
             Monitor nutritional scores, track daily stars target progress, and view rolling calorie limits.
           </p>
@@ -181,37 +181,37 @@ export default function ProfilePage({ onProfileSave, currentUser }) {
 
         {/* Profile specs displayed in small compact boxes top right */}
         <div className="flex flex-wrap gap-3 lg:self-end">
-          <div className="bg-slate-900 border border-dark-border p-3 rounded-2xl min-w-[100px] text-center">
-            <span className="block text-[9px] uppercase font-bold text-slate-500">Subject</span>
+          <div className="glass-card p-3 rounded-2xl min-w-[100px] text-center">
+            <span className="block text-[9px] uppercase font-bold text-slate-400">Subject</span>
             <span className="text-sm font-bold text-white mt-0.5 block truncate">{profile.name} ({profile.sex})</span>
           </div>
 
-          <div className="bg-slate-900 border border-dark-border p-3 rounded-2xl min-w-[70px] text-center">
-            <span className="block text-[9px] uppercase font-bold text-slate-500">Age</span>
+          <div className="glass-card p-3 rounded-2xl min-w-[70px] text-center">
+            <span className="block text-[9px] uppercase font-bold text-slate-400">Age</span>
             <span className="text-sm font-bold text-white mt-0.5 block">{profile.age} yrs</span>
           </div>
 
-          <div className="bg-slate-900 border border-dark-border p-3 rounded-2xl min-w-[90px] text-center">
-            <span className="block text-[9px] uppercase font-bold text-slate-500">Weight / Ht</span>
+          <div className="glass-card p-3 rounded-2xl min-w-[90px] text-center">
+            <span className="block text-[9px] uppercase font-bold text-slate-400">Weight / Ht</span>
             <span className="text-sm font-bold text-white mt-0.5 block">{profile.weight_kg}kg / {profile.height_cm}cm</span>
           </div>
 
-          <div className="bg-slate-900 border border-dark-border p-3 rounded-2xl min-w-[100px] text-center relative group">
-            <span className="block text-[9px] uppercase font-bold text-slate-500">Calorie Target</span>
-            <span className="text-sm font-bold text-brand-primary mt-0.5 block">{profile.target_calories} kcal</span>
+          <div className="glass-card p-3 rounded-2xl min-w-[100px] text-center relative group">
+            <span className="block text-[9px] uppercase font-bold text-slate-400">Calorie Target</span>
+            <span className="text-sm font-bold text-teal-400 mt-0.5 block">{profile.target_calories} kcal</span>
           </div>
 
-          <div className="bg-slate-900 border border-dark-border p-3 rounded-2xl min-w-[100px] text-center">
-            <span className="block text-[9px] uppercase font-bold text-slate-500">Star Goal</span>
+          <div className="glass-card p-3 rounded-2xl min-w-[100px] text-center">
+            <span className="block text-[9px] uppercase font-bold text-slate-400">Star Goal</span>
             <span className="text-sm font-bold text-amber-400 mt-0.5 block">{profile.star_target} Stars</span>
           </div>
 
           <button
             onClick={() => setIsEditing(!isEditing)}
-            className="flex items-center justify-center bg-slate-800 hover:bg-slate-700 text-white rounded-2xl p-3 border border-dark-border transition"
+            className="flex items-center justify-center bg-slate-900/80 hover:bg-slate-800 text-white rounded-2xl p-3 border border-white/10 transition cursor-pointer"
             title="Edit specs"
           >
-            <Edit className="h-4.5 w-4.5" />
+            <Edit className="h-4.5 w-4.5 text-teal-400" />
           </button>
         </div>
       </div>

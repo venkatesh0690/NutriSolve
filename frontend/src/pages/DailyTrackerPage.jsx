@@ -259,11 +259,11 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
     <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 space-y-6">
       {/* Header */}
       <div className="mb-6 text-center">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-500/10 px-3.5 py-1 text-xs font-bold text-orange-600 border border-orange-500/20 mb-3 shadow-sm">
-          <Utensils className="h-4 w-4 text-orange-500" /> Daily Food Tracker
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-500/10 px-3.5 py-1 text-xs font-bold text-teal-400 border border-teal-500/20 mb-3 shadow-[0_0_15px_rgba(20,184,166,0.15)]">
+          <Utensils className="h-4 w-4 text-teal-400" /> Daily Food Tracker
         </span>
-        <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">Log Meals & Nutrition</h2>
-        <p className="mx-auto mt-2 max-w-2xl text-sm font-medium text-slate-500">
+        <h2 className="text-3xl font-black tracking-tight text-white sm:text-4xl">Log Meals &amp; Nutrition</h2>
+        <p className="mx-auto mt-2 max-w-2xl text-sm font-medium text-slate-400">
           Track your daily calorie budget and macro distribution against your target goals.
         </p>
       </div>
@@ -271,17 +271,17 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
       <div className="grid gap-6 lg:grid-cols-12">
         {/* ─── Left Column: Log Form ─── */}
         <div className="lg:col-span-5 space-y-5">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-orange-500/5 blur-3xl pointer-events-none" />
-            <h3 className="text-xl font-bold text-slate-900 mb-5 flex items-center justify-between relative z-10 w-full">
+          <div className="glass-panel rounded-3xl p-6 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-teal-500/5 blur-3xl pointer-events-none" />
+            <h3 className="text-xl font-bold text-white mb-5 flex items-center justify-between relative z-10 w-full">
               <span className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-orange-500" /> {(!selectedDate || selectedDate.date === localDateStr) ? "Log Today's Meals" : `Edit Meals for ${new Date((selectedDate?.date || localDateStr) + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}`}
+                <FileText className="h-5 w-5 text-teal-400" /> {(!selectedDate || selectedDate.date === localDateStr) ? "Log Today's Meals" : `Edit Meals for ${new Date((selectedDate?.date || localDateStr) + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}`}
               </span>
               {selectedDate?.has_data && (
                 <button
                   type="button"
                   onClick={handleClearDay}
-                  className="text-[10px] font-bold text-rose-600 hover:text-rose-700 bg-rose-50 border border-rose-200 rounded-lg px-2.5 py-1 transition flex items-center gap-1 cursor-pointer"
+                  className="text-[10px] font-bold text-rose-400 hover:text-rose-300 bg-rose-500/10 border border-rose-500/20 rounded-lg px-2.5 py-1 transition flex items-center gap-1 cursor-pointer"
                 >
                   <Trash2 className="h-3 w-3" /> Clear Day
                 </button>
@@ -290,7 +290,7 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
             <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
               {mealTypesList.map((meal) => (
                 <div key={meal.key}>
-                  <label className="flex items-center gap-1.5 text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                  <label className="flex items-center gap-1.5 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">
                     <span>{meal.emoji}</span> {meal.label}
                   </label>
                   <textarea
@@ -298,16 +298,16 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
                     value={mealsForm[meal.key]}
                     onChange={handleMealChange}
                     placeholder={`What did you eat for ${meal.label.toLowerCase()}?`}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition min-h-[48px] resize-y"
+                    className="w-full bg-slate-900/80 border border-white/10 rounded-2xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20 transition min-h-[48px] resize-y"
                   />
                 </div>
               ))}
 
               {/* Photo upload */}
               <div>
-                <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">📷 Meal Photo (Optional)</label>
+                <label className="block text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-1.5">📷 Meal Photo (Optional)</label>
                 {imagePreview ? (
-                  <div className="relative rounded-2xl overflow-hidden border border-slate-200 h-36 bg-slate-100">
+                  <div className="relative rounded-2xl overflow-hidden border border-white/10 h-36 bg-slate-900">
                     <img src={imagePreview} alt="Meal" className="w-full h-full object-cover" />
                     <button type="button" onClick={clearImage} className="absolute top-2 right-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl p-1.5 transition shadow-md text-xs cursor-pointer">
                       <Trash2 className="h-4 w-4" />
@@ -318,17 +318,17 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
                     onClick={() => fileInputRef.current?.click()}
-                    className="border-2 border-dashed border-slate-200 hover:border-orange-400 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer bg-slate-50 hover:bg-orange-50/50 transition group min-h-[64px]"
+                    className="border-2 border-dashed border-white/10 hover:border-teal-400/50 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer bg-slate-900/50 hover:bg-teal-500/5 transition group min-h-[64px]"
                   >
-                    <Camera className="h-5 w-5 text-slate-400 group-hover:text-orange-500 transition mb-1" />
-                    <span className="text-[11px] font-bold text-slate-500 group-hover:text-orange-600">Click or drag to upload photo</span>
+                    <Camera className="h-5 w-5 text-slate-400 group-hover:text-teal-400 transition mb-1" />
+                    <span className="text-[11px] font-bold text-slate-400 group-hover:text-teal-300">Click or drag to upload photo</span>
                     <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
                   </div>
                 )}
               </div>
 
               {error && (
-                <div className="flex items-center gap-2 rounded-2xl bg-rose-50 border border-rose-200 p-3.5 text-xs font-semibold text-rose-600">
+                <div className="flex items-center gap-2 rounded-2xl bg-rose-500/10 border border-rose-500/20 p-3.5 text-xs font-semibold text-rose-400">
                   <AlertCircle className="h-4 w-4 shrink-0" /> <span>{error}</span>
                 </div>
               )}
@@ -338,11 +338,11 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-extrabold py-3 px-4 rounded-2xl shadow-lg shadow-orange-500/25 transition duration-300 disabled:opacity-50 flex items-center justify-center gap-2 text-xs cursor-pointer"
+                    className="flex-1 bg-gradient-to-r from-teal-400 to-cyan-500 hover:from-teal-500 hover:to-cyan-600 text-slate-950 font-black py-3 px-4 rounded-2xl shadow-lg shadow-teal-500/20 transition duration-300 disabled:opacity-50 flex items-center justify-center gap-2 text-xs cursor-pointer"
                   >
                     {loading ? (
                       <>
-                        <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <div className="h-4 w-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
                         Saving...
                       </>
                     ) : (
@@ -355,7 +355,7 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
                     type="button"
                     onClick={handleClearDay}
                     disabled={loading}
-                    className="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-extrabold py-3 px-4 rounded-2xl transition duration-300 flex items-center justify-center gap-1.5 text-xs cursor-pointer"
+                    className="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 font-extrabold py-3 px-4 rounded-2xl transition duration-300 flex items-center justify-center gap-1.5 text-xs cursor-pointer"
                     title="Clear all logs for this day"
                   >
                     <Trash2 className="h-4 w-4" /> Clear Day
@@ -365,11 +365,11 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-extrabold py-3.5 px-4 rounded-2xl shadow-lg shadow-orange-500/25 transition duration-300 disabled:opacity-50 flex items-center justify-center gap-2 text-xs cursor-pointer pt-1"
+                  className="w-full bg-gradient-to-r from-teal-400 to-cyan-500 hover:from-teal-500 hover:to-cyan-600 text-slate-950 font-black py-3.5 px-4 rounded-2xl shadow-lg shadow-teal-500/20 transition duration-300 disabled:opacity-50 flex items-center justify-center gap-2 text-xs cursor-pointer pt-1"
                 >
                   {loading ? (
                     <>
-                      <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <div className="h-4 w-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
                       Saving meals...
                     </>
                   ) : (
@@ -384,17 +384,17 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
 
           {/* ─── Success Alert ─── */}
           {showSuccess && (
-            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 shadow-sm flex items-center justify-between animate-fadeIn">
+            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 shadow-sm flex items-center justify-between animate-fadeIn">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-md">
-                  <Check className="h-5 w-5" />
+                <div className="h-10 w-10 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center shadow-md">
+                  <Check className="h-5 w-5 stroke-[3]" />
                 </div>
                 <div>
-                  <span className="text-sm font-bold text-slate-900 block">Meal Logged Successfully</span>
-                  <p className="text-[11px] text-slate-500 font-medium">Processed via AI Nutrition Engine</p>
+                  <span className="text-sm font-bold text-white block">Meal Logged Successfully</span>
+                  <p className="text-[11px] text-slate-400 font-medium">Processed via AI Nutrition Engine</p>
                 </div>
               </div>
-              <div className="text-lg font-black px-4 py-1.5 rounded-xl bg-emerald-500 text-white shadow-sm">
+              <div className="text-lg font-black px-4 py-1.5 rounded-xl bg-emerald-500 text-slate-950 shadow-sm">
                 {lastScore}%
               </div>
             </div>
@@ -404,12 +404,12 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
         {/* ─── Right Column: Reference Inspired Dashboard ─── */}
         <div className="lg:col-span-7 space-y-5">
           {/* Reference App Style Date Selector Strip */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-4 shadow-sm">
+          <div className="glass-panel rounded-3xl p-4 shadow-xl">
             <div className="flex items-center justify-between mb-3 px-1">
-              <span className="text-[11px] uppercase font-extrabold text-slate-500 tracking-wider flex items-center gap-1.5">
-                <Calendar className="h-4 w-4 text-orange-500" /> Select Date
+              <span className="text-[11px] uppercase font-extrabold text-slate-400 tracking-wider flex items-center gap-1.5">
+                <Calendar className="h-4 w-4 text-teal-400" /> Select Date
               </span>
-              <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-full">
+              <span className="text-xs font-bold text-teal-300 bg-teal-500/10 border border-teal-500/20 px-3 py-1 rounded-full">
                 {selectedDate?.date === localDateStr ? 'Today' : selectedDate?.date}
               </span>
             </div>
@@ -425,17 +425,17 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
                     onClick={() => setSelectedDate(day)}
                     className={`flex flex-col items-center min-w-[78px] px-3.5 py-3 rounded-2xl border transition-all duration-300 cursor-pointer ${
                       isSelected
-                        ? 'bg-gradient-to-b from-orange-500 to-orange-600 border-orange-500 text-white shadow-md shadow-orange-500/20 scale-105'
+                        ? 'bg-gradient-to-b from-teal-400 to-cyan-500 border-teal-400 text-slate-950 shadow-lg shadow-teal-500/20 scale-105'
                         : day.has_data
-                          ? 'bg-white border-slate-200 hover:border-orange-300 text-slate-700 shadow-sm'
-                          : 'bg-slate-50 border-slate-100 text-slate-400 hover:border-slate-300'
+                          ? 'bg-slate-900/60 border-white/10 hover:border-teal-400/50 text-slate-200 shadow-sm'
+                          : 'bg-slate-950/40 border-white/5 text-slate-500 hover:border-white/10'
                     }`}
                   >
-                    <span className={`text-[9px] font-extrabold uppercase tracking-wider ${isSelected ? 'text-orange-100' : 'text-slate-400'}`}>{dayOfWeek}</span>
-                    <span className={`text-xl font-black mt-0.5 ${isSelected ? 'text-white' : isToday ? 'text-orange-500' : 'text-slate-900'}`}>{day.day_number}</span>
-                    <span className={`text-[9px] font-semibold ${isSelected ? 'text-orange-100' : 'text-slate-500'}`}>{day.month_name.substring(0, 3)}</span>
+                    <span className={`text-[9px] font-extrabold uppercase tracking-wider ${isSelected ? 'text-slate-950/70' : 'text-slate-400'}`}>{dayOfWeek}</span>
+                    <span className={`text-xl font-black mt-0.5 ${isSelected ? 'text-slate-950' : isToday ? 'text-teal-400' : 'text-white'}`}>{day.day_number}</span>
+                    <span className={`text-[9px] font-semibold ${isSelected ? 'text-slate-950/70' : 'text-slate-400'}`}>{day.month_name.substring(0, 3)}</span>
                     {day.has_data && (
-                      <span className={`text-[9px] font-black mt-1 px-1.5 py-0.5 rounded-full ${isSelected ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700'}`}>{day.score_pct}%</span>
+                      <span className={`text-[9px] font-black mt-1 px-1.5 py-0.5 rounded-full ${isSelected ? 'bg-slate-950/20 text-slate-950' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}>{day.score_pct}%</span>
                     )}
                   </button>
                 );
@@ -444,18 +444,18 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
           </div>
 
           {/* Selected Date Nutrition & Calorie Balance Dashboard */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm relative overflow-hidden space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 gap-3 relative z-10">
+          <div className="glass-panel rounded-3xl p-6 shadow-xl relative overflow-hidden space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-4 gap-3 relative z-10">
               <div>
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Nutrition Dashboard</span>
-                <h3 className="text-2xl font-black text-slate-900 mt-0.5">
+                <h3 className="text-2xl font-black text-white mt-0.5">
                   {selectedDate
                     ? new Date(selectedDate.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })
                     : 'Select a date'}
                 </h3>
               </div>
               {selectedDate?.has_data && (
-                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm">
+                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-3.5 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-sm">
                   <Check className="h-4 w-4" /> Compliance: {selectedDate.score_pct}%
                 </span>
               )}
@@ -463,22 +463,22 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
 
             {loadingData ? (
               <div className="h-52 flex items-center justify-center">
-                <div className="h-10 w-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+                <div className="h-10 w-10 border-4 border-teal-400 border-t-transparent rounded-full animate-spin" />
               </div>
             ) : selectedDate?.has_data ? (
               <div className="space-y-6 relative z-10">
                 
                 {/* ── Reference App Style Circular Gauge & Calorie Budget Widget ── */}
-                <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                <div className="bg-slate-900/60 p-6 rounded-3xl border border-white/10 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
                   
                   {/* Calorie Dial & Big Stats (Left 7 cols) */}
                   <div className="md:col-span-7 flex items-center gap-5">
                     <div className="relative flex h-24 w-24 shrink-0 items-center justify-center">
                       <svg className="h-full w-full -rotate-90">
-                        <circle cx="48" cy="48" r="40" className="stroke-slate-200 fill-none" strokeWidth="8" />
+                        <circle cx="48" cy="48" r="40" className="stroke-slate-800 fill-none" strokeWidth="8" />
                         <circle
                           cx="48" cy="48" r="40"
-                          className="stroke-orange-500 fill-none transition-all duration-1000"
+                          className="stroke-teal-400 fill-none transition-all duration-1000"
                           strokeWidth="8"
                           strokeDasharray={2 * Math.PI * 40}
                           strokeDashoffset={2 * Math.PI * 40 * (1 - Math.min(100, selectedDate.score_pct) / 100)}
@@ -486,18 +486,18 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
                         />
                       </svg>
                       <div className="absolute flex flex-col items-center justify-center text-center">
-                        <span className="text-xl font-black text-slate-900 leading-none">{selectedDate.score_pct}%</span>
+                        <span className="text-xl font-black text-white leading-none">{selectedDate.score_pct}%</span>
                         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-1">Goal</span>
                       </div>
                     </div>
 
                     <div>
                       <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Consumed vs Target</span>
-                      <div className="text-3xl font-black text-slate-900 mt-0.5 tracking-tight">
+                      <div className="text-3xl font-black text-white mt-0.5 tracking-tight">
                         {formatMacro(selectedDate.macros.calories)} <span className="text-base font-bold text-slate-400">/ {targetCalories} kcal</span>
                       </div>
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-orange-500 text-white shadow-sm">
+                        <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-teal-400 text-slate-950 shadow-sm">
                           {targetCalories - formatMacro(selectedDate.macros.calories) >= 0 
                             ? `${Math.round(targetCalories - formatMacro(selectedDate.macros.calories))} kcal left` 
                             : `${Math.abs(Math.round(targetCalories - formatMacro(selectedDate.macros.calories)))} kcal over`}
@@ -506,46 +506,46 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
                     </div>
                   </div>
 
-                  {/* Macro Progress Bars (Right 5 cols - inspired by Image 1 & 3) */}
-                  <div className="md:col-span-5 space-y-3.5 border-t md:border-t-0 md:border-l border-slate-200 pt-4 md:pt-0 md:pl-6">
+                  {/* Macro Progress Bars (Right 5 cols) */}
+                  <div className="md:col-span-5 space-y-3.5 border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-6">
                     
                     {/* Protein Bar */}
                     <div>
                       <div className="flex justify-between text-xs font-extrabold mb-1">
-                        <span className="text-emerald-600 flex items-center gap-1">🟢 Protein</span>
-                        <span className="text-slate-700">{formatMacro(selectedDate.macros.protein_g)}g / {targetProtein}g</span>
+                        <span className="text-emerald-400 flex items-center gap-1">🟢 Protein</span>
+                        <span className="text-slate-300">{formatMacro(selectedDate.macros.protein_g)}g / {targetProtein}g</span>
                       </div>
-                      <div className="h-2.5 w-full bg-slate-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-emerald-500 rounded-full transition-all duration-700" style={{ width: `${Math.min(100, (selectedDate.macros.protein_g / targetProtein) * 100)}%` }} />
+                      <div className="h-2.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                        <div className="h-full bg-emerald-400 rounded-full transition-all duration-700" style={{ width: `${Math.min(100, (selectedDate.macros.protein_g / targetProtein) * 100)}%` }} />
                       </div>
                     </div>
 
                     {/* Carbs Bar */}
                     <div>
                       <div className="flex justify-between text-xs font-extrabold mb-1">
-                        <span className="text-sky-600 flex items-center gap-1">🔵 Carbs</span>
-                        <span className="text-slate-700">{formatMacro(selectedDate.macros.carb_g)}g / {targetCarbs}g</span>
+                        <span className="text-sky-400 flex items-center gap-1">🔵 Carbs</span>
+                        <span className="text-slate-300">{formatMacro(selectedDate.macros.carb_g)}g / {targetCarbs}g</span>
                       </div>
-                      <div className="h-2.5 w-full bg-slate-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-sky-500 rounded-full transition-all duration-700" style={{ width: `${Math.min(100, (selectedDate.macros.carb_g / targetCarbs) * 100)}%` }} />
+                      <div className="h-2.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                        <div className="h-full bg-sky-400 rounded-full transition-all duration-700" style={{ width: `${Math.min(100, (selectedDate.macros.carb_g / targetCarbs) * 100)}%` }} />
                       </div>
                     </div>
 
                     {/* Fiber Bar */}
                     <div>
                       <div className="flex justify-between text-xs font-extrabold mb-1">
-                        <span className="text-purple-600 flex items-center gap-1">🟣 Fiber</span>
-                        <span className="text-slate-700">{formatMacro(selectedDate.macros.fiber_g)}g / {targetFiber}g</span>
+                        <span className="text-purple-400 flex items-center gap-1">🟣 Fiber</span>
+                        <span className="text-slate-300">{formatMacro(selectedDate.macros.fiber_g)}g / {targetFiber}g</span>
                       </div>
-                      <div className="h-2.5 w-full bg-slate-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-purple-500 rounded-full transition-all duration-700" style={{ width: `${Math.min(100, (selectedDate.macros.fiber_g / targetFiber) * 100)}%` }} />
+                      <div className="h-2.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                        <div className="h-full bg-purple-400 rounded-full transition-all duration-700" style={{ width: `${Math.min(100, (selectedDate.macros.fiber_g / targetFiber) * 100)}%` }} />
                       </div>
                     </div>
 
                   </div>
                 </div>
 
-                {/* ── Reference App Style Individual Meal Cards ── */}
+                {/* ── Individual Meal Cards ── */}
                 <div className="space-y-4">
                   <span className="block text-xs uppercase font-extrabold text-slate-400 tracking-wider">Tracked Meals</span>
                   {['Breakfast', 'Morning Snack', 'Lunch', 'Evening Snack', 'Dinner', 'General'].map((mType) => {
@@ -553,21 +553,21 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
                     if (!mealLog) return null;
                     const emoji = mealTypesList.find(m => m.label === mType)?.emoji || '🍴';
                     return (
-                      <div key={mType} className="bg-white border border-slate-200 hover:border-orange-300 rounded-3xl p-5 transition duration-300 shadow-sm space-y-3">
-                        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                          <span className="text-base font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                      <div key={mType} className="bg-slate-900/60 border border-white/10 hover:border-teal-400/40 rounded-3xl p-5 transition duration-300 shadow-sm space-y-3">
+                        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                          <span className="text-base font-black text-white uppercase tracking-wider flex items-center gap-2">
                             <span className="text-xl">{emoji}</span> {mType}
                           </span>
-                          <span className="text-lg font-black text-orange-600 bg-orange-50 px-3.5 py-1 rounded-full border border-orange-200">
+                          <span className="text-lg font-black text-teal-400 bg-teal-500/10 px-3.5 py-1 rounded-full border border-teal-500/20">
                             {formatMacro(mealLog.calories)} kcal
                           </span>
                         </div>
-                        <p className="text-xs text-slate-700 leading-relaxed font-medium">{mealLog.text}</p>
-                        <div className="flex flex-wrap gap-4 text-xs text-slate-500 pt-2 font-mono border-t border-slate-100">
-                          <span>PRO: <strong className="text-emerald-600 font-extrabold">{formatMacro(mealLog.protein_g)}g</strong></span>
-                          <span>CARB: <strong className="text-sky-600 font-extrabold">{formatMacro(mealLog.carb_g)}g</strong></span>
-                          <span>FIB: <strong className="text-purple-600 font-extrabold">{formatMacro(mealLog.fiber_g)}g</strong></span>
-                          <span>FLG: <strong className="text-rose-600 font-extrabold">{formatMacro(mealLog.flagged_g)}g</strong></span>
+                        <p className="text-xs text-slate-300 leading-relaxed font-medium">{mealLog.text}</p>
+                        <div className="flex flex-wrap gap-4 text-xs text-slate-400 pt-2 font-mono border-t border-white/10">
+                          <span>PRO: <strong className="text-emerald-400 font-extrabold">{formatMacro(mealLog.protein_g)}g</strong></span>
+                          <span>CARB: <strong className="text-sky-400 font-extrabold">{formatMacro(mealLog.carb_g)}g</strong></span>
+                          <span>FIB: <strong className="text-purple-400 font-extrabold">{formatMacro(mealLog.fiber_g)}g</strong></span>
+                          <span>FLG: <strong className="text-rose-400 font-extrabold">{formatMacro(mealLog.flagged_g)}g</strong></span>
                         </div>
                       </div>
                     );
@@ -575,12 +575,12 @@ export default function DailyTrackerPage({ onLogSubmit, currentUser }) {
                 </div>
               </div>
             ) : (
-              <div className="text-center py-20 text-slate-400 text-xs relative z-10 bg-slate-50 rounded-3xl p-8 border border-slate-100">
-                <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white text-slate-400 mx-auto mb-4 border border-slate-200 shadow-sm">
-                  <Utensils className="h-8 w-8 text-orange-500" />
+              <div className="text-center py-20 text-slate-400 text-xs relative z-10 bg-slate-900/40 rounded-3xl p-8 border border-white/10">
+                <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-900 text-slate-400 mx-auto mb-4 border border-white/10 shadow-sm">
+                  <Utensils className="h-8 w-8 text-teal-400" />
                 </div>
-                <h4 className="text-lg font-bold text-slate-900 mb-1">No Food Logs Recorded</h4>
-                <p className="text-slate-500 max-w-sm mx-auto font-medium">
+                <h4 className="text-lg font-bold text-white mb-1">No Food Logs Recorded</h4>
+                <p className="text-slate-400 max-w-sm mx-auto font-medium">
                   {selectedDate?.date === localDateStr
                     ? 'Use the form on the left to log your meals for today and track your calories.'
                     : 'No food logs were recorded for this selected date.'}
