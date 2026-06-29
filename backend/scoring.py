@@ -231,29 +231,30 @@ def generate_optimized_diet_plan(metrics: Dict[str, Any], sex: str, active_issue
         
     protein_factor = max(0.8, min(1.8, protein_factor))
     
-    carb_factor = 3.0
+    # Calculate target calories directly from TDEE and Activity Level
     if needs_weight_loss:
-        carb_factor -= 0.5
-    if is_diabetic_risk:
-        carb_factor -= 0.7
-    if "fatty liver" in issues_lower:
-        carb_factor -= 0.5
+        total_cal = int(tdee * 0.85)  # Caloric deficit for healthy weight management
+    elif scores["body_fat_status"] == "Underfat":
+        total_cal = int(tdee * 1.10)  # Caloric surplus for healthy gain
+    else:
+        total_cal = int(tdee)  # Maintenance
         
-    carb_factor = max(1.5, min(4.0, carb_factor))
+    total_cal = max(1200, min(4500, total_cal))
     
-    fat_factor = 0.8
-    if has_cholesterol_risk:
-        fat_factor -= 0.2
-    if "fatty liver" in issues_lower:
-        fat_factor -= 0.1
-        
-    fat_factor = max(0.5, min(1.2, fat_factor))
-    
+    # Calculate macro distribution to align with total calories
     p_g = int(weight_kg * protein_factor)
-    c_g = int(weight_kg * carb_factor)
-    f_g = int(weight_kg * fat_factor)
+    p_cal = p_g * 4
+    rem_cal = max(400, total_cal - p_cal)
     
-    total_cal = int(p_g * 4 + c_g * 4 + f_g * 9)
+    if is_diabetic_risk or "fatty liver" in issues_lower:
+        c_g = int((rem_cal * 0.35) / 4)
+        f_g = int((rem_cal * 0.65) / 9)
+    elif has_cholesterol_risk:
+        c_g = int((rem_cal * 0.70) / 4)
+        f_g = int((rem_cal * 0.30) / 9)
+    else:
+        c_g = int((rem_cal * 0.55) / 4)
+        f_g = int((rem_cal * 0.45) / 9)
     
     meal_plan = generate_meal_options(total_cal, recommended_foods, avoid_foods, is_diabetic_risk, has_cholesterol_risk)
     
